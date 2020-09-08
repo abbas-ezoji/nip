@@ -1,0 +1,199 @@
+import csv
+from django.utils.html import format_html
+from django.contrib import admin
+from .models import *
+from django.http import HttpResponse
+
+
+class WorkSectionAdmin(admin.ModelAdmin):
+    list_display = ('Code', 'Title')
+    list_filter = ('Code', 'Title')
+
+
+class PersonnelTypesAdmin(admin.ModelAdmin):
+    list_display = ('Code', 'Title')
+    list_filter = ('Code', 'Title')
+
+
+class PersonnelShiftDateAssignmentsInline(admin.TabularInline):
+    # template = 'admin/edit_inline/tabular_personnelshiftdateassignments.html'
+    model = PersonnelShiftDateAssignments
+    extra = 0
+
+    def get_formset(self, request, obj=None, **kwargs):
+        """
+        Override the formset function in order to remove the add and change buttons beside the foreign key pull-down
+        menus in the inline.
+        """
+        formset = super(PersonnelShiftDateAssignmentsInline, self).get_formset(request, obj, **kwargs)
+        form = formset.form
+        widget = form.base_fields['Personnel'].widget
+        widget.can_add_related = False
+        widget.can_change_related = False
+        widget.can_delete_related = False
+        for d in range(1, 32):
+            day = 'D' + (str(d) if d > 9 else '0'+str(d))
+            widget = form.base_fields[day].widget
+            widget.can_add_related = False
+            widget.can_change_related = False
+            widget.can_delete_related = False
+        return formset
+
+
+class ShiftAssignmentsAdmin(admin.ModelAdmin):
+    list_display = ('WorkSection', 'YearWorkingPeriod', 'Rank', 'Cost', 'EndTime')
+    list_filter = ('WorkSection', 'YearWorkingPeriod', 'Rank')
+    inlines = [
+        PersonnelShiftDateAssignmentsInline,
+    ]
+
+    def get_ordering(self, request):
+        return ['WorkSection', 'YearWorkingPeriod', 'Rank']
+
+
+class ShiftsAdmin(admin.ModelAdmin):
+    # list_display = [field.name for field in Shifts._meta.get_fields()]
+    list_display = ('Code', 'Title', 'Length', 'type_colored',)
+    list_filter = ('Code', 'Title', 'Length',)
+
+    def type_colored(self, obj):
+        color_dict = {'0': 'white',
+                      '1': 'green',
+                      '2': 'red',
+                      '3': 'blue',
+                      '12': 'orange',
+                      '13': 'brown',
+                      '23': 'Purple',
+                      }
+
+        return format_html(
+            ''' <input style="background:{};"/> 
+                '''.format(color_dict.get(obj.Type)))
+
+
+class PersonnelAdmin(admin.ModelAdmin):
+    list_display = ('YearWorkingPeriod', 'WorkSection', 'PersonnelBaseId', 'FullName',
+                    'PersonnelTypes', 'RequirementWorkMins_esti', 'EfficiencyRolePoint')
+    list_filter = ('YearWorkingPeriod', 'WorkSection', 'PersonnelBaseId', 'FullName',
+                   'PersonnelTypes', 'RequirementWorkMins_esti', 'EfficiencyRolePoint')
+
+
+class PersonnelShiftDateAssignmentsAdmin(admin.ModelAdmin):
+    # list_display = [field.name for field in PersonnelShiftDateAssignments._meta.get_fields()]
+    list_display = ('shift_colored',)
+    list_filter = ('ShiftAssignment__WorkSection__Title', 'YearWorkingPeriod',
+                   'ShiftAssignment__Rank',)
+    actions = ["export_as_csv"]
+
+    def shift_colored(self, obj):
+        color_dict = {'0': 'white',
+                      '1': 'green',
+                      '2': 'red',
+                      '3': 'blue',
+                      '12': 'orange',
+                      '13': 'brown',
+                      '23': 'Purple',
+                      }
+
+        return format_html(
+            ''' <b>{}</b> <p>{}</p>
+                <td style="background:{};">{}</td>
+                <td style="background:{};">{}</td>
+                <td style="background:{};">{}</td>
+                <td style="background:{};">{}</td>
+                <td style="background:{};">{}</td>
+                <td style="background:{};">{}</td>
+                <td style="background:{};">{}</td>
+                <td style="background:{};">{}</td>
+                <td style="background:{};">{}</td>
+                <td style="background:{};">{}</td>
+                <td style="background:{};">{}</td>
+                <td style="background:{};">{}</td>
+                <td style="background:{};">{}</td>
+                <td style="background:{};">{}</td>
+                <td style="background:{};">{}</td>
+                <td style="background:{};">{}</td>
+                <td style="background:{};">{}</td>
+                <td style="background:{};">{}</td>
+                <td style="background:{};">{}</td>
+                <td style="background:{};">{}</td>
+                <td style="background:{};">{}</td>
+                <td style="background:{};">{}</td>
+                <td style="background:{};">{}</td>
+                <td style="background:{};">{}</td>
+                <td style="background:{};">{}</td>
+                <td style="background:{};">{}</td>
+                <td style="background:{};">{}</td>
+                <td style="background:{};">{}</td>
+                <td style="background:{};">{}</td>
+                <td style="background:{};">{}</td>                                
+            '''.format(obj.Personnel.FullName, obj.Personnel.PersonnelTypes.Title,
+                       color_dict.get(obj.D01.Type), obj.D01.Type,
+                       color_dict.get(obj.D02.Type), obj.D02.Type,
+                       color_dict.get(obj.D03.Type), obj.D03.Type,
+                       color_dict.get(obj.D04.Type), obj.D04.Type,
+                       color_dict.get(obj.D05.Type), obj.D05.Type,
+                       color_dict.get(obj.D06.Type), obj.D06.Type,
+                       color_dict.get(obj.D07.Type), obj.D07.Type,
+                       color_dict.get(obj.D08.Type), obj.D08.Type,
+                       color_dict.get(obj.D09.Type), obj.D09.Type,
+                       color_dict.get(obj.D10.Type), obj.D10.Type,
+                       color_dict.get(obj.D11.Type), obj.D11.Type,
+                       color_dict.get(obj.D12.Type), obj.D12.Type,
+                       color_dict.get(obj.D13.Type), obj.D13.Type,
+                       color_dict.get(obj.D14.Type), obj.D14.Type,
+                       color_dict.get(obj.D15.Type), obj.D15.Type,
+                       color_dict.get(obj.D16.Type), obj.D16.Type,
+                       color_dict.get(obj.D17.Type), obj.D17.Type,
+                       color_dict.get(obj.D18.Type), obj.D18.Type,
+                       color_dict.get(obj.D19.Type), obj.D19.Type,
+                       color_dict.get(obj.D20.Type), obj.D20.Type,
+                       color_dict.get(obj.D20.Type), obj.D20.Type,
+                       color_dict.get(obj.D22.Type), obj.D22.Type,
+                       color_dict.get(obj.D23.Type), obj.D23.Type,
+                       color_dict.get(obj.D24.Type), obj.D24.Type,
+                       color_dict.get(obj.D25.Type), obj.D25.Type,
+                       color_dict.get(obj.D26.Type), obj.D26.Type,
+                       color_dict.get(obj.D27.Type), obj.D27.Type,
+                       color_dict.get(obj.D28.Type), obj.D28.Type,
+                       color_dict.get(obj.D29.Type), obj.D29.Type,
+                       color_dict.get(obj.D30.Type), obj.D30.Type,
+                       )
+        )
+
+    def export_as_csv(self, request, queryset):
+        meta = self.model._meta
+        field_names = [field.name for field in meta.fields]
+
+        response = HttpResponse(content_type='text/pdf')
+        response['Content-Disposition'] = 'attachment; filename={}.csv'.format(meta)
+        writer = csv.writer(response)
+
+        writer.writerow(field_names)
+        for obj in queryset:
+            row = writer.writerow([getattr(obj, field) for field in field_names])
+
+        return response
+
+    export_as_csv.short_description = "خروجی اکسل"
+
+
+class WorkSectionRequirementsAdmin(admin.ModelAdmin):
+    list_display = ('WorkSection', 'PersonnelTypeReq', 'ShiftType', 'ReqMinCount', 'ReqMaxCount', )
+    list_filter = ('WorkSection__Title', 'ShiftType__Title',)
+
+
+class PersonnelLeavesAdmin(admin.ModelAdmin):
+    list_display = ('Personnel', 'YearWorkingPeriod', 'Day', )
+    list_filter = ('Personnel__WorkSection__Title', 'Personnel__FullName', 'YearWorkingPeriod', 'Day',)
+
+
+admin.site.register(WorkSection, WorkSectionAdmin)
+admin.site.register(PersonnelLeaves, PersonnelLeavesAdmin)
+admin.site.register(WorkSectionRequirements, WorkSectionRequirementsAdmin)
+admin.site.register(Shifts, ShiftsAdmin)
+admin.site.register(Personnel, PersonnelAdmin)
+admin.site.register(PersonnelTypes, PersonnelTypesAdmin)
+admin.site.register(ShiftAssignments, ShiftAssignmentsAdmin)
+admin.site.register(PersonnelShiftDateAssignments, PersonnelShiftDateAssignmentsAdmin)
+# admin.site.register(PersonnelShiftDateAssignments, PersonnelShiftDateAssignmentsAdmin)
