@@ -76,7 +76,7 @@ class Personnel(models.Model):
     RequirementWorkMins_real = models.IntegerField('زمان اختصاص داده شده', )
     PersonnelTypes = models.ForeignKey(PersonnelTypes, on_delete=models.CASCADE)
     EfficiencyRolePoint = models.IntegerField('امتیاز بهره وری', )
-    DiffNorm = models.IntegerField(null=True, blank=True)
+    DiffNorm = models.IntegerField(null=True, blank=True, editable=False)
 
     def __str__(self):
         return self.FullName + ' - ' + self.PersonnelTypes.Title
