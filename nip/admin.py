@@ -2,7 +2,8 @@ import csv
 from django.utils.html import format_html
 from django.contrib import admin
 from .models import *
-from django.http import HttpResponse
+from django.core.files.storage import FileSystemStorage
+from django.http import HttpResponse, HttpResponseNotFound
 
 
 class WorkSectionAdmin(admin.ModelAdmin):
@@ -32,7 +33,7 @@ class PersonnelShiftDateAssignmentsInline(admin.TabularInline):
         widget.can_change_related = False
         widget.can_delete_related = False
         for d in range(1, 32):
-            day = 'D' + (str(d) if d > 9 else '0'+str(d))
+            day = 'D' + (str(d) if d > 9 else '0' + str(d))
             widget = form.base_fields[day].widget
             widget.can_add_related = False
             widget.can_change_related = False
@@ -83,7 +84,6 @@ class PersonnelShiftDateAssignmentsAdmin(admin.ModelAdmin):
     list_display = ('shift_colored',)
     list_filter = ('ShiftAssignment__WorkSection__Title', 'YearWorkingPeriod',
                    'ShiftAssignment__Rank',)
-    actions = ["export_as_csv"]
 
     def shift_colored(self, obj):
         color_dict = {'0': 'white',
@@ -175,16 +175,37 @@ class PersonnelShiftDateAssignmentsAdmin(admin.ModelAdmin):
 
         return response
 
+    def export_as_pdf(self, request, queryset):
+        pass
+
+    def export_as_pdf(self, request, queryset):
+        fs = FileSystemStorage()
+        filename = 'mypdf.pdf'
+        if fs.exists(filename):
+            with fs.open(filename) as pdf:
+                response = HttpResponse(pdf, content_type='application/pdf')
+                response['Content-Disposition'] = 'attachment; filename="mypdf.pdf"'
+                return response
+        else:
+            return HttpResponseNotFound('The requested pdf was not found in our server.')
+
+    def export_as_chargoon(self, request, queryset):
+        pass
+
+    actions = ["export_as_csv", "export_as_pdf" ,"export_as_chargoon"]
+
     export_as_csv.short_description = "خروجی اکسل"
+    export_as_pdf.short_description = "گزارش pdf"
+    export_as_chargoon.short_description = "تایید و ارسال به دیدگاه"
 
 
 class WorkSectionRequirementsAdmin(admin.ModelAdmin):
-    list_display = ('WorkSection', 'PersonnelTypeReq', 'ShiftType', 'ReqMinCount', 'ReqMaxCount', )
+    list_display = ('WorkSection', 'PersonnelTypeReq', 'ShiftType', 'ReqMinCount', 'ReqMaxCount',)
     list_filter = ('WorkSection__Title', 'ShiftType__Title',)
 
 
 class PersonnelLeavesAdmin(admin.ModelAdmin):
-    list_display = ('Personnel', 'YearWorkingPeriod', 'Day', )
+    list_display = ('Personnel', 'YearWorkingPeriod', 'Day',)
     list_filter = ('Personnel__WorkSection__Title', 'Personnel__FullName', 'YearWorkingPeriod', 'Day',)
 
 

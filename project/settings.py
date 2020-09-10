@@ -86,7 +86,7 @@ DATABASES = {
     'default': {
         'NAME': 'nip',
         'ENGINE': 'sql_server.pyodbc',
-        'HOST': 'localhost',
+        'HOST': 'TUMS-NIP',
         'USER': 'sa',
         'PASSWORD': '1qaz!QAZ',
 
@@ -143,11 +143,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
+STATICFILES_DIR = [os.path.join(BASE_DIR, 'static'), ]
 document_root=STATIC_ROOT
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
-###################### jet settings ##########################3
+###################### jet settings ##########################
 
 # JET_INDEX_DASHBOARD = 'dashboard.CustomIndexDashboard'
 # JET_INDEX_DASHBOARD = 'jet.dashboard.dashboard.DefaultIndexDashboard'
