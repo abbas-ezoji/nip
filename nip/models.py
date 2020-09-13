@@ -36,6 +36,8 @@ class Dim_Date(models.Model):
 class WorkSection(models.Model):
     Code = models.CharField('کد', max_length=5)
     Title = models.CharField('عنوان', max_length=50)
+    ExternalId = models.IntegerField('شناسه دیدگاه', null=True, blank=True)
+    ExternalGuid = models.CharField('شناسه شاخص دیدگاه', max_length=60, null=True, blank=True)
 
     def __str__(self):
         return self.Title
@@ -59,6 +61,8 @@ class ShiftTypes(models.Model):
 class PersonnelTypes(models.Model):
     Code = models.CharField('کد', max_length=5)
     Title = models.CharField('عنوان', max_length=50)
+    ExternalId = models.IntegerField('شناسه دیدگاه', null=True, blank=True)
+    ExternalGuid = models.CharField('شناسه شاخص دیدگاه', max_length=60, null=True, blank=True)
 
     def __str__(self):
         return self.Title
@@ -77,6 +81,8 @@ class Personnel(models.Model):
     PersonnelTypes = models.ForeignKey(PersonnelTypes, on_delete=models.CASCADE)
     EfficiencyRolePoint = models.IntegerField('امتیاز بهره وری', )
     DiffNorm = models.IntegerField(null=True, blank=True, editable=False)
+    ExternalId = models.IntegerField('شناسه دیدگاه', null=True, blank=True)
+    ExternalGuid = models.CharField('شناسه شاخص دیدگاه', max_length=60, null=True, blank=True)
 
     def __str__(self):
         return self.FullName + ' - ' + self.PersonnelTypes.Title
@@ -92,6 +98,8 @@ class Shifts(models.Model):
     StartTime = models.IntegerField('شروع', )
     EndTime = models.IntegerField('پایان', )
     Type = models.CharField('نوع شیفت',  max_length=3, null=True, blank=True)
+    ExternalId = models.IntegerField('شناسه دیدگاه', null=True, blank=True)
+    ExternalGuid = models.CharField('شناسه شاخص دیدگاه', max_length=60, null=True, blank=True)
 
     def __str__(self):
         return self.Title
@@ -105,6 +113,8 @@ class PersonnelLeaves(models.Model):
     YearWorkingPeriod = models.IntegerField('سال-دوره', )
     Day = models.IntegerField('روز', )
     Value = models.IntegerField('مقدار', null=True, blank=True)
+    ExternalId = models.IntegerField('شناسه دیدگاه', null=True, blank=True)
+    ExternalGuid = models.CharField('شناسه شاخص دیدگاه', max_length=60, null=True, blank=True)
 
     def __str__(self):
         return self.Personnel.FullName + ' - ' + str(self.Day) + ' - ' + str(self.Value)
@@ -214,6 +224,8 @@ class tkp_Logs(models.Model):
     DayDisposition = models.IntegerField()
     YearWorkingPeriodId = models.IntegerField()
     LoginDayDisposition = models.IntegerField()
+    ExternalId = models.IntegerField('شناسه دیدگاه', null=True, blank=True)
+    ExternalGuid = models.CharField('شناسه شاخص دیدگاه', max_length=60, null=True, blank=True)
 
     def __str__(self):
         return self.Personnel + ' - ' + str(self.Date) + ' - ' + str(self.Login) + ' - ' + str(self.Logout)
