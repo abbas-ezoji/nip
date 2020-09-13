@@ -210,9 +210,26 @@ class PersonnelShiftDateAssignmentsAdmin(admin.ModelAdmin):
         return FileResponse(buffer, as_attachment=True, filename='hello.pdf')
 
     def export_as_chargoon(self, request, queryset):
-        pass
+        buffer = io.BytesIO()
+        p = canvas.Canvas(buffer)
 
-    actions = ["export_as_csv", "export_as_pdf" ,"export_as_chargoon"]
+        meta = self.model._meta
+        field_names = [field.name for field in meta.fields]
+
+        for i, obj in enumerate(queryset):
+            prs = str(field_names[0])
+            date = '1398'
+            for j, field in enumerate(field_names):
+                if j >= 8:
+                    prs_date_shift = prs + '-' + date + '-' + str(getattr(obj, field))
+                    p.drawString(10+(10 * j), 800 - (i * 10), prs_date_shift)
+
+            p.showPage()
+            p.save()
+            buffer.seek(0)
+            return FileResponse(buffer, as_attachment=True, filename='shift.pdf')
+
+    actions = ["export_as_csv", "export_as_pdf", "export_as_chargoon"]
 
     export_as_csv.short_description = "خروجی اکسل"
     export_as_pdf.short_description = "گزارش pdf"
