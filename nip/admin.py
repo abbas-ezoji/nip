@@ -2,8 +2,13 @@ import csv
 from django.utils.html import format_html
 from django.contrib import admin
 from .models import *
-from django.core.files.storage import FileSystemStorage
-from django.http import HttpResponse, HttpResponseNotFound
+
+import io
+from io import BytesIO
+from reportlab.pdfgen import canvas
+from django.http import HttpResponse
+from django.http import FileResponse
+from reportlab.pdfgen import canvas
 
 
 class WorkSectionAdmin(admin.ModelAdmin):
@@ -176,18 +181,33 @@ class PersonnelShiftDateAssignmentsAdmin(admin.ModelAdmin):
         return response
 
     def export_as_pdf(self, request, queryset):
-        pass
+        # Create a file-like buffer to receive PDF data.
+        buffer = io.BytesIO()
 
-    def export_as_pdf(self, request, queryset):
-        fs = FileSystemStorage()
-        filename = 'mypdf.pdf'
-        if fs.exists(filename):
-            with fs.open(filename) as pdf:
-                response = HttpResponse(pdf, content_type='application/pdf')
-                response['Content-Disposition'] = 'attachment; filename="mypdf.pdf"'
-                return response
-        else:
-            return HttpResponseNotFound('The requested pdf was not found in our server.')
+        # Create the PDF object, using the buffer as its "file."
+        p = canvas.Canvas(buffer)
+
+        # Draw things on the PDF. Here's where the PDF generation happens.
+        # See the ReportLab documentation for the full list of functionality.
+        meta = self.model._meta
+        field_names = [field.name for field in meta.fields]
+
+        # Start writing the PDF here
+        for i, obj in enumerate(queryset):
+            row = ''
+            for j, field in enumerate(field_names):
+                row += str(getattr(obj, field))
+            p.drawString(1, 800 - (i * 10), row)
+        # End writing
+
+        # Close the PDF object cleanly, and we're done.
+        p.showPage()
+        p.save()
+
+        # FileResponse sets the Content-Disposition header so that browsers
+        # present the option to save the file.
+        buffer.seek(0)
+        return FileResponse(buffer, as_attachment=True, filename='hello.pdf')
 
     def export_as_chargoon(self, request, queryset):
         pass
