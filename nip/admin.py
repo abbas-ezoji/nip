@@ -216,18 +216,26 @@ class PersonnelShiftDateAssignmentsAdmin(admin.ModelAdmin):
         meta = self.model._meta
         field_names = [field.name for field in meta.fields]
 
+        prs_date_shift_list=[]
         for i, obj in enumerate(queryset):
-            prs = str(field_names[0])
-            date = '1398'
+            prs_date_shift_id = str(getattr(obj, field_names[0]))
+            prs_date_shift = PersonnelShiftDateAssignments.objects.get(pk=prs_date_shift_id)
+            Personnel_id = getattr(prs_date_shift, 'Personnel_id')
+            year_period = getattr(prs_date_shift, 'YearWorkingPeriod')
             for j, field in enumerate(field_names):
-                if j >= 8:
-                    prs_date_shift = prs + '-' + date + '-' + str(getattr(obj, field))
-                    p.drawString(10+(10 * j), 800 - (i * 10), prs_date_shift)
+                if j > 3:
+                    shift = Shifts.objects.filter(Title=str(getattr(obj, field)))
+                    shift_id = shift[0].Code
+                    prs_date_shift_list.append([Personnel_id, year_period, j-3, shift_id])
 
-            p.showPage()
-            p.save()
-            buffer.seek(0)
-            return FileResponse(buffer, as_attachment=True, filename='shift.pdf')
+                    # prs_date_shift_str = str(Personnel_id)+'-' + str(year_period)+'-' + str(j-3)+'-' + str(shift_id)
+                    # p.drawString(10, 800 - ((i+1)*(j+1) * 10), prs_date_shift_str)
+
+
+        p.showPage()
+        p.save()
+        buffer.seek(0)
+        return FileResponse(buffer, as_attachment=True, filename='shift.pdf')
 
     actions = ["export_as_csv", "export_as_pdf", "export_as_chargoon"]
 
