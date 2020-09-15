@@ -18,12 +18,12 @@ from sqlalchemy import create_engine
 work_sction_id = 1
 year_working_period = 139806
 
-coh_day_req = 0.8         # coh for day requirements const
-prs_const = coh_prs = 0.2 # coh for personnel times
+coh_day_req = 0.999         # coh for day requirements const
+prs_const = coh_prs = 0.001 # coh for personnel times
 
 population_size=80
-generations=500
-max_const_count=0.2
+generations=200 
+max_const_count=0.3
 
 crossover_probability=0.2
 mutation_probability=0.8
@@ -31,7 +31,7 @@ elitism=False
 show_plot=True
 
 by_parent = True
-new = True
+new = False
 #-------------------------------------------------------
 PersianYear  = int(year_working_period / 100)
 PersianMonth = int(year_working_period % 100)
@@ -125,14 +125,15 @@ query_shift = '''SELECT [id] as Shift_id
 			 '''   
 query_shift_req = '''SELECT [PersianDayOfMonth] AS Day                          
                           ,[PersonnelTypeReq_id] as prs_typ_id
-                          ,[ShiftType_id] shift_type_id
+                          ,CAST(SHT.Code AS INT) shift_type_id
                           ,[ReqMinCount]
                           ,[ReqMaxCount]
                           ,[day_diff_typ]
                     FROM 
                     	[nip_WorkSectionRequirements] R
                     	JOIN nip_dim_date D ON D.PersianYear=R.Year
-                    	AND D.PersianMonth = R.Month                    	
+                    	AND D.PersianMonth = R.Month               
+						JOIN nip_shifttypes SHT ON SHT.ID = R.ShiftType_id              	
                     WHERE 
 						YEAR = {} AND Month = {}
                         AND WorkSection_id = {}
@@ -158,10 +159,12 @@ query_prs_req = '''SELECT  [Personnel_id]
                 '''.format(work_sction_id,year_working_period)
 
 query_prs__sht_req = '''SELECT [PersonnelTypeReq_id]
-                          ,[ShiftType_id]
+                          ,CAST(SHT.Code AS INT) [ShiftType_id]
                     	  ,[ReqMinCount]
                           ,[ReqMaxCount]
-                    FROM [nip].[dbo].[nip_worksectionrequirements]
+                    FROM 
+						[nip_worksectionrequirements] R
+						JOIN nip_shifttypes SHT ON SHT.ID = R.ShiftType_id
                     WHERE WorkSection_id = {}
                 '''.format(work_sction_id)
                      
@@ -306,7 +309,8 @@ for i, d in enumerate(leave_days):
 #------------------------ Consttraint day_const function for day -------------# 
 def calc_day_const(individual):
     row, col = individual.shape
-    sum_diffs = []    
+    diffs_sum = []    
+    diffs_max = [] 
     for d in range(col):
         prs_sht_req[:,4]=0
         for p in range(row):        
@@ -325,19 +329,20 @@ def calc_day_const(individual):
         diff_min = np.absolute(prs_sht_req[:,2]-prs_sht_req[:,4])
         diff_max = np.absolute(prs_sht_req[:,3]-prs_sht_req[:,4])
         diff = np.min((diff_min,diff_max), axis=0)
-        sum_diffs.append(np.sum(diff))
+        diffs_sum.append(np.sum(diff))
+        diffs_max.append(np.max(diff))
     
     max_err = len(prs_sht_req)*max(prs_sht_req[:,2]) * col
-    cost = sum(sum_diffs)/max_err
+    cost = (sum(diffs_sum)+sum(diffs_max))/max_err
 
     return cost
 
 #------------------------ Consttraint prs_const function for day -------------# 
 def calc_prs_const (ind_length):
     sum_shift = np.sum(ind_length, axis=1)
-    diff_mean = np.absolute(sum_shift - personnels[:,6])
+    diff_mean = np.absolute(sum_shift - personnels[:,5])
     
-    cost = np.mean(diff_mean/personnels[:,6])
+    cost = np.mean(diff_mean/personnels[:,5])
     
     return cost 
 #------------------------ Objective prs_req function for prs req -------------# 
@@ -360,10 +365,10 @@ def fitness (individual, meta_data):
         length = s[1]
         ind_length[ind_length==shift] = length
         
-    day_const = coh_day_req*calc_day_const(individual)
-    prs_const = coh_prs*calc_prs_const(ind_length)
+    const_day = coh_day_req*calc_day_const(individual)
+    const_prs = coh_prs*calc_prs_const(ind_length)
     prs_req_cost = calc_prs_req_cost(individual)
-    cost = day_const + prs_const
+    cost = const_day + const_prs
     return cost
 # -----------------------Define GA--------------------------------------------#        
 chromosom = np.array(chromosom_df.values, dtype=int)
@@ -468,11 +473,12 @@ cons_day = df[df['Length']>0].groupby(['Day',
                               prs_points = pd.NamedAgg(column='EfficiencyRolePoint', 
                                           aggfunc='sum'),
                             )
-                              
+                                                                                     
 cons_day = cons_day.join(typid_req_day,
-                          how='right') 
+                          how='right')
 
-cons_day.fillna(0,inplace=True)   
+cons_day.fillna(0,inplace=True) 
+  
 cons_day['diff_max'] = abs(cons_day['prs_count'] - cons_day['ReqMaxCount'])
 cons_day['diff_min'] = abs(cons_day['prs_count'] - cons_day['ReqMinCount'])  
 cons_day['diff'] = cons_day[['diff_max','diff_min']].apply(np.min, axis=1) 

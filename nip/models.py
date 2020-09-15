@@ -200,7 +200,7 @@ class ShiftConstDayRequirements(models.Model):
     ShiftAssignment = models.ForeignKey(ShiftAssignments, on_delete=models.CASCADE, null=True)
     Day = models.IntegerField('روز')
     PersonnelTypes = models.ForeignKey(PersonnelTypes, on_delete=models.DO_NOTHING)
-    ShiftTypes = models.ForeignKey(ShiftTypes, on_delete=models.DO_NOTHING)
+    ShiftTypes = models.IntegerField('نوع شیفت', db_column='ShiftTypes_id')
     PersonnelCount = models.IntegerField('تعدا پرسنل اختصاص داده شده')
     PersonnelPoints = models.IntegerField('مجموع امتیاز پرسنل')
     RequireMinCount = models.IntegerField('حداقل تعداد نیاز')
@@ -211,7 +211,7 @@ class ShiftConstDayRequirements(models.Model):
     DiffCount = models.IntegerField('اختلاف')
 
     def __str__(self):
-        return str(self.Day) + '-' + str(self.PersonnelTypes.Title) + '-' + str(self.ShiftTypes.Title)
+        return str(self.Day) + '-' + str(self.PersonnelTypes.Title) + '-' + str(self.ShiftTypes)
 
     class Meta:
         verbose_name_plural = 'نیازمندی روزانه'
