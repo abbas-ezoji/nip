@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 import datetime
 import time
-from data_access.sql_server import data 
+from data_access.sql_server import data
 from libs import GA_dataframes, GA_numpy 
 from libs.get_random import get_best_first_rank as get_rank
 from sqlalchemy.exc import SQLAlchemyError
@@ -22,8 +22,8 @@ coh_day_req = 0.8         # coh for day requirements const
 prs_const = coh_prs = 0.2 # coh for personnel times
 
 population_size=80
-generations=1000
-max_const_count=0.3
+generations=500
+max_const_count=0.2
 
 crossover_probability=0.2
 mutation_probability=0.8

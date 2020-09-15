@@ -198,17 +198,17 @@ class PersonnelShiftDateAssignments(models.Model):
 
 class ShiftConstDayRequirements(models.Model):
     ShiftAssignment = models.ForeignKey(ShiftAssignments, on_delete=models.CASCADE, null=True)
-    Day = models.IntegerField()
+    Day = models.IntegerField('روز')
     PersonnelTypes = models.ForeignKey(PersonnelTypes, on_delete=models.DO_NOTHING)
     ShiftTypes = models.ForeignKey(ShiftTypes, on_delete=models.DO_NOTHING)
-    PersonnelCount = models.IntegerField()
-    PersonnelPoints = models.IntegerField()
-    RequireMinCount = models.IntegerField()
-    RequireMaxCount = models.IntegerField()
+    PersonnelCount = models.IntegerField('تعدا پرسنل اختصاص داده شده')
+    PersonnelPoints = models.IntegerField('مجموع امتیاز پرسنل')
+    RequireMinCount = models.IntegerField('حداقل تعداد نیاز')
+    RequireMaxCount = models.IntegerField('حداکثر تعاد نیاز')
     RequireMeanCount = models.IntegerField(editable=False)
     DiffMinCount = models.IntegerField(editable=False)
     DiffMaxCount = models.IntegerField(editable=False)
-    DiffCount = models.IntegerField()
+    DiffCount = models.IntegerField('اختلاف')
 
     def __str__(self):
         return str(self.Day) + '-' + str(self.PersonnelTypes.Title) + '-' + str(self.ShiftTypes.Title)
@@ -221,11 +221,11 @@ class ShiftConstPersonnelTimes(models.Model):
     ShiftAssignment = models.ForeignKey(ShiftAssignments, on_delete=models.CASCADE, null=True)
     Personnel = models.ForeignKey(Personnel, on_delete=models.CASCADE)
     PersonnelTypes = models.ForeignKey(PersonnelTypes, on_delete=models.DO_NOTHING)
-    EfficiencyRolePoint = models.IntegerField()
-    RequireMinsEstimate = models.IntegerField()
-    ExtraForce = models.IntegerField(null=True)
-    AssignedTimes = models.IntegerField()
-    Diff = models.IntegerField()
+    EfficiencyRolePoint = models.IntegerField('امتیاز بهره وری')
+    RequireMinsEstimate = models.IntegerField('زمان نیاز بهره وری')
+    ExtraForce = models.IntegerField('مجمع زمان اجباری', null=True)
+    AssignedTimes = models.IntegerField('مقدار زمان اختصاص داده شده')
+    Diff = models.IntegerField('اختلاف')
 
     def __str__(self):
         return str(self.Personnel.FullName) + '-' + str(self.PersonnelTypes.Title) + '-' + str(self.EfficiencyRolePoint)
