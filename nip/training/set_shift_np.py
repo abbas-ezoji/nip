@@ -481,24 +481,4 @@ cons_day.sort_index(axis=0, level=[0,1,2], ascending=True, inplace=True)
 db.insert_cons_day(ShiftAssignment_id, cons_day)
 db.insert_cons_prs(ShiftAssignment_id, cons_prs)
 
-cons_prs.reset_index(inplace=True)
-cons_prs = cons_prs.drop(columns=['index', 'ShiftCode'])
-with sql_conn.connect() as con:
-    for index, t in cons_prs.iterrows():   
-        con.execute('''insert into [nip_shiftconstpersonneltimes]
-                                               ([Personnel_id]
-                                              ,[PersonnelTypes_id]
-                                              ,[EfficiencyRolePoint]
-                                              ,[RequireMinsEstimate]
-                                              ,[AssignedTimes]
-                                              ,[ExtraForce]
-                                              ,[Diff]                                                                          
-                                              ,[ShiftAssignment_id])                           
-                                               values ({}, {}, {}, {}, 
-                                                       {}, {}, {}, {})
-                                               '''.format(t[0],t[1], t[2], 
-                                                           t[3], t[4], t[5], t[6],                                              
-                                                          ShiftAssignment_id)
-                                                           )
-
 print('finished')
