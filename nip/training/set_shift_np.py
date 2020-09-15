@@ -23,7 +23,8 @@ prs_const = coh_prs = 0.2 # coh for personnel times
 
 population_size=80
 generations=1000
-max_const_count=0.2
+max_const_count=0.3
+
 crossover_probability=0.2
 mutation_probability=0.8
 elitism=False
@@ -285,8 +286,6 @@ diff_req_rec['diff_mean'] = (diff_req_rec['req_mean'] -
                             diff_req_rec['all_rec'] )/diff_req_rec['count_prs']
 #diff_req_rec = diff_req_rec.reset_index()
 
-
-
 diff=np.zeros((len(personnels),3), dtype=int)
 for i, p in enumerate(personnels):
     typ = p[3]
@@ -420,10 +419,12 @@ present_id = (str(work_sction_id)+'-'+str(year_working_period)+
 
 # ----------------------- inserting ------------------------------------------# 
 
-db.insert_sol(sol_df, personnel_df, 
-              sol_fitness,work_sction_id,year_working_period,
-              parent_rank,Rank, Cost, EndTime, UsedParentCount, present_id
-              )
+ShiftAssignment_id = db.insert_sol(sol_df, personnel_df, 
+                                  sol_fitness,work_sction_id,
+                                  year_working_period, parent_rank,
+                                  Rank, Cost, EndTime, UsedParentCount, 
+                                  present_id
+                                  )
 
 db.update_sps(work_sction_id, year_working_period, parent_rank)
 #-------------------- output show --------------------------------------------#
@@ -456,7 +457,8 @@ cons_prs = df.groupby(['Personnel_id',
                      ]).sum().drop(columns=['Shift_id', 'StartTime', 
                                             'EndTime', 'shift_type_id'])
 cons_prs = cons_prs.reset_index(level=3)
-cons_prs['diff'] = (cons_prs['Length'] - cons_prs['RequirementWorkMins_esti'])//60
+cons_prs['ExtraForce'] = personnels[:,6]
+cons_prs['diff'] = (cons_prs['Length'] - personnels[:,6])
 #########################################################
 cons_day = df[df['Length']>0].groupby(['Day',
                                        'prs_typ_id',
@@ -475,4 +477,28 @@ cons_day['diff_max'] = abs(cons_day['prs_count'] - cons_day['ReqMaxCount'])
 cons_day['diff_min'] = abs(cons_day['prs_count'] - cons_day['ReqMinCount'])  
 cons_day['diff'] = cons_day[['diff_max','diff_min']].apply(np.min, axis=1) 
 cons_day.sort_index(axis=0, level=[0,1,2], ascending=True, inplace=True)
+
+db.insert_cons_day(ShiftAssignment_id, cons_day)
+db.insert_cons_prs(ShiftAssignment_id, cons_prs)
+
+cons_prs.reset_index(inplace=True)
+cons_prs = cons_prs.drop(columns=['index', 'ShiftCode'])
+with sql_conn.connect() as con:
+    for index, t in cons_prs.iterrows():   
+        con.execute('''insert into [nip_shiftconstpersonneltimes]
+                                               ([Personnel_id]
+                                              ,[PersonnelTypes_id]
+                                              ,[EfficiencyRolePoint]
+                                              ,[RequireMinsEstimate]
+                                              ,[AssignedTimes]
+                                              ,[ExtraForce]
+                                              ,[Diff]                                                                          
+                                              ,[ShiftAssignment_id])                           
+                                               values ({}, {}, {}, {}, 
+                                                       {}, {}, {}, {})
+                                               '''.format(t[0],t[1], t[2], 
+                                                           t[3], t[4], t[5], t[6],                                              
+                                                          ShiftAssignment_id)
+                                                           )
+
 print('finished')

@@ -173,7 +173,55 @@ class data(object):
                                   year_working_period
                                   )
                 con.execute(insert_qry)  
+    
+        return ShiftAssignment_id
         
+    def insert_cons_day(self, ShiftAssignment_id, cons_day):
+        cons_day.reset_index(inplace=True)
+        
+        with self.engine.connect() as con:
+            for index, t in cons_day.iterrows():   
+                con.execute('''insert into [nip_shiftconstdayrequirements]
+                                       ([Day]
+                                      ,[PersonnelTypes_id] 
+                                      ,[ShiftTypes_id]                                                                                     
+                                      ,[PersonnelCount]
+                                      ,[PersonnelPoints]
+                                      ,[RequireMinCount]
+                                      ,[RequireMaxCount]
+                                      ,[RequireMeanCount]
+                                      ,[DiffMinCount]
+                                      ,[DiffMaxCount]
+                                      ,[DiffCount]
+                                      ,[ShiftAssignment_id])                           
+                                       values ({}, {}, {}, {}, {}, {},
+                                               {}, {}, {}, {}, {}, 
+                                               {})
+                                       '''.format(t[0],t[1], t[2], t[3], t[4], t[5],
+                                                  t[6],t[7], t[8], t[9], t[10], 
+                                                  ShiftAssignment_id)
+                                                   ) 
+    
+    def insert_cons_prs(self, ShiftAssignment_id, cons_prs):
+        cons_prs.reset_index(inplace=True)
+        cons_prs = cons_prs.drop(columns=['index', 'ShiftCode'])
+        with self.engine.connect() as con:
+            for index, t in cons_prs.iterrows():   
+                con.execute('''insert into [nip_shiftconstpersonneltimes]
+                                               ([Personnel_id]
+                                              ,[PersonnelTypes_id]
+                                              ,[EfficiencyRolePoint]
+                                              ,[RequireMinsEstimate]
+                                              ,[AssignedTimes]
+                                              ,[ExtraForce]
+                                              ,[Diff]                                                                          
+                                              ,[ShiftAssignment_id])                           
+                                               values ({}, {}, {}, {}, 
+                                                       {}, {}, {}, {})
+                                               '''.format(t[0],t[1], t[2], 
+                                                           t[3], t[4], t[5], t[6],                                              
+                                                          ShiftAssignment_id)
+                                                           ) 
 # =============================================================================
         # self.update_sps(work_sction_id, year_working_period, parent_rank)
 #          

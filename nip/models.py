@@ -196,6 +196,44 @@ class PersonnelShiftDateAssignments(models.Model):
         verbose_name_plural = 'شیفت پیشنهادی - جزئیات '
 
 
+class ShiftConstDayRequirements(models.Model):
+    ShiftAssignment = models.ForeignKey(ShiftAssignments, on_delete=models.CASCADE, null=True)
+    Day = models.IntegerField()
+    PersonnelTypes = models.ForeignKey(PersonnelTypes, on_delete=models.DO_NOTHING)
+    ShiftTypes = models.ForeignKey(ShiftTypes, on_delete=models.DO_NOTHING)
+    PersonnelCount = models.IntegerField()
+    PersonnelPoints = models.IntegerField()
+    RequireMinCount = models.IntegerField()
+    RequireMaxCount = models.IntegerField()
+    RequireMeanCount = models.IntegerField(editable=False)
+    DiffMinCount = models.IntegerField(editable=False)
+    DiffMaxCount = models.IntegerField(editable=False)
+    DiffCount = models.IntegerField()
+
+    def __str__(self):
+        return str(self.Day) + '-' + str(self.PersonnelTypes.Title) + '-' + str(self.ShiftTypes.Title)
+
+    class Meta:
+        verbose_name_plural = 'نیازمندی روزانه'
+
+
+class ShiftConstPersonnelTimes(models.Model):
+    ShiftAssignment = models.ForeignKey(ShiftAssignments, on_delete=models.CASCADE, null=True)
+    Personnel = models.ForeignKey(Personnel, on_delete=models.CASCADE)
+    PersonnelTypes = models.ForeignKey(PersonnelTypes, on_delete=models.DO_NOTHING)
+    EfficiencyRolePoint = models.IntegerField()
+    RequireMinsEstimate = models.IntegerField()
+    ExtraForce = models.IntegerField(null=True)
+    AssignedTimes = models.IntegerField()
+    Diff = models.IntegerField()
+
+    def __str__(self):
+        return str(self.Personnel.FullName) + '-' + str(self.PersonnelTypes.Title) + '-' + str(self.EfficiencyRolePoint)
+
+    class Meta:
+        verbose_name_plural = 'اختلاف زمانی پرسنل'
+
+
 class WorkSectionRequirements(models.Model):
     WorkSection = models.ForeignKey(WorkSection, on_delete=models.CASCADE)
     Year = models.IntegerField('سال', )
@@ -217,7 +255,7 @@ class WorkSectionRequirements(models.Model):
 
 
 class tkp_Logs(models.Model):
-    Personnel = models.ForeignKey(Personnel, on_delete=models.CASCADE)
+    Personnel = models.ForeignKey(Personnel, on_delete=models.DO_NOTHING)
     Date = models.DateField()
     Login = models.IntegerField()
     Logout = models.IntegerField()

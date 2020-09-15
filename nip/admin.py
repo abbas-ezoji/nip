@@ -12,7 +12,7 @@ from reportlab.pdfgen import canvas
 
 
 class WorkSectionAdmin(admin.ModelAdmin):
-    list_display = ('Code', 'Title')
+    list_display = ('Code', 'Title', 'ExternalId')
     list_filter = ('Code', 'Title')
 
 
@@ -22,7 +22,6 @@ class PersonnelTypesAdmin(admin.ModelAdmin):
 
 
 class PersonnelShiftDateAssignmentsInline(admin.TabularInline):
-    # template = 'admin/edit_inline/tabular_personnelshiftdateassignments.html'
     model = PersonnelShiftDateAssignments
     extra = 0
 
@@ -46,11 +45,48 @@ class PersonnelShiftDateAssignmentsInline(admin.TabularInline):
         return formset
 
 
+class ShiftConstDayRequirementsInline(admin.TabularInline):
+    model = ShiftConstDayRequirements
+    extra = 0
+
+    def get_formset(self, request, obj=None, **kwargs):
+        formset = super(ShiftConstDayRequirementsInline, self).get_formset(request, obj, **kwargs)
+        form = formset.form
+        widget = form.base_fields['PersonnelTypes'].widget
+        widget.can_add_related = False
+        widget.can_change_related = False
+        widget.can_delete_related = False
+
+        return formset
+
+
+class ShiftConstPersonnelTimesInline(admin.TabularInline):
+    model = ShiftConstPersonnelTimes
+    extra = 0
+
+    def get_formset(self, request, obj=None, **kwargs):
+        formset = super(ShiftConstPersonnelTimesInline, self).get_formset(request, obj, **kwargs)
+        form = formset.form
+        widget = form.base_fields['PersonnelTypes'].widget
+        widget.can_add_related = False
+        widget.can_change_related = False
+        widget.can_delete_related = False
+
+        widget = form.base_fields['Personnel'].widget
+        widget.can_add_related = False
+        widget.can_change_related = False
+        widget.can_delete_related = False
+
+        return formset
+
+
 class ShiftAssignmentsAdmin(admin.ModelAdmin):
     list_display = ('WorkSection', 'YearWorkingPeriod', 'Rank', 'Cost', 'EndTime')
     list_filter = ('WorkSection', 'YearWorkingPeriod', 'Rank')
     inlines = [
         PersonnelShiftDateAssignmentsInline,
+        ShiftConstDayRequirementsInline,
+        ShiftConstPersonnelTimesInline,
     ]
 
     def get_ordering(self, request):
@@ -59,7 +95,7 @@ class ShiftAssignmentsAdmin(admin.ModelAdmin):
 
 class ShiftsAdmin(admin.ModelAdmin):
     # list_display = [field.name for field in Shifts._meta.get_fields()]
-    list_display = ('Code', 'Title', 'Length', 'type_colored',)
+    list_display = ('Code', 'Title', 'Length', 'ExternalId', 'type_colored',)
     list_filter = ('Code', 'Title', 'Length',)
 
     def type_colored(self, obj):
@@ -216,7 +252,7 @@ class PersonnelShiftDateAssignmentsAdmin(admin.ModelAdmin):
         meta = self.model._meta
         field_names = [field.name for field in meta.fields]
 
-        prs_date_shift_list=[]
+        prs_date_shift_list = []
         for i, obj in enumerate(queryset):
             prs_date_shift_id = str(getattr(obj, field_names[0]))
             prs_date_shift = PersonnelShiftDateAssignments.objects.get(pk=prs_date_shift_id)
@@ -226,11 +262,10 @@ class PersonnelShiftDateAssignmentsAdmin(admin.ModelAdmin):
                 if j > 3:
                     shift = Shifts.objects.filter(Title=str(getattr(obj, field)))
                     shift_id = shift[0].Code
-                    prs_date_shift_list.append([Personnel_id, year_period, j-3, shift_id])
+                    prs_date_shift_list.append([Personnel_id, year_period, j - 3, shift_id])
 
                     # prs_date_shift_str = str(Personnel_id)+'-' + str(year_period)+'-' + str(j-3)+'-' + str(shift_id)
                     # p.drawString(10, 800 - ((i+1)*(j+1) * 10), prs_date_shift_str)
-
 
         p.showPage()
         p.save()
@@ -250,7 +285,7 @@ class WorkSectionRequirementsAdmin(admin.ModelAdmin):
 
 
 class PersonnelLeavesAdmin(admin.ModelAdmin):
-    list_display = ('Personnel', 'YearWorkingPeriod', 'Day',)
+    list_display = ('Personnel', 'YearWorkingPeriod', 'Day', 'ExternalId')
     list_filter = ('Personnel__WorkSection__Title', 'Personnel__FullName', 'YearWorkingPeriod', 'Day',)
 
 

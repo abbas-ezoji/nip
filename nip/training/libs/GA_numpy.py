@@ -128,16 +128,12 @@ class GeneticAlgorithm(object):
             row , col = parent.shape
             shift_list = np.flip(meta_data[:,0].tolist())
             for r in range(row):
-                if random.random()>0.95:
+                if random.random()>0.5:
                     mutate_index1 = random.randrange(1, col)
                     mutate_index2 = random.randrange(1, col)                
-                    parent[r,mutate_index1] = np.random.choice(shift_list,
-                                                 p=[0.0,0.0,0.0,
-                                                    0.05,0.15,0.35,0.45],
+                    parent[r,mutate_index1] = np.random.choice(shift_list,                                                
                                                  size=1)
-                    parent[r,mutate_index2] = np.random.choice(shift_list,
-                                                 p=[0.0,0.0,0.0,
-                                                    0.05,0.15,0.35,0.45],
+                    parent[r,mutate_index2] = np.random.choice(shift_list,                                                 
                                                  size=1)
         
         def create_individual(data,meta_data):  
