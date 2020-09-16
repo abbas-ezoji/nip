@@ -150,7 +150,7 @@ class ShiftAssignments(models.Model):
         return self.WorkSection.Title + str(self.YearWorkingPeriod) + ' -> ' + str(self.Rank)
 
     class Meta:
-        verbose_name_plural = 'شیفت پیشنهادی - آرشیو'
+        verbose_name_plural = 'شیفت پیشنهادی - جزئیات'
 
 
 class PersonnelShiftDateAssignments(models.Model):
@@ -193,7 +193,7 @@ class PersonnelShiftDateAssignments(models.Model):
         return self.Personnel.FullName
 
     class Meta:
-        verbose_name_plural = 'شیفت پیشنهادی - جزئیات '
+        verbose_name_plural = 'شیفت پیشنهادی - آرشیو '
 
 
 class ShiftConstDayRequirements(models.Model):
