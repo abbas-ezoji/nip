@@ -31,7 +31,7 @@ elitism=False
 show_plot=True
 
 by_parent = True
-new = False
+new = 0
 #-------------------------------------------------------
 PersianYear  = int(year_working_period / 100)
 PersianMonth = int(year_working_period % 100)

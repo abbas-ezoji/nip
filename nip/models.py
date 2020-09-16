@@ -97,7 +97,7 @@ class Shifts(models.Model):
     Length = models.IntegerField('میزان', )
     StartTime = models.IntegerField('شروع', )
     EndTime = models.IntegerField('پایان', )
-    Type = models.CharField('نوع شیفت',  max_length=3, null=True, blank=True)
+    Type = models.CharField('نوع شیفت', max_length=3, null=True, blank=True)
     ExternalId = models.IntegerField('شناسه دیدگاه', null=True, blank=True)
     ExternalGuid = models.CharField('شناسه شاخص دیدگاه', max_length=60, null=True, blank=True)
 
@@ -139,7 +139,7 @@ class PersonnelRequest(models.Model):
 
 class ShiftAssignments(models.Model):
     WorkSection = models.ForeignKey(WorkSection, on_delete=models.CASCADE)
-    YearWorkingPeriod = models.IntegerField('سال-دوره', editable=False )
+    YearWorkingPeriod = models.IntegerField('سال-دوره', editable=False)
     Rank = models.IntegerField('رتبه', )
     Cost = models.FloatField('هزینه', )
     EndTime = models.BigIntegerField('زمان تکمیل', null=True)
@@ -271,3 +271,39 @@ class tkp_Logs(models.Model):
     class Meta:
         verbose_name_plural = 'Time Logs'
 
+
+recommander_status = (
+    (0, ("بهینه سازی")),
+    (1, ("ایجاد جدید")),
+)
+
+task_status = (
+    (0, ("خاموش")),
+    (1, ("روشن")),
+    (2, ("بازیابی اطلاعات و اجرای مجدد")),
+)
+
+
+class ShiftRecommandManager(models.Model):
+    WorkSection = models.ForeignKey(WorkSection, on_delete=models.CASCADE)
+    YearWorkingPeriod = models.IntegerField('سال-دوره')
+    coh_const_DayRequirements = models.FloatField('ضریب قید نیاز روزانه')
+    coh_const_coh_PersonnelPerformanceTime = models.FloatField('ضریب قید نفرساعت بهره وری')
+    TaskStatus = models.IntegerField('وضعیت کل سیستم', choices=task_status, default=0)
+    RecommanderStatus = models.IntegerField('وضعیت پیشنهاددهنده', choices=recommander_status, default=0)
+    PopulationSize = models.IntegerField('تعداد جمعیت', default=80)
+    GenerationCount = models.IntegerField('تعداد نسل', default=200)
+    MaxFitConstRate = models.FloatField('حداکثر نرخ ثبات هزینه', default=0.3)
+    CrossoverProbability = models.FloatField('نرخ جستجوی محلی', default=0.3)
+    MutationProbability = models.FloatField('نرخ جستجوی غیرمحلی', default=0.3)
+    Elitism = models.BooleanField('نابغه گرایی', default=False)
+    ShowPlot = models.BooleanField('نمایش نمودار هزینه', default=False)
+    DevByParent = models.BooleanField('توسعه والد', default=True)
+
+    TaskLevelDone = models.IntegerField(default=0, editable=False)  # 0=(no fetch data from ERP) and 1=(fetched date and run recommander)
+
+    def __str__(self):
+        return self.WorkSection.Title + '-' + str(self.YearWorkingPeriod)
+
+    class Meta:
+        verbose_name_plural = 'مدیریت - سیستم هوشمند شیفت'

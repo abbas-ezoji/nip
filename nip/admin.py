@@ -120,10 +120,17 @@ class PersonnelAdmin(admin.ModelAdmin):
                    'PersonnelTypes', 'RequirementWorkMins_esti', 'EfficiencyRolePoint')
 
 
+class ShiftRecommandManagerAdmin(admin.ModelAdmin):
+    list_display = ('YearWorkingPeriod', 'WorkSection', 'coh_const_DayRequirements', 'coh_const_coh_PersonnelPerformanceTime',
+                    'TaskStatus', 'RecommanderStatus', )
+    list_filter = ('YearWorkingPeriod', 'WorkSection', 'TaskStatus', 'RecommanderStatus',)
+
+
+
 class PersonnelShiftDateAssignmentsAdmin(admin.ModelAdmin):
     # list_display = [field.name for field in PersonnelShiftDateAssignments._meta.get_fields()]
     list_display = ('shift_colored',)
-    list_filter = ('ShiftAssignment__WorkSection__Title', 'YearWorkingPeriod',
+    list_filter = ('ShiftAssignment__WorkSection', 'YearWorkingPeriod',
                    'ShiftAssignment__Rank',)
 
     def shift_colored(self, obj):
@@ -281,12 +288,12 @@ class PersonnelShiftDateAssignmentsAdmin(admin.ModelAdmin):
 
 class WorkSectionRequirementsAdmin(admin.ModelAdmin):
     list_display = ('WorkSection', 'PersonnelTypeReq', 'ShiftType', 'ReqMinCount', 'ReqMaxCount',)
-    list_filter = ('WorkSection__Title', 'ShiftType__Title',)
+    list_filter = ('WorkSection', 'ShiftType__Title',)
 
 
 class PersonnelLeavesAdmin(admin.ModelAdmin):
     list_display = ('Personnel', 'YearWorkingPeriod', 'Day', 'ExternalId')
-    list_filter = ('Personnel__WorkSection__Title', 'Personnel__FullName', 'YearWorkingPeriod', 'Day',)
+    list_filter = ('Personnel__WorkSection', 'Personnel__FullName', 'YearWorkingPeriod', 'Day',)
 
 
 admin.site.register(WorkSection, WorkSectionAdmin)
@@ -297,4 +304,4 @@ admin.site.register(Personnel, PersonnelAdmin)
 admin.site.register(PersonnelTypes, PersonnelTypesAdmin)
 admin.site.register(ShiftAssignments, ShiftAssignmentsAdmin)
 admin.site.register(PersonnelShiftDateAssignments, PersonnelShiftDateAssignmentsAdmin)
-# admin.site.register(PersonnelShiftDateAssignments, PersonnelShiftDateAssignmentsAdmin)
+admin.site.register(ShiftRecommandManager, ShiftRecommandManagerAdmin)
