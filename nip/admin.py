@@ -120,10 +120,10 @@ class PersonnelAdmin(admin.ModelAdmin):
                    'PersonnelTypes', 'RequirementWorkMins_esti', 'EfficiencyRolePoint')
 
 
-class ShiftRecommandManagerAdmin(admin.ModelAdmin):
+class ShiftRecommendManagerAdmin(admin.ModelAdmin):
     list_display = ('YearWorkingPeriod', 'WorkSection', 'coh_const_DayRequirements', 'coh_const_coh_PersonnelPerformanceTime',
-                    'TaskStatus', 'RecommanderStatus', )
-    list_filter = ('YearWorkingPeriod', 'WorkSection', 'TaskStatus', 'RecommanderStatus',)
+                    'TaskStatus', 'RecommenderStatus', )
+    list_filter = ('YearWorkingPeriod', 'WorkSection', 'TaskStatus', 'RecommenderStatus',)
 
 
 
@@ -304,4 +304,4 @@ admin.site.register(Personnel, PersonnelAdmin)
 admin.site.register(PersonnelTypes, PersonnelTypesAdmin)
 admin.site.register(ShiftAssignments, ShiftAssignmentsAdmin)
 admin.site.register(PersonnelShiftDateAssignments, PersonnelShiftDateAssignmentsAdmin)
-admin.site.register(ShiftRecommandManager, ShiftRecommandManagerAdmin)
+admin.site.register(ShiftRecommendManager, ShiftRecommendManagerAdmin)

@@ -272,7 +272,7 @@ class tkp_Logs(models.Model):
         verbose_name_plural = 'Time Logs'
 
 
-recommander_status = (
+recommender_status = (
     (0, ("بهینه سازی")),
     (1, ("ایجاد جدید")),
 )
@@ -284,13 +284,13 @@ task_status = (
 )
 
 
-class ShiftRecommandManager(models.Model):
+class ShiftRecommendManager(models.Model):
     WorkSection = models.ForeignKey(WorkSection, on_delete=models.CASCADE)
     YearWorkingPeriod = models.IntegerField('سال-دوره')
     coh_const_DayRequirements = models.FloatField('ضریب قید نیاز روزانه')
     coh_const_coh_PersonnelPerformanceTime = models.FloatField('ضریب قید نفرساعت بهره وری')
     TaskStatus = models.IntegerField('وضعیت کل سیستم', choices=task_status, default=0)
-    RecommanderStatus = models.IntegerField('وضعیت پیشنهاددهنده', choices=recommander_status, default=0)
+    RecommenderStatus = models.IntegerField('وضعیت پیشنهاددهنده', choices=recommender_status, default=0)
     PopulationSize = models.IntegerField('تعداد جمعیت', default=80)
     GenerationCount = models.IntegerField('تعداد نسل', default=200)
     MaxFitConstRate = models.FloatField('حداکثر نرخ ثبات هزینه', default=0.3)
@@ -300,7 +300,7 @@ class ShiftRecommandManager(models.Model):
     ShowPlot = models.BooleanField('نمایش نمودار هزینه', default=False)
     DevByParent = models.BooleanField('توسعه والد', default=True)
 
-    TaskLevelDone = models.IntegerField(default=0, editable=False)  # 0=(no fetch data from ERP) and 1=(fetched date and run recommander)
+    TaskLevelDone = models.IntegerField(default=0, editable=False)  # 0=(no fetch data from ERP) and 1=(fetched date and run recommender)
 
     def __str__(self):
         return self.WorkSection.Title + '-' + str(self.YearWorkingPeriod)
