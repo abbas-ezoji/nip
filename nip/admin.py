@@ -121,7 +121,7 @@ class PersonnelAdmin(admin.ModelAdmin):
 
 
 class ShiftRecommendManagerAdmin(admin.ModelAdmin):
-    list_display = ('YearWorkingPeriod', 'WorkSection', 'coh_const_DayRequirements', 'coh_const_coh_PersonnelPerformanceTime',
+    list_display = ('YearWorkingPeriod', 'WorkSection', 'coh_const_DayRequirements', 'coh_const_PersonnelPerformanceTime',
                     'TaskStatus', 'RecommenderStatus', )
     list_filter = ('YearWorkingPeriod', 'WorkSection', 'TaskStatus', 'RecommenderStatus',)
 

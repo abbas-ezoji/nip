@@ -12,7 +12,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from time import gmtime, strftime
 import matplotlib.pyplot as plt
-from libs.get_random import get_rollet_wheel as rollet
+from .get_random import get_rollet_wheel as rollet
 
 from six.moves import range
 

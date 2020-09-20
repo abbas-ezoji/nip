@@ -18,8 +18,8 @@ from sqlalchemy import create_engine
 work_sction_id = 1
 year_working_period = 139806
 
-coh_day_req = 0.999         # coh for day requirements const
-prs_const = coh_prs = 0.001 # coh for personnel times
+coh_day = 0.999         # coh for day requirements const
+coh_prs = 0.001         # coh for personnel times
 
 population_size=80
 generations=200 

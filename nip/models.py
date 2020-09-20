@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.html import format_html
 from django.contrib.auth.models import User
+from nip.tasks import set_shift_async
 
 
 class Dim_Date(models.Model):
@@ -288,7 +289,7 @@ class ShiftRecommendManager(models.Model):
     WorkSection = models.ForeignKey(WorkSection, on_delete=models.CASCADE)
     YearWorkingPeriod = models.IntegerField('سال-دوره')
     coh_const_DayRequirements = models.FloatField('ضریب قید نیاز روزانه')
-    coh_const_coh_PersonnelPerformanceTime = models.FloatField('ضریب قید نفرساعت بهره وری')
+    coh_const_PersonnelPerformanceTime = models.FloatField('ضریب قید نفرساعت بهره وری')
     TaskStatus = models.IntegerField('وضعیت کل سیستم', choices=task_status, default=0)
     RecommenderStatus = models.IntegerField('وضعیت پیشنهاددهنده', choices=recommender_status, default=0)
     PopulationSize = models.IntegerField('تعداد جمعیت', default=80)
@@ -299,11 +300,33 @@ class ShiftRecommendManager(models.Model):
     Elitism = models.BooleanField('نابغه گرایی', default=False)
     ShowPlot = models.BooleanField('نمایش نمودار هزینه', default=False)
     DevByParent = models.BooleanField('توسعه والد', default=True)
+    Comments = models.TextField('شرح', null=True, blank=True)
 
-    TaskLevelDone = models.IntegerField(default=0, editable=False)  # 0=(no fetch data from ERP) and 1=(fetched date and run recommender)
+    TaskLevelDone = models.IntegerField(default=0,
+                                        editable=False)  # 0=(no fetch data from ERP) and 1=(fetched date and run recommender)
 
     def __str__(self):
         return self.WorkSection.Title + '-' + str(self.YearWorkingPeriod)
 
     class Meta:
         verbose_name_plural = 'مدیریت - سیستم هوشمند شیفت'
+
+    def save(self, *args, **kwargs):
+        if not self.id:
+            super().save(*args, **kwargs)
+        if self.TaskStatus > 0:
+            self.Comments = set_shift_async(work_sction_id=self.WorkSection.id,
+                                                year_working_period=self.YearWorkingPeriod,
+                                                coh_day=self.coh_const_DayRequirements,
+                                                coh_prs=self.coh_const_PersonnelPerformanceTime,
+                                                population_size=self.PopulationSize,
+                                                generations=self.GenerationCount,
+                                                max_const_count=self.MaxFitConstRate,
+                                                crossover_probability=self.CrossoverProbability,
+                                                mutation_probability=self.MutationProbability,
+                                                elitism=self.Elitism,
+                                                show_plot=self.ShowPlot,
+                                                by_parent=self.DevByParent,
+                                                new=self.RecommenderStatus
+                                                )
+        super(ShiftRecommendManager, self).save(*args, **kwargs)

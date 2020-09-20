@@ -14,6 +14,7 @@ import os
 from django.utils.translation import ugettext_lazy as _
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__)))
 
 
 # Quick-start development settings - unsuitable for production
@@ -124,6 +125,13 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# CELERY STUFF
+BROKER_URL = 'redis://localhost:6379'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'Europe/London'
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
