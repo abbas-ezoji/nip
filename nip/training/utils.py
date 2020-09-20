@@ -79,7 +79,7 @@ class shift():
                                        NAME
                                        ))
     
-        query_gene_last = '''SELECT DISTINCT   
+        query_gene_last = '''SELECT TOP 1   
         
                                     [Rank]
                                    ,[Cost]      
@@ -90,6 +90,7 @@ class shift():
                                    ,[UsedParentCount]
                              FROM [nip_shiftassignments]                         
                              WHERE WorkSection_id = {0} AND YearWorkingPeriod = {1}                                
+                             ORDER BY [Rank]
                            '''.format(work_sction_id, year_working_period)
     
         parent_rank = get_rank(engine, query_gene_last)

@@ -10,7 +10,7 @@ coh_const_PersonnelPerformanceTime=0.001
 TaskStatus=1
 RecommenderStatus=0
 PopulationSize=80
-GenerationCount=60
+GenerationCount=500
 MaxFitConstRate=0.3
 CrossoverProbability=0.2
 MutationProbability=0.8
@@ -26,7 +26,7 @@ sh = utils.shift(work_sction_id = 1,
                 crossover_probability = 0.2,
                 mutation_probability = 0.8,
                 elitism = False,
-                show_plot = False,
+                show_plot = True,
                 by_parent = True,
                 new = 0)
 present_id = sh.set_shift()

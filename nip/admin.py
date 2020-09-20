@@ -64,7 +64,7 @@ class ShiftConstDayRequirementsInline(admin.TabularInline):
 class ShiftConstPersonnelTimesInline(admin.TabularInline):
     model = ShiftConstPersonnelTimes
     extra = 0
-    ordering = ("-EfficiencyRolePoint", "-Diff", )
+    ordering = ("-EfficiencyRolePoint", "PersonnelTypes", )
 
     def get_formset(self, request, obj=None, **kwargs):
         formset = super(ShiftConstPersonnelTimesInline, self).get_formset(request, obj, **kwargs)
