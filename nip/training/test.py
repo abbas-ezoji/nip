@@ -10,23 +10,26 @@ coh_const_PersonnelPerformanceTime=0.001
 TaskStatus=1
 RecommenderStatus=0
 PopulationSize=80
-GenerationCount=500
+GenerationCount=200
 MaxFitConstRate=0.3
 CrossoverProbability=0.2
 MutationProbability=0.8
+new = 1
 # DevByParent=on
 
-sh = utils.shift(work_sction_id = 1,
-                year_working_period = 139806,
-                coh_day = 0.999,            # coh for day requirements const
-                coh_prs = 0.001,            # coh for personnel times
-                population_size = 80,
-                generations = 200,
-                max_const_count = 0.3,
-                crossover_probability = 0.2,
-                mutation_probability = 0.8,
+sh = utils.shift(work_sction_id = WorkSection,
+                year_working_period = YearWorkingPeriod,
+                coh_day =coh_const_DayRequirements,
+                coh_prs = coh_const_PersonnelPerformanceTime,
+                population_size = PopulationSize,
+                generations = GenerationCount,
+                max_const_count = MaxFitConstRate,
+                crossover_probability = CrossoverProbability,
+                mutation_probability = MutationProbability,
                 elitism = False,
                 show_plot = True,
                 by_parent = True,
-                new = 0)
+                new = new)
+ppp = sh.get_present_id()
+
 present_id = sh.set_shift()

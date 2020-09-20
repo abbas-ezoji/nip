@@ -47,6 +47,17 @@ class shift():
         self.show_plot = show_plot
         self.by_parent = by_parent
         self.new = new
+        self.present_id = self.set_present_id()
+        
+    def set_present_id(self):
+        present_id = (str(self.work_sction_id) + '-' + str(self.year_working_period) +
+                      '-' + str(int(round(time.time() * 1000))))
+        self.present_id = present_id
+        return present_id
+    
+    def get_present_id(self):
+        
+        return self.present_id
 
     def set_shift(self):
         work_sction_id = self.work_sction_id
@@ -373,9 +384,14 @@ class shift():
         # ------------------------ Consttraint prs_const function for day -------------#
         def calc_prs_const(ind_length):
             sum_shift = np.sum(ind_length, axis=1)
-            diff_mean = np.absolute(sum_shift - personnels[:, 5])
+            diff = np.absolute(sum_shift - personnels[:, 5])
+            diff_max = np.max(diff)
+            diff_min = np.min(diff)
+            diff_range = (diff_max - diff_min) / diff_max
+            
+            diff_cost = np.mean(diff / personnels[:, 5])
     
-            cost = np.mean(diff_mean / personnels[:, 5])
+            cost = diff_cost + diff_range
     
             return cost
     
@@ -454,8 +470,7 @@ class shift():
         Cost = sol_fitness
         EndTime = int(round(time.time() * 1000))
         UsedParentCount = 0
-        present_id = (str(work_sction_id) + '-' + str(year_working_period) +
-                      '-' + str(int(round(time.time() * 1000))))
+        present_id = self.present_id
         #
         # sol_tbl = sol_tbl.drop(columns=['prs_typ_id',
         #                                'EfficiencyRolePoint',
@@ -500,8 +515,11 @@ class shift():
                                'EfficiencyRolePoint',
                                'RequirementWorkMins_esti',
     
-                               ]).sum().drop(columns=['Shift_id', 'StartTime',
-                                                      'EndTime', 'shift_type_id'])
+                               ]).sum().drop(columns=['Shift_id', 
+                                                      'StartTime',
+                                                      'EndTime', 
+                                                      'shift_type_id'])
+        
         cons_prs = cons_prs.reset_index(level=3)
         cons_prs['ExtraForce'] = personnels[:, 6]
         cons_prs['diff'] = (cons_prs['Length'] - personnels[:, 6])

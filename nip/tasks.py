@@ -23,6 +23,7 @@ def set_shift_async(work_sction_id, year_working_period, coh_day, coh_prs,
                      show_plot=show_plot,
                      by_parent=True,
                      new=new)
-    present_id = sh.set_shift()
+    present_id = sh.get_present_id()
+    sh.set_shift()
 
     return present_id
