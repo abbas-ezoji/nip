@@ -10,14 +10,14 @@ coh_const_PersonnelPerformanceTime=0.001
 TaskStatus=1
 RecommenderStatus=0
 PopulationSize=80
-GenerationCount=200
+GenerationCount=500
 MaxFitConstRate=0.3
 CrossoverProbability=0.2
 MutationProbability=0.8
 new = 1
 # DevByParent=on
 
-sh = utils.shift(work_sction_id = WorkSection,
+sh = utils.shift(work_section_id = WorkSection,
                 year_working_period = YearWorkingPeriod,
                 coh_day =coh_const_DayRequirements,
                 coh_prs = coh_const_PersonnelPerformanceTime,

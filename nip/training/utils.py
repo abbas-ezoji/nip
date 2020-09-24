@@ -19,22 +19,23 @@ from sqlalchemy import create_engine
 
 DATABASES = get_db()
 
+
 class shift():
     def __init__(self,
-            work_sction_id = 1,
-            year_working_period = 139806,
-            coh_day = 0.999,            # coh for day requirements const
-            coh_prs = 0.001,            # coh for personnel times
-            population_size = 80,
-            generations = 20,
-            max_const_count = 0.3,
-            crossover_probability = 0.2,
-            mutation_probability = 0.8,
-            elitism = False,
-            show_plot = False,
-            by_parent = True,
-            new = 0):
-        self.work_sction_id = work_sction_id
+                 work_section_id=1,
+                 year_working_period=139806,
+                 coh_day=0.999,  # coh for day requirements const
+                 coh_prs=0.001,  # coh for personnel times
+                 population_size=80,
+                 generations=20,
+                 max_const_count=0.3,
+                 crossover_probability=0.2,
+                 mutation_probability=0.8,
+                 elitism=False,
+                 show_plot=False,
+                 by_parent=True,
+                 new=0):
+        self.work_section_id = work_section_id
         self.year_working_period = year_working_period
         self.coh_day = coh_day
         self.coh_prs = coh_prs
@@ -48,19 +49,19 @@ class shift():
         self.by_parent = by_parent
         self.new = new
         self.present_id = self.set_present_id()
-        
+
     def set_present_id(self):
-        present_id = (str(self.work_sction_id) + '-' + str(self.year_working_period) +
+        present_id = (str(self.work_section_id) + '-' + str(self.year_working_period) +
                       '-' + str(int(round(time.time() * 1000))))
         self.present_id = present_id
         return present_id
-    
+
     def get_present_id(self):
-        
+
         return self.present_id
 
     def set_shift(self):
-        work_sction_id = self.work_sction_id
+        work_section_id = self.work_section_id
         year_working_period = self.year_working_period
         coh_day = self.coh_day
         coh_prs = self.coh_prs
@@ -68,7 +69,7 @@ class shift():
         generations = self.generations
         max_const_count = self.max_const_count
         crossover_probability = self.crossover_probability
-        mutation_probability =self. mutation_probability
+        mutation_probability = self.mutation_probability
         elitism = self.elitism
         show_plot = self.show_plot
         by_parent = self.by_parent
@@ -82,14 +83,14 @@ class shift():
         HOST = DATABASES['default']['HOST']
         # PORT = DATABASES['default']['PORT']
         NAME = DATABASES['default']['NAME']
-    
+
         engine = create_engine('mssql+pyodbc://{}:{}@{}/{}?driver=SQL+Server' \
                                .format(USER,
                                        PASSWORD,
                                        HOST,
                                        NAME
                                        ))
-    
+
         query_gene_last = '''SELECT TOP 1   
         
                                     [Rank]
@@ -102,10 +103,10 @@ class shift():
                              FROM [nip_shiftassignments]                         
                              WHERE WorkSection_id = {0} AND YearWorkingPeriod = {1}                                
                              ORDER BY [Rank]
-                           '''.format(work_sction_id, year_working_period)
-    
+                           '''.format(work_section_id, year_working_period)
+
         parent_rank = get_rank(engine, query_gene_last)
-    
+
         query_gene_last = '''SELECT st.[Personnel_id]
                               ,st.[YearWorkingPeriod]
                               ,[D01],[D02],[D03],[D04],[D05],[D06]
@@ -121,10 +122,10 @@ class shift():
                                 WorkSection_id = {0}                      
                                 AND S.YearWorkingPeriod = {1}   
                                 AND S.RANK = {2}
-                         '''.format(work_sction_id,
+                         '''.format(work_section_id,
                                     year_working_period,
                                     parent_rank)
-    
+
         query_gene_new = '''SELECT 
                                  p.id Personnel_id     					 
                                 ,YearWorkingPeriod
@@ -134,8 +135,8 @@ class shift():
                                 nip_Personnel P JOIN
                                 nip_Dim_Date D ON D.PersianYear = {0} 
                                 AND PersianMonth={1} and WorkSection_id = {2}
-                          '''.format(PersianYear, PersianMonth, work_sction_id)
-    
+                          '''.format(PersianYear, PersianMonth, work_section_id)
+
         query_personnel = '''SELECT  id [Personnel_id]
                                     ,[WorkSection_id]
                                     ,[YearWorkingPeriod]
@@ -146,16 +147,16 @@ class shift():
                                     ,[DiffNorm]
                             FROM [nip_Personnel]
                             WHERE WorkSection_id = {0} AND YearWorkingPeriod = {1}
-                          '''.format(work_sction_id, year_working_period)
-    
+                          '''.format(work_section_id, year_working_period)
+
         query_leaves = '''SELECT P.[YearWorkingPeriod]
                               ,[Day]      
                               ,[Personnel_id]
                           FROM [nip_personnelleaves] l join 
                              [nip_personnel] p on p.id=l.Personnel_id
                           WHERE P.WorkSection_id = {} AND P.YearWorkingPeriod = {}
-                          '''.format(work_sction_id, year_working_period)
-    
+                          '''.format(work_section_id, year_working_period)
+
         query_shift = '''SELECT [id] as Shift_id
                              ,Code ShiftCode
                              ,[Title]
@@ -183,7 +184,7 @@ class shift():
                                 WorkSection_id,D.PersianDate
                                 ,PersonnelTypeReq_id,ShiftType_id                        
         
-                          '''.format(PersianYear, PersianMonth, work_sction_id)
+                          '''.format(PersianYear, PersianMonth, work_section_id)
         query_prs_req = '''SELECT  [Personnel_id] 
                                   ,p.[YearWorkingPeriod]
                                   ,p.[WorkSection_id]
@@ -198,8 +199,8 @@ class shift():
                                   ,p.[YearWorkingPeriod]
                                   ,[Day]
                                   ,[ShiftType_id]
-                        '''.format(work_sction_id, year_working_period)
-    
+                        '''.format(work_section_id, year_working_period)
+
         query_prs__sht_req = '''SELECT [PersonnelTypeReq_id]
                                   ,CAST(SHT.Code AS INT) [ShiftType_id]
                                   ,[ReqMinCount]
@@ -208,8 +209,8 @@ class shift():
                                 [nip_worksectionrequirements] R
                                 JOIN nip_shifttypes SHT ON SHT.ID = R.ShiftType_id
                             WHERE WorkSection_id = {}
-                        '''.format(work_sction_id)
-    
+                        '''.format(work_section_id)
+
         db = data(engine=engine,
                   query_gene_last=query_gene_last,
                   query_gene_new=query_gene_new,
@@ -221,8 +222,8 @@ class shift():
                   query_prs__sht_req=query_prs__sht_req
                   )
         sql_conn = db.get_sql_conn()
-    
-        chromosom_df = pd.DataFrame(db.get_chromosom(work_sction_id,
+
+        chromosom_df = pd.DataFrame(db.get_chromosom(work_section_id,
                                                      year_working_period, new))
         personnel_df = pd.DataFrame(db.get_personnel())
         leaves_df = pd.DataFrame(db.get_leaves())
@@ -232,7 +233,7 @@ class shift():
         day_req_df = pd.DataFrame(db.get_day_req())
         prs_req_df = pd.DataFrame(db.get_prs_req())
         prs_sht_req_df = pd.DataFrame(db.get_prs__sht_req())
-    
+
         is_new = db.is_new()
         # ----------------------- gene pivoted ---------------------------------------#
         chromosom_df = chromosom_df.merge(personnel_df,
@@ -270,7 +271,7 @@ class shift():
                                                  'RequirementWorkMins_esti'
                                                  ],
                                           columns=['Day'], aggfunc=np.sum)
-    
+
             shift_list = np.flip(shifts[:, 0].tolist())
             for prs in chromosom_df.index:
                 chromosom_df.loc[prs] = np.random.choice(shift_list,
@@ -330,16 +331,16 @@ class shift():
         diff_req_rec['diff_mean'] = (diff_req_rec['req_mean'] -
                                      diff_req_rec['all_rec']) / diff_req_rec['count_prs']
         # diff_req_rec = diff_req_rec.reset_index()
-    
+
         diff = np.zeros((len(personnels), 3), dtype=int)
         for i, p in enumerate(personnels):
             typ = p[3]
             diff[i, 0] = personnels[i, 2] + diff_req_rec.loc[typ, 'diff_min']
             diff[i, 1] = personnels[i, 2] + diff_req_rec.loc[typ, 'diff_max']
             diff[i, 2] = personnels[i, 2] + diff_req_rec.loc[typ, 'diff_mean']
-    
+
         personnels = np.append(personnels, diff, 1)
-    
+
         leave_days = list(leaves_df['Day'])
         leave_prs = list(leaves_df['Personnel_id'])
         leaves = np.ones((len(leave_days), 2), dtype=int)
@@ -347,8 +348,7 @@ class shift():
             prs = leave_prs[i]
             leaves[i, 1] = d - 1
             leaves[i, 0] = personnels[personnels[:, 1] == prs][0, 0]
-    
-    
+
         # ------------------------ Consttraint day_const function for day -------------#
         def calc_day_const(individual):
             row, col = individual.shape
@@ -361,7 +361,7 @@ class shift():
                     prs_typ = personnels[p, 3]
                     typ1 = shift % 10
                     typ2 = shift // 10
-    
+
                     req1 = np.where((prs_sht_req[:, 0] == prs_typ) &
                                     (prs_sht_req[:, 1] == typ1))
                     prs_sht_req[req1, 4] += 1
@@ -374,13 +374,12 @@ class shift():
                 diff = np.min((diff_min, diff_max), axis=0)
                 diffs_sum.append(np.sum(diff))
                 diffs_max.append(np.max(diff))
-    
+
             max_err = len(prs_sht_req) * max(prs_sht_req[:, 2]) * col
             cost = (sum(diffs_sum) + sum(diffs_max)) / max_err
-    
+
             return cost
-    
-    
+
         # ------------------------ Consttraint prs_const function for day -------------#
         def calc_prs_const(ind_length):
             sum_shift = np.sum(ind_length, axis=1)
@@ -388,29 +387,26 @@ class shift():
             diff_max = np.max(diff)
             diff_min = np.min(diff)
             diff_range = (diff_max - diff_min) / diff_max
-            
+
             diff_cost = np.mean(diff / personnels[:, 5])
-    
+
             cost = diff_cost + diff_range
-    
+
             return cost
-    
-    
+
         # ------------------------ Objective prs_req function for prs req -------------#
         def calc_prs_req_cost(ind_length):
             cost = 0
-    
+
             return cost
-    
-    
+
         # ------------------------ SET Constraints functions --------------------------#
         def set_off_force(individual):
             for l in leaves:
                 individual[l[0], l[1]] = 4
-    
+
             return individual
-    
-    
+
         # ----------------------- fitness all ----------------------------------------#
         def fitness(individual, meta_data):
             individual = set_off_force(individual)
@@ -419,14 +415,13 @@ class shift():
                 shift = s[0]
                 length = s[1]
                 ind_length[ind_length == shift] = length
-    
+
             const_day = coh_day * calc_day_const(individual)
             const_prs = coh_prs * calc_prs_const(ind_length)
             prs_req_cost = calc_prs_req_cost(individual)
             cost = const_day + const_prs
             return cost
-    
-    
+
         # -----------------------Define GA--------------------------------------------#
         chromosom = np.array(chromosom_df.values, dtype=int)
         ga = GA_numpy.GeneticAlgorithm(seed_data=chromosom,
@@ -442,12 +437,12 @@ class shift():
                                        initial_elit_prob=0.5,
                                        initial_random_prob=0.5,
                                        show_plot=show_plot)
-    
+
         # ----------------------- run ga --------------------------------------------#
         ga.fitness_function = fitness  # set the GA's fitness function
         start_time = time.gmtime()
         ga.run()  # run the GA
-    
+
         end_time = time.gmtime()
         time_consum_hour = end_time[3] - start_time[3]
         time_consum_minute = end_time[4] - start_time[4]
@@ -457,15 +452,15 @@ class shift():
               str(time_consum_second)
               )
         sol_fitness, sol = ga.best_individual()
-    
+
         sol_df = chromosom_df.copy()
         days = range(31)
         for day in days:
             sol_df[day + 1] = sol[:, day]
-    
+
         sol_tbl = sol_df.stack()
         sol_tbl = sol_tbl.reset_index()
-    
+
         Rank = 1
         Cost = sol_fitness
         EndTime = int(round(time.time() * 1000))
@@ -477,17 +472,17 @@ class shift():
         #                                'RequirementWorkMins_esti'])
         # sol_tbl = sol_tbl.astype(int)
         # sol_tbl = sol_tbl.values.tolist()
-    
+
         # ----------------------- inserting ------------------------------------------#
-    
+
         ShiftAssignment_id = db.insert_sol(sol_df, personnel_df,
-                                           sol_fitness, work_sction_id,
+                                           sol_fitness, work_section_id,
                                            year_working_period, parent_rank,
                                            Rank, Cost, EndTime, UsedParentCount,
                                            present_id
                                            )
-    
-        db.update_sps(work_sction_id, year_working_period, parent_rank)
+
+        db.update_sps(work_section_id, year_working_period, parent_rank)
         # -------------------- output show --------------------------------------------#
         ########################################################
         sht = shift_df.reset_index()
@@ -504,7 +499,7 @@ class shift():
                               'prs_typ_id',
                               'EfficiencyRolePoint',
                               'RequirementWorkMins_esti',
-    
+
                               ],
                      var_name='Day',
                      value_name='Shift_id')
@@ -514,12 +509,12 @@ class shift():
                                'prs_typ_id',
                                'EfficiencyRolePoint',
                                'RequirementWorkMins_esti',
-    
-                               ]).sum().drop(columns=['Shift_id', 
+
+                               ]).sum().drop(columns=['Shift_id',
                                                       'StartTime',
-                                                      'EndTime', 
+                                                      'EndTime',
                                                       'shift_type_id'])
-        
+
         cons_prs = cons_prs.reset_index(level=3)
         cons_prs['ExtraForce'] = personnels[:, 6]
         cons_prs['diff'] = (cons_prs['Length'] - personnels[:, 6])
@@ -532,19 +527,18 @@ class shift():
             prs_points=pd.NamedAgg(column='EfficiencyRolePoint',
                                    aggfunc='sum'),
         )
-    
+
         cons_day = cons_day.join(typid_req_day,
                                  how='right')
-    
+
         cons_day.fillna(0, inplace=True)
-    
+
         cons_day['diff_max'] = abs(cons_day['prs_count'] - cons_day['ReqMaxCount'])
         cons_day['diff_min'] = abs(cons_day['prs_count'] - cons_day['ReqMinCount'])
         cons_day['diff'] = cons_day[['diff_max', 'diff_min']].apply(np.min, axis=1)
         cons_day.sort_index(axis=0, level=[0, 1, 2], ascending=True, inplace=True)
-    
+
         db.insert_cons_day(ShiftAssignment_id, cons_day)
         db.insert_cons_prs(ShiftAssignment_id, cons_prs)
-    
-        return present_id
 
+        return present_id

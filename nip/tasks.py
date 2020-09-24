@@ -1,16 +1,25 @@
-from celery.decorators import task
+from __future__ import absolute_import, unicode_literals
+
 import sys
+
 sys.path.insert(0, "D:\\nip_project\\nip\\training")
-
 from .training import utils
+from celery import task
+from celery.utils.log import get_task_logger
+
+logger = get_task_logger(__name__)
 
 
-@task(name="set_shift")
-def set_shift_async(work_sction_id, year_working_period, coh_day, coh_prs,
+@task(bind=True, name="test")
+def test(self, a, b):
+    return a + b
+
+
+@task(bind=True, name="set_shift")
+def set_shift_async(self, work_section_id, year_working_period, coh_day, coh_prs,
                     population_size, generations, max_const_count, crossover_probability,
                     mutation_probability, elitism, show_plot, by_parent, new):
-    
-    sh = utils.shift(work_sction_id=work_sction_id,
+    sh = utils.shift(work_section_id=work_section_id,
                      year_working_period=year_working_period,
                      coh_day=coh_day,
                      coh_prs=coh_prs,
@@ -24,6 +33,11 @@ def set_shift_async(work_sction_id, year_working_period, coh_day, coh_prs,
                      by_parent=True,
                      new=new)
     present_id = sh.get_present_id()
-    sh.set_shift()
+    logger.info(f"present_id={present_id}, WorkSection={work_section_id}, YearWorkingPeriod={year_working_period}")
+    try:
+        logger.info("Start:")
+        sh.set_shift()
+    except Exception as e:
+        logger.error(e)
 
     return present_id

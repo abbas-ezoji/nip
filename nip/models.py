@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils.html import format_html
 from django.contrib.auth.models import User
-from nip.tasks import set_shift_async
+from nip.tasks import set_shift_async, test
 
 
 class Dim_Date(models.Model):
@@ -315,18 +315,19 @@ class ShiftRecommendManager(models.Model):
         if not self.id:
             super().save(*args, **kwargs)
         if self.TaskStatus > 0:
-            self.Comments = set_shift_async(work_sction_id=self.WorkSection.id,
-                                                year_working_period=self.YearWorkingPeriod,
-                                                coh_day=self.coh_const_DayRequirements,
-                                                coh_prs=self.coh_const_PersonnelPerformanceTime,
-                                                population_size=self.PopulationSize,
-                                                generations=self.GenerationCount,
-                                                max_const_count=self.MaxFitConstRate,
-                                                crossover_probability=self.CrossoverProbability,
-                                                mutation_probability=self.MutationProbability,
-                                                elitism=self.Elitism,
-                                                show_plot=self.ShowPlot,
-                                                by_parent=self.DevByParent,
-                                                new=self.RecommenderStatus
-                                                )
+            # test.delay(1, 2)
+            self.Comments = set_shift_async.delay(self.WorkSection.id,
+                                                  self.YearWorkingPeriod,
+                                                  self.coh_const_DayRequirements,
+                                                  self.coh_const_PersonnelPerformanceTime,
+                                                  self.PopulationSize,
+                                                  self.GenerationCount,
+                                                  self.MaxFitConstRate,
+                                                  self.CrossoverProbability,
+                                                  self.MutationProbability,
+                                                  self.Elitism,
+                                                  self.ShowPlot,
+                                                  self.DevByParent,
+                                                  self.RecommenderStatus
+                                                  )
         super(ShiftRecommendManager, self).save(*args, **kwargs)
