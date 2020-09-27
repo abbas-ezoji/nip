@@ -89,7 +89,7 @@ DATABASES = {
         'ENGINE': 'sql_server.pyodbc',
         'HOST': 'TUMS-NIP',
         'USER': 'sa',
-        'PASSWORD': '1qaz!QAZ',
+        'PASSWORD': 'VI?9NHuvpj',
 
         'OPTIONS': {
                     'driver': 'SQL Server Native Client 11.0',

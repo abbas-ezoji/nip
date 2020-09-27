@@ -116,9 +116,9 @@ class ShiftsAdmin(admin.ModelAdmin):
 
 
 class PersonnelAdmin(admin.ModelAdmin):
-    list_display = ('YearWorkingPeriod', 'WorkSection', 'PersonnelBaseId', 'FullName',
+    list_display = ('YearWorkingPeriod', 'WorkSection', 'PersonnelNo', 'FullName',
                     'PersonnelTypes', 'RequirementWorkMins_esti', 'EfficiencyRolePoint')
-    list_filter = ('YearWorkingPeriod', 'WorkSection', 'PersonnelBaseId', 'FullName',
+    list_filter = ('YearWorkingPeriod', 'WorkSection', 'PersonnelNo', 'FullName',
                    'PersonnelTypes', 'RequirementWorkMins_esti', 'EfficiencyRolePoint')
 
 
@@ -128,6 +128,9 @@ class ShiftRecommendManagerAdmin(admin.ModelAdmin):
     list_filter = ('YearWorkingPeriod', 'WorkSection', 'TaskStatus', 'RecommenderStatus',)
 
 
+def zero_pad(num):
+
+    return str(num) if num//10 else '0'+str(num)
 
 class PersonnelShiftDateAssignmentsAdmin(admin.ModelAdmin):
     # list_display = [field.name for field in PersonnelShiftDateAssignments._meta.get_fields()]
@@ -266,15 +269,21 @@ class PersonnelShiftDateAssignmentsAdmin(admin.ModelAdmin):
             prs_date_shift_id = str(getattr(obj, field_names[0]))
             prs_date_shift = PersonnelShiftDateAssignments.objects.get(pk=prs_date_shift_id)
             Personnel_id = getattr(prs_date_shift, 'Personnel_id')
+            personnel = Personnel.objects.filter(id=Personnel_id)
+            PersonnelBaseId = personnel[0].ExternalId
             year_period = getattr(prs_date_shift, 'YearWorkingPeriod')
+            year_month = str(year_period//100)+'/'+zero_pad(year_period%100)+'/'
             for j, field in enumerate(field_names):
                 if j > 3:
                     shift = Shifts.objects.filter(Title=str(getattr(obj, field)))
-                    shift_id = shift[0].Code
-                    prs_date_shift_list.append([Personnel_id, year_period, j - 3, shift_id])
+                    shift_guid = shift[0].ExternalGuid
+                    date = year_month + zero_pad(j-3)
+                    prs_date_shift_list.append([PersonnelBaseId, date, shift_guid])
 
-                    # prs_date_shift_str = str(Personnel_id)+'-' + str(year_period)+'-' + str(j-3)+'-' + str(shift_id)
+                    # prs_date_shift_str = str(PersonnelBaseId)+'-'+date+'-'+shift_guid
                     # p.drawString(10, 800 - ((i+1)*(j+1) * 10), prs_date_shift_str)
+
+
 
         p.showPage()
         p.save()

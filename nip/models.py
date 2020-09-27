@@ -73,7 +73,7 @@ class PersonnelTypes(models.Model):
 
 
 class Personnel(models.Model):
-    PersonnelBaseId = models.IntegerField('شناسه پرسنلی')
+    PersonnelNo = models.CharField('شماره پرسنلی', max_length=100, null=True, blank=True,)
     FullName = models.CharField('نام کامل', max_length=100)
     WorkSection = models.ForeignKey(WorkSection, on_delete=models.CASCADE)
     YearWorkingPeriod = models.IntegerField('سال-دوره', editable=False)

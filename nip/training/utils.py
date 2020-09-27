@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 import datetime
 import time
-from .data_access.sql_server import data
+from .data_access.sql_server import nip_data as data
 from .data_access.db import get_db
 from .libs import GA_dataframes, GA_numpy
 from .libs.get_random import get_best_first_rank as get_rank
@@ -78,11 +78,11 @@ class shift():
         PersianYear = int(year_working_period / 100)
         PersianMonth = int(year_working_period % 100)
         # ----------------------- get data -------------------------------------------#
-        USER = DATABASES['default']['USER']
-        PASSWORD = DATABASES['default']['PASSWORD']
-        HOST = DATABASES['default']['HOST']
-        # PORT = DATABASES['default']['PORT']
-        NAME = DATABASES['default']['NAME']
+        USER = DATABASES['nip']['USER']
+        PASSWORD = DATABASES['nip']['PASSWORD']
+        HOST = DATABASES['nip']['HOST']
+        # PORT = DATABASES['nip']['PORT']
+        NAME = DATABASES['nip']['NAME']
 
         engine = create_engine('mssql+pyodbc://{}:{}@{}/{}?driver=SQL+Server' \
                                .format(USER,
