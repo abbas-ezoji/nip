@@ -7,9 +7,10 @@ import pyodbc
 
 class erp_data(object):
     def __init__(self,
-                 engine):
+                 engine,
+                 query):
         self.engine = engine
-
+        self.query = query
 
 class nip_data(object):
     def __init__(self,
