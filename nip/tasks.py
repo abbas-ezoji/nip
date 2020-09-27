@@ -3,7 +3,7 @@ from __future__ import absolute_import, unicode_literals
 import sys
 
 sys.path.insert(0, "D:\\nip_project\\nip\\training")
-from .training import utils
+from .training import *
 from celery import task
 from celery.utils.log import get_task_logger
 
@@ -13,6 +13,21 @@ logger = get_task_logger(__name__)
 @task(bind=True, name="test")
 def test(self, a, b):
     return a + b
+
+
+@task(bind=True, name="update_shift")
+def update_shift_async(PersonnelBaseId, Date, ShiftGuid):
+    sh = etl.transfer_data
+
+    logger.info(f"PersonnelBaseId={PersonnelBaseId}, Date={Date}, ShiftGuid={ShiftGuid}")
+    try:
+        logger.info("Start:")
+        q = sh.update_shift(PersonnelBaseId=PersonnelBaseId, Date=Date, ShiftGuid=ShiftGuid)
+    except Exception as e:
+        logger.error(e)
+        q = ''
+
+    return q
 
 
 @task(bind=True, name="set_shift")

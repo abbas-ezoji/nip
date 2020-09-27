@@ -12,7 +12,7 @@ DATABASES = {
     },
 
     'didgah': {
-        'NAME': 'nip',
+        'NAME': 'didgah',
         'ENGINE': 'sql_server.pyodbc',
         'HOST': '10.2.7.68',
         'USER': 'nipSA',
