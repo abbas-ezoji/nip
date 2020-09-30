@@ -19,6 +19,20 @@ from sqlalchemy import create_engine
 
 DATABASES = get_db()
 
+# ----------------------- get data -------------------------------------------#
+USER = DATABASES['nip']['USER']
+PASSWORD = DATABASES['nip']['PASSWORD']
+HOST = DATABASES['nip']['HOST']
+# PORT = DATABASES['nip']['PORT']
+NAME = DATABASES['nip']['NAME']
+
+engine = create_engine('mssql+pyodbc://{}:{}@{}/{}?driver=SQL+Server' \
+                        .format(USER,
+                                PASSWORD,
+                                HOST,
+                                NAME
+                               ))
+
 
 class shift():
     def __init__(self,
@@ -77,19 +91,7 @@ class shift():
         # -------------------------------------------------------
         PersianYear = int(year_working_period / 100)
         PersianMonth = int(year_working_period % 100)
-        # ----------------------- get data -------------------------------------------#
-        USER = DATABASES['nip']['USER']
-        PASSWORD = DATABASES['nip']['PASSWORD']
-        HOST = DATABASES['nip']['HOST']
-        # PORT = DATABASES['nip']['PORT']
-        NAME = DATABASES['nip']['NAME']
 
-        engine = create_engine('mssql+pyodbc://{}:{}@{}/{}?driver=SQL+Server' \
-                               .format(USER,
-                                       PASSWORD,
-                                       HOST,
-                                       NAME
-                                       ))
 
         query_gene_last = '''SELECT TOP 1   
         

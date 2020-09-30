@@ -2,7 +2,7 @@ import csv
 from django.utils.html import format_html
 from django.contrib import admin
 from .models import *
-from nip.tasks import update_shift_async
+from nip.tasks import update_shift_async,test
 import io
 from io import BytesIO
 from reportlab.pdfgen import canvas
@@ -280,11 +280,10 @@ class PersonnelShiftDateAssignmentsAdmin(admin.ModelAdmin):
                     Date = year_month + zero_pad(j-3)
                     prs_date_shift_list.append([PersonnelBaseId, Date, ShiftGuid])
 
-                    q = update_shift_async(PersonnelBaseId, Date, ShiftGuid)
-                    prs_date_shift_str = q
+                    prs_date_shift_str = update_shift_async(PersonnelBaseId, Date, ShiftGuid)
+                    # prs_date_shift_str = str(PersonnelBaseId)+'-'+Date+'-'+ShiftGuid1
                     p.drawString(10, 800 - ((i+1)*(j+1) * 10), prs_date_shift_str)
-
-                    # break
+                    break
 
 
         p.showPage()

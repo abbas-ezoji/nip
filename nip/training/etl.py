@@ -25,37 +25,35 @@ HOST = DATABASES['erp']['HOST']
 NAME = DATABASES['erp']['NAME']
 
 engine = create_engine('mssql+pyodbc://{}:{}@{}/{}?driver=SQL+Server' \
-                        .format(USER,
-                                PASSWORD,
-                                HOST,
-                                NAME
-                                ))
+                       .format(USER,
+                               PASSWORD,
+                               HOST,
+                               NAME
+                               ))
 
 
-class transfer_data:
-    def __init__(self):
-        pass
+def update_shift(PersonnelBaseId, Date, ShiftGuid):
+    query = ''' UPDATE Didgah_Timekeeper..tkp_WorkCalendarDetails
+                SET WorkShiftGuid =  {0}
+                FROM Didgah_Timekeeper..tkp_WorkCalendarDetails JOIN
+                    (SELECT
+                        PD.PersonnelBaseId,
+                        WCD.*
+                    FROM
+                        Didgah_Timekeeper..tkp_PersonnelDetails PD
+                        JOIN Didgah_Timekeeper..tkp_WorkCalendars WC ON PD.WorkCalendarGuid = WC.Guid
+                        JOIN Didgah_Timekeeper..tkp_WorkCalendarDetails WCD ON WCD.WorkCalendarGuid = WC.Guid
+                    WHERE
+                        WC.Deleted = 0 AND WC.Active = 1
+                        AND PD.Deleted = 0 AND PD.[Current] = 1
+                        AND PD.PersonnelBaseId = {1}
+                        AND WCD.Date = {2}
+                    ) T ON  T.WorkCalendarGuid = Didgah_Timekeeper..tkp_WorkCalendarDetails.WorkCalendarGuid
+                        AND T.Date = Didgah_Timekeeper..tkp_WorkCalendarDetails.Date
 
-    def update_shift(self, PeronnelBaseId, Date, ShiftGuid):
-        query = ''' UPDATE Didgah_Timekeeper..tkp_WorkCalendarDetails
-                    SET WorkShiftGuid =  {0}
-                    FROM Didgah_Timekeeper..tkp_WorkCalendarDetails JOIN 	
-                         (SELECT
-                            PD.PersonnelBaseId,
-                            WCD.*
-                        FROM
-                            Didgah_Timekeeper..tkp_PersonnelDetails PD 
-                            JOIN Didgah_Timekeeper..tkp_WorkCalendars WC ON PD.WorkCalendarGuid = WC.Guid
-                            JOIN Didgah_Timekeeper..tkp_WorkCalendarDetails WCD ON WCD.WorkCalendarGuid = WC.Guid
-                        WHERE
-                            WC.Deleted = 0 AND WC.Active = 1
-                            AND PD.Deleted = 0 AND PD.[Current] = 1
-                            AND PD.PersonnelBaseId = {1}
-                            AND WCD.Date = {2}
-                        ) T ON  T.WorkCalendarGuid = Didgah_Timekeeper..tkp_WorkCalendarDetails.WorkCalendarGuid
-                            AND T.Date = Didgah_Timekeeper..tkp_WorkCalendarDetails.Date
-                            
-        '''.format(ShiftGuid, PeronnelBaseId, Date)
+        '''.format(ShiftGuid, PersonnelBaseId, Date)
 
-        return query
+    # with engine.connect() as con:
+    #     con.execute(query)
 
+    return query
