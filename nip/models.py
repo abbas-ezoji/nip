@@ -76,12 +76,10 @@ class Personnel(models.Model):
     PersonnelNo = models.CharField('شماره پرسنلی', max_length=100, null=True, blank=True,)
     FullName = models.CharField('نام کامل', max_length=100)
     WorkSection = models.ForeignKey(WorkSection, on_delete=models.CASCADE)
-    YearWorkingPeriod = models.IntegerField('سال-دوره', editable=False)
+    YearWorkingPeriod = models.IntegerField('سال-دوره', )
     RequirementWorkMins_esti = models.IntegerField('زمان پیش بینی شده', )
-    RequirementWorkMins_real = models.IntegerField('زمان اختصاص داده شده', )
     PersonnelTypes = models.ForeignKey(PersonnelTypes, on_delete=models.CASCADE)
     EfficiencyRolePoint = models.IntegerField('امتیاز بهره وری', )
-    DiffNorm = models.IntegerField(null=True, blank=True, editable=False)
     ExternalId = models.IntegerField('شناسه دیدگاه', null=True, blank=True)
     ExternalGuid = models.CharField('شناسه شاخص دیدگاه', max_length=60, null=True, blank=True)
 

@@ -3,7 +3,7 @@ from __future__ import absolute_import, unicode_literals
 import sys
 
 # sys.path.insert(0, "D:\\nip_project\\nip\\training")
-from nip.training import *
+from nip.training import etl, utils
 from celery import task
 from celery.utils.log import get_task_logger
 

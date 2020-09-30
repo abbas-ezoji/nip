@@ -11,7 +11,7 @@ DATABASES = {
                 }
     },
 
-    'didgah': {
+    'erp': {
         'NAME': 'didgah',
         'ENGINE': 'sql_server.pyodbc',
         'HOST': '10.2.7.68',

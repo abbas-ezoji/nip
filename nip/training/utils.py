@@ -143,10 +143,8 @@ class shift():
                                     ,[WorkSection_id]
                                     ,[YearWorkingPeriod]
                                     ,[RequirementWorkMins_esti]
-                                    ,[RequirementWorkMins_real]
                                     ,[PersonnelTypes_id] prs_typ_id
                                     ,[EfficiencyRolePoint]
-                                    ,[DiffNorm]
                             FROM [nip_Personnel]
                             WHERE WorkSection_id = {0} AND YearWorkingPeriod = {1}
                           '''.format(work_section_id, year_working_period)
@@ -245,8 +243,7 @@ class shift():
         chromosom_df = chromosom_df.drop(['WorkSection_id'
                                              , 'YearWorkingPeriod_x'
                                              , 'YearWorkingPeriod_y'
-                                             , 'RequirementWorkMins_real'
-                                             , 'DiffNorm'], axis=1)
+                                             ], axis=1)
         # ----------------------- set personnel_df -----------------------------------#
         prs_sht_req = np.array(prs_sht_req_df.values, dtype=int)
         prs_sht_req = np.concatenate((prs_sht_req,
@@ -255,7 +252,7 @@ class shift():
         prs_sht_req_df.set_index(['PersonnelTypeReq_id', 'ShiftType_id'],
                                  inplace=True)
         # ----------------------- set personnel_df -----------------------------------#
-        personnels = np.array(personnel_df.reset_index().iloc[:, [0, 1, 4, 6]].values,
+        personnels = np.array(personnel_df.reset_index().iloc[:, [0, 1, 4, 5]].values,
                               dtype=int)
         # ----------------------- set shift_df ---------------------------------------#
         shifts = np.array(shift_df.iloc[:, [0, 3]].values,
