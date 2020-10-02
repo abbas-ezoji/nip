@@ -1,8 +1,11 @@
 import csv
 from django.utils.html import format_html
+from django import forms
+from django.urls import reverse
+from django.utils.http import urlencode
 from django.contrib import admin
 from .models import *
-from nip.tasks import update_shift_async,test
+from nip.tasks import update_shift_async, test
 import io
 from io import BytesIO
 from reportlab.pdfgen import canvas
@@ -12,8 +15,20 @@ from reportlab.pdfgen import canvas
 
 
 class WorkSectionAdmin(admin.ModelAdmin):
-    list_display = ('Code', 'Title', 'ExternalId')
+    list_display = ('Code', 'Title', 'ExternalId', 'view_personnel_link',)
     list_filter = ('Code', 'Title')
+    # search_fields = ("Title",)
+
+    def view_personnel_link(self, obj):
+        count = obj.personnel_set.count()
+        url = (
+                reverse("admin:nip_personnel_changelist")
+                + "?"
+                + urlencode({"WorkSections__id": f"{obj.id}"})
+        )
+        return format_html('<a href="{}">{} تعداد پرسنل</a>', url, count)
+
+    view_personnel_link.short_description = "مجموع پرسنل"
 
 
 class PersonnelTypesAdmin(admin.ModelAdmin):
@@ -64,7 +79,7 @@ class ShiftConstDayRequirementsInline(admin.TabularInline):
 class ShiftConstPersonnelTimesInline(admin.TabularInline):
     model = ShiftConstPersonnelTimes
     extra = 0
-    ordering = ("-EfficiencyRolePoint", "PersonnelTypes", )
+    ordering = ("-EfficiencyRolePoint", "PersonnelTypes",)
 
     def get_formset(self, request, obj=None, **kwargs):
         formset = super(ShiftConstPersonnelTimesInline, self).get_formset(request, obj, **kwargs)
@@ -122,15 +137,29 @@ class PersonnelAdmin(admin.ModelAdmin):
                    'PersonnelTypes', 'RequirementWorkMins_esti', 'EfficiencyRolePoint')
 
 
+class ShiftRecommendManagerForm(forms.ModelForm):
+    class Meta:
+        model = ShiftRecommendManager
+        fields = "__all__"
+
+    def clean_GenerationCount(self):
+        if self.cleaned_data["GenerationCount"] > 200:
+            raise forms.ValidationError("خطا در تعداد ...")
+
+        return self.cleaned_data["GenerationCount"]
+
+
 class ShiftRecommendManagerAdmin(admin.ModelAdmin):
-    list_display = ('YearWorkingPeriod', 'WorkSection', 'coh_const_DayRequirements', 'coh_const_PersonnelPerformanceTime',
-                    'TaskStatus', 'RecommenderStatus', )
+    list_display = (
+        'YearWorkingPeriod', 'WorkSection', 'coh_const_DayRequirements', 'coh_const_PersonnelPerformanceTime',
+        'TaskStatus', 'RecommenderStatus',)
     list_filter = ('YearWorkingPeriod', 'WorkSection', 'TaskStatus', 'RecommenderStatus',)
+    # form = ShiftRecommendManagerForm
 
 
 def zero_pad(num):
+    return str(num) if num // 10 else '0' + str(num)
 
-    return str(num) if num//10 else '0'+str(num)
 
 class PersonnelShiftDateAssignmentsAdmin(admin.ModelAdmin):
     # list_display = [field.name for field in PersonnelShiftDateAssignments._meta.get_fields()]
@@ -272,19 +301,18 @@ class PersonnelShiftDateAssignmentsAdmin(admin.ModelAdmin):
             personnel = Personnel.objects.filter(id=Personnel_id)
             PersonnelBaseId = personnel[0].ExternalId
             year_period = getattr(prs_date_shift, 'YearWorkingPeriod')
-            year_month = str(year_period//100)+'/'+zero_pad(year_period%100)+'/'
+            year_month = str(year_period // 100) + '/' + zero_pad(year_period % 100) + '/'
             for j, field in enumerate(field_names):
                 if j > 3:
                     shift = Shifts.objects.filter(Title=str(getattr(obj, field)))
                     ShiftGuid = shift[0].ExternalGuid
-                    Date = year_month + zero_pad(j-3)
+                    Date = year_month + zero_pad(j - 3)
                     prs_date_shift_list.append([PersonnelBaseId, Date, ShiftGuid])
 
                     prs_date_shift_str = update_shift_async(PersonnelBaseId, Date, ShiftGuid)
                     # prs_date_shift_str = str(PersonnelBaseId)+'-'+Date+'-'+ShiftGuid1
-                    p.drawString(10, 800 - ((i+1)*(j+1) * 10), prs_date_shift_str)
-                    break
-
+                    # p.drawString(10, 800 - ((i+1)*(j+1) * 10), prs_date_shift_str)
+                    # break
 
         p.showPage()
         p.save()

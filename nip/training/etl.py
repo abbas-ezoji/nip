@@ -53,7 +53,7 @@ def update_shift(PersonnelBaseId, Date, ShiftGuid):
 
         '''.format(ShiftGuid, PersonnelBaseId, Date)
 
-    # with engine.connect() as con:
-    #     con.execute(query)
+    with engine.connect() as con:
+        con.execute(query)
 
     return query
