@@ -5,7 +5,6 @@ DATABASES = {
         'HOST': 'TUMS-NIP',
         'USER': 'sa',
         'PASSWORD': 'VI?9NHuvpj',
-
         'OPTIONS': {
                     'driver': 'SQL Server Native Client 11.0',
                 }

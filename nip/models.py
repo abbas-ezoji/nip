@@ -75,10 +75,10 @@ class PersonnelTypes(models.Model):
 class Personnel(models.Model):
     PersonnelNo = models.CharField('شماره پرسنلی', max_length=100, null=True, blank=True,)
     FullName = models.CharField('نام کامل', max_length=100)
-    WorkSection = models.ForeignKey(WorkSection, on_delete=models.CASCADE)
+    WorkSection = models.ForeignKey(WorkSection, verbose_name=u'بخش', on_delete=models.CASCADE)
     YearWorkingPeriod = models.IntegerField('سال-دوره', )
     RequirementWorkMins_esti = models.IntegerField('زمان پیش بینی شده', )
-    PersonnelTypes = models.ForeignKey(PersonnelTypes, on_delete=models.CASCADE)
+    PersonnelTypes = models.ForeignKey(PersonnelTypes, verbose_name=u'تخصص', on_delete=models.CASCADE)
     EfficiencyRolePoint = models.IntegerField('امتیاز بهره وری', )
     ExternalId = models.IntegerField('شناسه دیدگاه', null=True, blank=True)
     ExternalGuid = models.CharField('شناسه شاخص دیدگاه', max_length=60, null=True, blank=True)
@@ -108,7 +108,7 @@ class Shifts(models.Model):
 
 
 class PersonnelLeaves(models.Model):
-    Personnel = models.ForeignKey(Personnel, on_delete=models.CASCADE)
+    Personnel = models.ForeignKey(Personnel, verbose_name=u'پرسنل', on_delete=models.CASCADE)
     YearWorkingPeriod = models.IntegerField('سال-دوره', )
     Day = models.IntegerField('روز', )
     Value = models.IntegerField('مقدار', null=True, blank=True)
@@ -119,14 +119,14 @@ class PersonnelLeaves(models.Model):
         return self.Personnel.FullName + ' - ' + str(self.Day) + ' - ' + str(self.Value)
 
     class Meta:
-        verbose_name_plural = 'پرسنل - مرخصی تایید شده'
+        verbose_name_plural = 'پرسنل - قیدهای تایید شده'
 
 
 class PersonnelRequest(models.Model):
-    Personnel = models.ForeignKey(Personnel, on_delete=models.CASCADE)
+    Personnel = models.ForeignKey(Personnel, verbose_name=u'پرسنل', on_delete=models.CASCADE)
     YearWorkingPeriod = models.IntegerField('سال-دوره', )
     Day = models.IntegerField('روز', )
-    ShiftType = models.ForeignKey(ShiftTypes, on_delete=models.CASCADE)
+    ShiftType = models.ForeignKey(ShiftTypes, verbose_name=u'نوع شیفت', on_delete=models.CASCADE)
     Value = models.IntegerField('مقدار', )
 
     def __str__(self):
@@ -137,7 +137,7 @@ class PersonnelRequest(models.Model):
 
 
 class ShiftAssignments(models.Model):
-    WorkSection = models.ForeignKey(WorkSection, on_delete=models.CASCADE)
+    WorkSection = models.ForeignKey(WorkSection, verbose_name=u'بخش', on_delete=models.CASCADE)
     YearWorkingPeriod = models.IntegerField('سال-دوره', editable=False)
     Rank = models.IntegerField('رتبه', )
     Cost = models.FloatField('هزینه', )
@@ -154,7 +154,7 @@ class ShiftAssignments(models.Model):
 
 class PersonnelShiftDateAssignments(models.Model):
     ShiftAssignment = models.ForeignKey(ShiftAssignments, on_delete=models.CASCADE, null=True)
-    Personnel = models.ForeignKey(Personnel, on_delete=models.CASCADE, null=True)
+    Personnel = models.ForeignKey(Personnel, verbose_name=u'پرسنل', on_delete=models.CASCADE, null=True)
     YearWorkingPeriod = models.IntegerField('سال-دوره', null=True, editable=False)
     D01 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, default=1, db_column='D01')
     D02 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D02', db_column='D02')
@@ -198,7 +198,7 @@ class PersonnelShiftDateAssignments(models.Model):
 class ShiftConstDayRequirements(models.Model):
     ShiftAssignment = models.ForeignKey(ShiftAssignments, on_delete=models.CASCADE, null=True)
     Day = models.IntegerField('روز')
-    PersonnelTypes = models.ForeignKey(PersonnelTypes, on_delete=models.DO_NOTHING)
+    PersonnelTypes = models.ForeignKey(PersonnelTypes, verbose_name=u'تخصص', on_delete=models.DO_NOTHING)
     ShiftTypes = models.IntegerField('نوع شیفت', db_column='ShiftTypes_id')
     PersonnelCount = models.IntegerField('تعدا پرسنل اختصاص داده شده')
     PersonnelPoints = models.IntegerField('مجموع امتیاز پرسنل')
@@ -218,8 +218,8 @@ class ShiftConstDayRequirements(models.Model):
 
 class ShiftConstPersonnelTimes(models.Model):
     ShiftAssignment = models.ForeignKey(ShiftAssignments, on_delete=models.CASCADE, null=True)
-    Personnel = models.ForeignKey(Personnel, on_delete=models.CASCADE)
-    PersonnelTypes = models.ForeignKey(PersonnelTypes, on_delete=models.DO_NOTHING)
+    Personnel = models.ForeignKey(Personnel, verbose_name=u'پرسنل', on_delete=models.CASCADE)
+    PersonnelTypes = models.ForeignKey(PersonnelTypes, verbose_name=u'تخصص', on_delete=models.DO_NOTHING)
     EfficiencyRolePoint = models.IntegerField('امتیاز بهره وری')
     RequireMinsEstimate = models.IntegerField('زمان نیاز بهره وری')
     ExtraForce = models.IntegerField('مجمع زمان اجباری', null=True)
@@ -234,12 +234,12 @@ class ShiftConstPersonnelTimes(models.Model):
 
 
 class WorkSectionRequirements(models.Model):
-    WorkSection = models.ForeignKey(WorkSection, on_delete=models.CASCADE)
+    WorkSection = models.ForeignKey(WorkSection, verbose_name=u'بخش', on_delete=models.CASCADE)
     Year = models.IntegerField('سال', )
     Month = models.IntegerField('دوره', )
     DayType = models.IntegerField('نوع روز', )
-    PersonnelTypeReq = models.ForeignKey(PersonnelTypes, on_delete=models.CASCADE)
-    ShiftType = models.ForeignKey(ShiftTypes, on_delete=models.CASCADE)
+    PersonnelTypeReq = models.ForeignKey(PersonnelTypes, verbose_name=u'تخصص', on_delete=models.CASCADE)
+    ShiftType = models.ForeignKey(ShiftTypes, verbose_name=u'نوع شیفت', on_delete=models.CASCADE)
     ReqMinCount = models.IntegerField('حداقل', )
     ReqMaxCount = models.IntegerField('حداکثر', )
     day_diff_typ = models.IntegerField('تفاوت', null=True, blank=True)
@@ -254,7 +254,7 @@ class WorkSectionRequirements(models.Model):
 
 
 class tkp_Logs(models.Model):
-    Personnel = models.ForeignKey(Personnel, on_delete=models.DO_NOTHING)
+    Personnel = models.ForeignKey(Personnel, verbose_name='پرسنل', on_delete=models.DO_NOTHING)
     Date = models.DateField()
     Login = models.IntegerField()
     Logout = models.IntegerField()
@@ -284,7 +284,7 @@ task_status = (
 
 
 class ShiftRecommendManager(models.Model):
-    WorkSection = models.ForeignKey(WorkSection, on_delete=models.CASCADE)
+    WorkSection = models.ForeignKey(WorkSection, verbose_name=u'بخش', on_delete=models.CASCADE)
     YearWorkingPeriod = models.IntegerField('سال-دوره')
     coh_const_DayRequirements = models.FloatField('ضریب قید نیاز روزانه')
     coh_const_PersonnelPerformanceTime = models.FloatField('ضریب قید نفرساعت بهره وری')

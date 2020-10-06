@@ -1,4 +1,13 @@
+import json
 import csv
+
+from django.contrib import admin
+from django.core.serializers.json import DjangoJSONEncoder
+from django.db.models import Count
+from django.db.models.functions import TruncDay
+from django.http import JsonResponse
+from django.urls import path
+
 from django.utils.html import format_html
 from django import forms
 from django.urls import reverse
@@ -329,6 +338,37 @@ class PersonnelShiftDateAssignmentsAdmin(admin.ModelAdmin):
 class WorkSectionRequirementsAdmin(admin.ModelAdmin):
     list_display = ('WorkSection', 'PersonnelTypeReq', 'ShiftType', 'ReqMinCount', 'ReqMaxCount',)
     list_filter = ('WorkSection', 'ShiftType__Title',)
+
+    # def get_urls(self):
+    #     urls = super().get_urls()
+    #     extra_urls = [
+    #         path("chart_data/", self.admin_site.admin_view(self.chart_data_endpoint))
+    #     ]
+    #     # NOTE! Our custom urls have to go before the default urls, because they
+    #     # default ones match anything.
+    #     return extra_urls + urls
+    #
+    #     # JSON endpoint for generating chart data that is used for dynamic loading
+    #     # via JS.
+    #
+    # def chart_data_endpoint(self, request):
+    #     chart_data = self.chart_data()
+    #     return JsonResponse(list(chart_data), safe=False)
+    #
+    # def chart_data(self):
+    #     return (
+    #         WorkSectionRequirements.objects.annotate(PersonnelType='PersonnelTypeReq')
+    #             .values("PersonnelType")
+    #             .annotate(y=Count("id"))
+    #             .order_by("-PersonnelType")
+    #     )
+    #
+    # def changelist_view(self, request, extra_context=None):
+    #     chart_data = self.chart_data()
+    #     as_json = json.dumps(list(chart_data), cls=DjangoJSONEncoder)
+    #     extra_context = extra_context or {"chart_data": as_json}
+    #
+    #     return super().changelist_view(request, extra_context=extra_context)
 
 
 class PersonnelLeavesAdmin(admin.ModelAdmin):
