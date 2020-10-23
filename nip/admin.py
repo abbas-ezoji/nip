@@ -107,7 +107,7 @@ class ShiftConstPersonnelTimesInline(admin.TabularInline):
 
 
 class ShiftAssignmentsAdmin(admin.ModelAdmin):
-    list_display = ('WorkSection', 'YearWorkingPeriod', 'Rank', 'Cost', 'EndTime')
+    list_display = ('WorkSection', 'YearWorkingPeriod', 'Rank', 'Cost', 'EndTime', 'view_shifts_link')
     list_filter = ('WorkSection', 'YearWorkingPeriod', 'Rank')
     inlines = [
         PersonnelShiftDateAssignmentsInline,
@@ -117,6 +117,17 @@ class ShiftAssignmentsAdmin(admin.ModelAdmin):
 
     def get_ordering(self, request):
         return ['WorkSection', 'YearWorkingPeriod', 'Rank']
+
+    def view_shifts_link(self, obj):
+        count = obj.personnelshiftdateassignments_set.count()
+        url = (
+                reverse("admin:nip_personnelshiftdateassignments_changelist")
+                + "?"
+                + urlencode({"shiftassignments__id": f"{obj.id}"})
+        )
+        return format_html('<a href="{}">مشاهده شیفت </a>', url)
+
+    view_shifts_link.short_description = "شیفتها"
 
 
 class ShiftsAdmin(admin.ModelAdmin):

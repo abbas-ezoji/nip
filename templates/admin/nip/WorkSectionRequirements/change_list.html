@@ -4,9 +4,9 @@
 <!-- Override extrahead to add Chart.js -->
 {% block extrahead %}
 {{ block.super }}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css" />
-<script src="https://www.chartjs.org/dist/2.9.3/Chart.min.js"></script>
-<script src="https://www.chartjs.org/samples/latest/utils.js"></script>
+<link rel="stylesheet" href="{% static 'chart/Chart.min.css' %}" />
+<script src="{% static 'chart/Chart.min.js' %}"></script>
+<script src="{% static 'chart/utils.js' %}"></script>
 {% endblock %}
 
 {% block content %}

@@ -24,7 +24,7 @@ PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__)))
 SECRET_KEY = 'gs0nq4+wr2z-&su1mli^qpozv0xu4xs0f36@a-ji7wx7$s5r+0'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -41,7 +41,15 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'nip',
+
+    'channels',
+    'bootstrap4',
+
+    'django_plotly_dash.apps.DjangoPlotlyDashConfig',
+    'dpd_static_support',
 ]
+
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -51,9 +59,12 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'project.urls'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+X_FRAME_OPTIONS = 'SAMEORIGIN'
 
 TEMPLATES = [
     {
@@ -73,7 +84,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'project.wsgi.application'
-
+ASGI_APPLICATION = 'project.routing.application'
 
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
@@ -153,10 +164,62 @@ USE_TZ = True
 
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 STATICFILES_DIR = [os.path.join(BASE_DIR, 'static'), ]
-document_root=STATIC_ROOT
+document_root = STATIC_ROOT
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'nip', 'static'),
+    ]
+
+# Caching - demo uses redis as this is present due to channels use
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient"
+        },
+        "KEY_PREFIX": "dpd-demo"
+    }
+}
+
+# Channels config, to use channel layers
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [('127.0.0.1', 6379), ],
+        },
+    },
+}
+
+# Staticfiles finders for locating dash app assets and related files
+
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+
+    'django_plotly_dash.finders.DashAssetFinder',
+    'django_plotly_dash.finders.DashComponentFinder',
+    'django_plotly_dash.finders.DashAppDirectoryFinder',
+]
+
+# Plotly components containing static content that should
+# be handled by the Django staticfiles infrastructure
+
+PLOTLY_COMPONENTS = [
+    'dash_core_components',
+    'dash_html_components',
+    'dash_bootstrap_components',
+    'dash_renderer',
+    'dpd_components',
+    'dpd_static_support',
+]
+
 ###################### jet settings ##########################
 
 # JET_INDEX_DASHBOARD = 'dashboard.CustomIndexDashboard'
