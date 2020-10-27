@@ -50,8 +50,7 @@ def update_shift(PersonnelBaseId, Date, ShiftGuid):
                         AND WCD.Date = {2}
                     ) T ON  T.WorkCalendarGuid = Didgah_Timekeeper..tkp_WorkCalendarDetails.WorkCalendarGuid
                         AND T.Date = Didgah_Timekeeper..tkp_WorkCalendarDetails.Date
-
-        '''.format(ShiftGuid, PersonnelBaseId, Date)
+            '''.format(ShiftGuid, PersonnelBaseId, Date)
 
     with engine.connect() as con:
         con.execute(query)
