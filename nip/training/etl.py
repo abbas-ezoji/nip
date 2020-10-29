@@ -33,26 +33,27 @@ engine = create_engine('mssql+pyodbc://{}:{}@{}/{}?driver=SQL+Server' \
 
 
 def update_shift(PersonnelBaseId, Date, ShiftGuid):
-    query = ''' UPDATE Didgah_Timekeeper..tkp_WorkCalendarDetails
-                SET WorkShiftGuid =  {0}
-                FROM Didgah_Timekeeper..tkp_WorkCalendarDetails JOIN
-                    (SELECT
-                        PD.PersonnelBaseId,
-                        WCD.*
-                    FROM
-                        Didgah_Timekeeper..tkp_PersonnelDetails PD
-                        JOIN Didgah_Timekeeper..tkp_WorkCalendars WC ON PD.WorkCalendarGuid = WC.Guid
-                        JOIN Didgah_Timekeeper..tkp_WorkCalendarDetails WCD ON WCD.WorkCalendarGuid = WC.Guid
-                    WHERE
-                        WC.Deleted = 0 AND WC.Active = 1
-                        AND PD.Deleted = 0 AND PD.[Current] = 1
-                        AND PD.PersonnelBaseId = {1}
-                        AND WCD.Date = {2}
-                    ) T ON  T.WorkCalendarGuid = Didgah_Timekeeper..tkp_WorkCalendarDetails.WorkCalendarGuid
-                        AND T.Date = Didgah_Timekeeper..tkp_WorkCalendarDetails.Date
-            '''.format(ShiftGuid, PersonnelBaseId, Date)
+    query = ''' UPDATE wc
+                SET WorkShiftGuid = CONVERT(uniqueidentifier,{0})
+                FROM Didgah_Timekeeper..tkp_WorkCalendarDetails as wc JOIN
+                     (
+                      SELECT
+                          PD.PersonnelBaseId,
+                          WCD.*
+                      FROM
+                          Didgah_Timekeeper..tkp_PersonnelDetails PD
+                          JOIN Didgah_Timekeeper..tkp_WorkCalendars WC ON PD.WorkCalendarGuid = WC.Guid
+                          JOIN Didgah_Timekeeper..tkp_WorkCalendarDetails WCD ON WCD.WorkCalendarGuid = WC.Guid
+                      WHERE
+                          WC.Deleted = 0 AND WC.Active = 1
+                          AND PD.Deleted = 0 AND PD.[Current] = 1
+                          AND PD.PersonnelBaseId = {1}
+                          AND WCD.Date = Didgah_Common.dbo.com_udfGetChristianDate({2})
+                      ) T ON  T.WorkCalendarGuid = wc.WorkCalendarGuid
+                          AND T.Date = wc.Date
+            '''.format("'"+ShiftGuid+"'", PersonnelBaseId, "'"+Date+"'")
 
     with engine.connect() as con:
         con.execute(query)
 
-    return query
+    return str(PersonnelBaseId) + ' - ' + ShiftGuid+' - '+Date

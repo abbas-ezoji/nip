@@ -330,8 +330,8 @@ class PersonnelShiftDateAssignmentsAdmin(admin.ModelAdmin):
                     prs_date_shift_list.append([PersonnelBaseId, Date, ShiftGuid])
 
                     prs_date_shift_str = update_shift_async(PersonnelBaseId, Date, ShiftGuid)
-                    # prs_date_shift_str = str(PersonnelBaseId)+'-'+Date+'-'+ShiftGuid1
-                    # p.drawString(10, 800 - ((i+1)*(j+1) * 10), prs_date_shift_str)
+                    prs_date_shift_str = str(PersonnelBaseId)+' - '+Date+' - '+ShiftGuid
+                    p.drawString(10, 800 - ((i+1)*(j+1) * 10), prs_date_shift_str)
                     # break
 
         p.showPage()
