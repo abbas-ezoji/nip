@@ -23,9 +23,26 @@ from django.http import FileResponse
 from reportlab.pdfgen import canvas
 
 
-class WorkSectionAdmin(admin.ModelAdmin):
+class HospitalAdmin(admin.ModelAdmin):
     list_display = ('Code', 'Title', 'ExternalId', 'view_personnel_link',)
     list_filter = ('Code', 'Title')
+    # search_fields = ("Title",)
+
+    def view_personnel_link(self, obj):
+        count = obj.worksection_set.count()
+        url = (
+                reverse("admin:nip_worksection_changelist")
+                + "?"
+                + urlencode({"hospital__id": f"{obj.id}"})
+        )
+        return format_html('<a href="{}">{} تعداد بخش</a>', url, count)
+
+    view_personnel_link.short_description = "مجموع بخشها"
+
+
+class WorkSectionAdmin(admin.ModelAdmin):
+    list_display = ('Code', 'Title', 'hospital', 'ExternalId', 'view_personnel_link',)
+    list_filter = ('Code', 'Title', 'hospital',)
     # search_fields = ("Title",)
 
     def view_personnel_link(self, obj):
@@ -33,7 +50,7 @@ class WorkSectionAdmin(admin.ModelAdmin):
         url = (
                 reverse("admin:nip_personnel_changelist")
                 + "?"
-                + urlencode({"WorkSections__id": f"{obj.id}"})
+                + urlencode({"workSections__id": f"{obj.id}"})
         )
         return format_html('<a href="{}">{} تعداد پرسنل</a>', url, count)
 
@@ -396,3 +413,4 @@ admin.site.register(PersonnelTypes, PersonnelTypesAdmin)
 admin.site.register(ShiftAssignments, ShiftAssignmentsAdmin)
 admin.site.register(PersonnelShiftDateAssignments, PersonnelShiftDateAssignmentsAdmin)
 admin.site.register(ShiftRecommendManager, ShiftRecommendManagerAdmin)
+admin.site.register(Hospital, HospitalAdmin)

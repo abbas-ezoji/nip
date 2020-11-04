@@ -34,7 +34,22 @@ class Dim_Date(models.Model):
         verbose_name_plural = 'تاریخ'
 
 
+class Hospital(models.Model):
+    Code = models.CharField('کد', max_length=5)
+    Title = models.CharField('عنوان', max_length=50)
+    ExternalId = models.IntegerField('شناسه دیدگاه', null=True, blank=True)
+    ExternalGuid = models.CharField('شناسه شاخص دیدگاه', max_length=60, null=True, blank=True)
+
+    def __str__(self):
+        return self.Title
+
+    class Meta:
+        verbose_name = 'بیمارستان'
+        verbose_name_plural = 'بیمارستان'
+
+
 class WorkSection(models.Model):
+    hospital = models.ForeignKey(Hospital, verbose_name=u'بیمارستان', on_delete=models.CASCADE)
     Code = models.CharField('کد', max_length=5)
     Title = models.CharField('عنوان', max_length=50)
     ExternalId = models.IntegerField('شناسه دیدگاه', null=True, blank=True)

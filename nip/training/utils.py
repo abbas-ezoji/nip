@@ -26,12 +26,8 @@ HOST = DATABASES['nip']['HOST']
 # PORT = DATABASES['nip']['PORT']
 NAME = DATABASES['nip']['NAME']
 
-engine = create_engine('mssql+pyodbc://{}:{}@{}/{}?driver=SQL+Server' \
-                        .format(USER,
-                                PASSWORD,
-                                HOST,
-                                NAME
-                               ))
+con_string = f'mssql+pyodbc://{USER}:{PASSWORD}@{HOST}/{NAME}?driver=SQL+Server'
+engine = create_engine(con_string)
 
 
 class shift():
@@ -91,7 +87,6 @@ class shift():
         # -------------------------------------------------------
         PersianYear = int(year_working_period / 100)
         PersianMonth = int(year_working_period % 100)
-
 
         query_gene_last = '''SELECT TOP 1   
         
@@ -243,7 +238,7 @@ class shift():
         chromosom_df = chromosom_df.drop(['WorkSection_id'
                                              , 'YearWorkingPeriod_x'
                                              , 'YearWorkingPeriod_y'
-                                             ], axis=1)
+                                          ], axis=1)
         # ----------------------- set personnel_df -----------------------------------#
         prs_sht_req = np.array(prs_sht_req_df.values, dtype=int)
         prs_sht_req = np.concatenate((prs_sht_req,
