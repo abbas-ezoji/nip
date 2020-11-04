@@ -57,19 +57,15 @@
 
 		};
 </script>
+{{ block.super }}
 <div id="container" style="width: 100%;">
-		<canvas style="margin-bottom: 30px; width: 60%; height: 50%;" id="canvas"></canvas>
+  <div class="{% plotly_class name='simple' %}">
+          {%plotly_app name="simple"%}
+  <div/>
+
 </div>
-<p></p>
-<div class="card border-dark">
-  <div class="card-body">
-    <div class="{%plotly_class name="simple"%}">
-      {%plotly_app name="simple"%}
-    </div>
-  </div>
-</div>
-<p></p>
+
 
 <!-- Render the rest of the ChangeList view -->
-{{ block.super }}
+
 {% endblock %}
