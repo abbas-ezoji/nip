@@ -56,7 +56,7 @@ class WorkSection(models.Model):
     ExternalGuid = models.CharField('شناسه شاخص دیدگاه', max_length=60, null=True, blank=True)
 
     def __str__(self):
-        return self.Title
+        return self.hospital.Title + '->' + self.Title
 
     class Meta:
         verbose_name = 'بخش'
@@ -153,7 +153,7 @@ class PersonnelRequest(models.Model):
 
 class ShiftAssignments(models.Model):
     WorkSection = models.ForeignKey(WorkSection, verbose_name=u'بخش', on_delete=models.CASCADE)
-    YearWorkingPeriod = models.IntegerField('سال-دوره', editable=False)
+    YearWorkingPeriod = models.IntegerField('سال-دوره')
     Rank = models.IntegerField('رتبه', )
     Cost = models.FloatField('هزینه', )
     EndTime = models.BigIntegerField('زمان تکمیل', null=True)
@@ -265,7 +265,7 @@ class WorkSectionRequirements(models.Model):
         return self.WorkSection.Title + ' - ' + self.PersonnelTypeReq.Title + ' - ' + self.ShiftType.Title
 
     class Meta:
-        verbose_name_plural = 'بخش - نیزمندی ها'
+        verbose_name_plural = 'بخش - نیازمندی ها'
 
 
 class tkp_Logs(models.Model):

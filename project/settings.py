@@ -41,14 +41,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'nip',
-
+    'tabbed_admin',
     'channels',
     'bootstrap4',
 
     'django_plotly_dash.apps.DjangoPlotlyDashConfig',
     'dpd_static_support',
 ]
-
+TABBED_ADMIN_USE_JQUERY_UI = True
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 MIDDLEWARE = [

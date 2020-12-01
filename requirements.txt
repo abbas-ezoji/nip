@@ -8,6 +8,7 @@ async-timeout==3.0.1
 attrs==20.2.0
 autobahn==20.7.1
 Automat==20.2.0
+beautifulsoup4==4.9.3
 billiard==3.6.3.0
 Brotli==1.0.9
 celery==4.3.0
@@ -28,10 +29,10 @@ dash-core-components==1.12.1
 dash-html-components==1.1.1
 dash-renderer==1.8.2
 dash-table==4.10.1
-django-bootstrap4==2.3.1
 distlib==0.3.1
 Django==3.1.2
 django-3-jet==1.0.8
+django-bootstrap4==2.3.1
 django-bower==5.2.0
 django-crispy-forms==1.9.2
 django-filter==2.4.0
@@ -43,6 +44,7 @@ django-plotly-dash==1.4.2
 django-pyodbc-azure==2.1.0.0
 django-qsstats-magic==1.1.0
 django-redis==4.12.1
+django-tabbed-admin==1.0.4
 django-timezone-field==4.0
 djangorestframework==3.12.1
 djcacheutils==3.0.0
@@ -95,6 +97,7 @@ scikit-learn==0.22.1
 scipy==1.4.1
 service-identity==18.1.0
 six==1.14.0
+soupsieve==2.0.1
 SQLAlchemy==1.3.19
 sqlparse==0.3.0
 Twisted==20.3.0

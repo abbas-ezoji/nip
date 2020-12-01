@@ -21,6 +21,7 @@ from reportlab.pdfgen import canvas
 from django.http import HttpResponse
 from django.http import FileResponse
 from reportlab.pdfgen import canvas
+from tabbed_admin import TabbedModelAdmin
 
 
 class HospitalAdmin(admin.ModelAdmin):
@@ -91,6 +92,10 @@ class ShiftConstDayRequirementsInline(admin.TabularInline):
     extra = 0
     ordering = ("-DiffCount", "Day", "PersonnelTypes", "ShiftTypes",)
 
+    def get_queryset(self, request):
+        qs = super(ShiftConstDayRequirementsInline, self).get_queryset(request)
+        return qs.filter(DiffCount__gt=0)
+
     def get_formset(self, request, obj=None, **kwargs):
         formset = super(ShiftConstDayRequirementsInline, self).get_formset(request, obj, **kwargs)
         form = formset.form
@@ -123,14 +128,39 @@ class ShiftConstPersonnelTimesInline(admin.TabularInline):
         return formset
 
 
-class ShiftAssignmentsAdmin(admin.ModelAdmin):
+class ShiftAssignmentsAdmin(TabbedModelAdmin):
     list_display = ('WorkSection', 'YearWorkingPeriod', 'Rank', 'Cost', 'EndTime', 'view_shifts_link')
     list_filter = ('WorkSection', 'YearWorkingPeriod', 'Rank')
-    inlines = [
+    readonly_fields = ('WorkSection', 'YearWorkingPeriod', 'Rank', 'Cost', 'EndTime')
+
+    tab_overview = (
+        (None, {
+            'fields': ('WorkSection', 'YearWorkingPeriod', 'Rank', 'Cost', 'EndTime')
+        }),
+    )
+
+    tab_PersonnelShiftDateAssignments = (
         PersonnelShiftDateAssignmentsInline,
+    )
+    tab_ShiftConstDayRequirementsInline = (
         ShiftConstDayRequirementsInline,
+    )
+    tab_ShiftConstPersonnelTimesInline = (
         ShiftConstPersonnelTimesInline,
+    )
+
+    tabs = [
+        ('اصلی', tab_overview),
+        ('شیفت اختصاصی', tab_PersonnelShiftDateAssignments),
+        ('قید نیاز روز', tab_ShiftConstDayRequirementsInline),
+        ('قید بهره وری', tab_ShiftConstPersonnelTimesInline),
     ]
+
+    # inlines = [
+    #     PersonnelShiftDateAssignmentsInline,
+    #     ShiftConstDayRequirementsInline,
+    #     ShiftConstPersonnelTimesInline,
+    # ]
 
     def get_ordering(self, request):
         return ['WorkSection', 'YearWorkingPeriod', 'Rank']
@@ -365,7 +395,7 @@ class PersonnelShiftDateAssignmentsAdmin(admin.ModelAdmin):
 
 class WorkSectionRequirementsAdmin(admin.ModelAdmin):
     list_display = ('WorkSection', 'PersonnelTypeReq', 'ShiftType', 'ReqMinCount', 'ReqMaxCount',)
-    list_filter = ('WorkSection', 'ShiftType__Title',)
+    list_filter = ('WorkSection__hospital', 'WorkSection', 'ShiftType',)
 
     # def get_urls(self):
     #     urls = super().get_urls()
