@@ -24,9 +24,11 @@ from reportlab.pdfgen import canvas
 from tabbed_admin import TabbedModelAdmin
 
 
+@admin.register(Hospital)
 class HospitalAdmin(admin.ModelAdmin):
     list_display = ('Code', 'Title', 'ExternalId', 'view_personnel_link',)
     list_filter = ('Code', 'Title')
+
     # search_fields = ("Title",)
 
     def view_personnel_link(self, obj):
@@ -41,9 +43,11 @@ class HospitalAdmin(admin.ModelAdmin):
     view_personnel_link.short_description = "مجموع بخشها"
 
 
+@admin.register(WorkSection)
 class WorkSectionAdmin(admin.ModelAdmin):
-    list_display = ('Code', 'Title', 'hospital', 'ExternalId', 'view_personnel_link',)
-    list_filter = ('Code', 'Title', 'hospital',)
+    list_display = ('Title', 'Hospital', 'ExternalId', 'view_personnel_link',)
+    list_filter = ('Code', 'Title', 'Hospital',)
+
     # search_fields = ("Title",)
 
     def view_personnel_link(self, obj):
@@ -51,13 +55,14 @@ class WorkSectionAdmin(admin.ModelAdmin):
         url = (
                 reverse("admin:nip_personnel_changelist")
                 + "?"
-                + urlencode({"workSections__id": f"{obj.id}"})
+                + urlencode({"WorkSection__id": f"{obj.id}"})
         )
         return format_html('<a href="{}">{} تعداد پرسنل</a>', url, count)
 
     view_personnel_link.short_description = "مجموع پرسنل"
 
 
+@admin.register(PersonnelTypes)
 class PersonnelTypesAdmin(admin.ModelAdmin):
     list_display = ('Code', 'Title')
     list_filter = ('Code', 'Title')
@@ -92,6 +97,9 @@ class ShiftConstDayRequirementsInline(admin.TabularInline):
     extra = 0
     ordering = ("-DiffCount", "Day", "PersonnelTypes", "ShiftTypes",)
 
+    # readonly_fields = ([f for f in ShiftConstDayRequirements._meta.get_fields()])
+    can_delete = False
+
     def get_queryset(self, request):
         qs = super(ShiftConstDayRequirementsInline, self).get_queryset(request)
         return qs.filter(DiffCount__gt=0)
@@ -111,6 +119,7 @@ class ShiftConstPersonnelTimesInline(admin.TabularInline):
     model = ShiftConstPersonnelTimes
     extra = 0
     ordering = ("-EfficiencyRolePoint", "PersonnelTypes",)
+    can_delete = False
 
     def get_formset(self, request, obj=None, **kwargs):
         formset = super(ShiftConstPersonnelTimesInline, self).get_formset(request, obj, **kwargs)
@@ -128,6 +137,7 @@ class ShiftConstPersonnelTimesInline(admin.TabularInline):
         return formset
 
 
+@admin.register(ShiftAssignments)
 class ShiftAssignmentsAdmin(TabbedModelAdmin):
     list_display = ('WorkSection', 'YearWorkingPeriod', 'Rank', 'Cost', 'EndTime', 'view_shifts_link')
     list_filter = ('WorkSection', 'YearWorkingPeriod', 'Rank')
@@ -177,6 +187,7 @@ class ShiftAssignmentsAdmin(TabbedModelAdmin):
     view_shifts_link.short_description = "شیفتها"
 
 
+@admin.register(Shifts)
 class ShiftsAdmin(admin.ModelAdmin):
     # list_display = [field.name for field in Shifts._meta.get_fields()]
     list_display = ('Code', 'Title', 'Length', 'ExternalId', 'type_colored',)
@@ -197,6 +208,7 @@ class ShiftsAdmin(admin.ModelAdmin):
                 '''.format(color_dict.get(obj.Type)))
 
 
+@admin.register(Personnel)
 class PersonnelAdmin(admin.ModelAdmin):
     list_display = ('YearWorkingPeriod', 'WorkSection', 'PersonnelNo', 'FullName',
                     'PersonnelTypes', 'RequirementWorkMins_esti', 'EfficiencyRolePoint')
@@ -216,10 +228,10 @@ class ShiftRecommendManagerForm(forms.ModelForm):
         return self.cleaned_data["GenerationCount"]
 
 
+@admin.register(ShiftRecommendManager)
 class ShiftRecommendManagerAdmin(admin.ModelAdmin):
-    list_display = (
-        'YearWorkingPeriod', 'WorkSection', 'coh_const_DayRequirements', 'coh_const_PersonnelPerformanceTime',
-        'TaskStatus', 'RecommenderStatus',)
+    list_display = ('YearWorkingPeriod', 'WorkSection', 'coh_const_DayRequirements', 'coh_const_PersonnelPerformanceTime',
+                    'TaskStatus', 'RecommenderStatus',)
     list_filter = ('YearWorkingPeriod', 'WorkSection', 'TaskStatus', 'RecommenderStatus',)
     # form = ShiftRecommendManagerForm
 
@@ -228,6 +240,7 @@ def zero_pad(num):
     return str(num) if num // 10 else '0' + str(num)
 
 
+@admin.register(PersonnelShiftDateAssignments)
 class PersonnelShiftDateAssignmentsAdmin(admin.ModelAdmin):
     # list_display = [field.name for field in PersonnelShiftDateAssignments._meta.get_fields()]
     list_display = ('shift_colored',)
@@ -377,8 +390,8 @@ class PersonnelShiftDateAssignmentsAdmin(admin.ModelAdmin):
                     prs_date_shift_list.append([PersonnelBaseId, Date, ShiftGuid])
 
                     prs_date_shift_str = update_shift_async(PersonnelBaseId, Date, ShiftGuid)
-                    prs_date_shift_str = str(PersonnelBaseId)+' - '+Date+' - '+ShiftGuid
-                    p.drawString(10, 800 - ((i+1)*(j+1) * 10), prs_date_shift_str)
+                    prs_date_shift_str = str(PersonnelBaseId) + ' - ' + Date + ' - ' + ShiftGuid
+                    p.drawString(10, 800 - ((i + 1) * (j + 1) * 10), prs_date_shift_str)
                     # break
 
         p.showPage()
@@ -393,9 +406,10 @@ class PersonnelShiftDateAssignmentsAdmin(admin.ModelAdmin):
     export_as_chargoon.short_description = "تایید و ارسال به دیدگاه"
 
 
+@admin.register(WorkSectionRequirements)
 class WorkSectionRequirementsAdmin(admin.ModelAdmin):
     list_display = ('WorkSection', 'PersonnelTypeReq', 'ShiftType', 'ReqMinCount', 'ReqMaxCount',)
-    list_filter = ('WorkSection__hospital', 'WorkSection', 'ShiftType',)
+    list_filter = ('WorkSection__Hospital', 'WorkSection', 'ShiftType',)
 
     # def get_urls(self):
     #     urls = super().get_urls()
@@ -433,14 +447,13 @@ class PersonnelLeavesAdmin(admin.ModelAdmin):
     list_display = ('Personnel', 'YearWorkingPeriod', 'Day', 'ExternalId')
     list_filter = ('Personnel__WorkSection', 'Personnel__FullName', 'YearWorkingPeriod', 'Day',)
 
-
-admin.site.register(WorkSection, WorkSectionAdmin)
-admin.site.register(PersonnelLeaves, PersonnelLeavesAdmin)
-admin.site.register(WorkSectionRequirements, WorkSectionRequirementsAdmin)
-admin.site.register(Shifts, ShiftsAdmin)
-admin.site.register(Personnel, PersonnelAdmin)
-admin.site.register(PersonnelTypes, PersonnelTypesAdmin)
-admin.site.register(ShiftAssignments, ShiftAssignmentsAdmin)
-admin.site.register(PersonnelShiftDateAssignments, PersonnelShiftDateAssignmentsAdmin)
-admin.site.register(ShiftRecommendManager, ShiftRecommendManagerAdmin)
-admin.site.register(Hospital, HospitalAdmin)
+# admin.site.register(WorkSection, WorkSectionAdmin)
+# admin.site.register(PersonnelLeaves, PersonnelLeavesAdmin)
+# admin.site.register(WorkSectionRequirements, WorkSectionRequirementsAdmin)
+# admin.site.register(Shifts, ShiftsAdmin)
+# admin.site.register(Personnel, PersonnelAdmin)
+# admin.site.register(PersonnelTypes, PersonnelTypesAdmin)
+# admin.site.register(ShiftAssignments, ShiftAssignmentsAdmin)
+# admin.site.register(PersonnelShiftDateAssignments, PersonnelShiftDateAssignmentsAdmin)
+# admin.site.register(ShiftRecommendManager, ShiftRecommendManagerAdmin)
+# admin.site.register(Hospital, HospitalAdmin)

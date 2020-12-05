@@ -21,7 +21,7 @@ from django.conf.urls.static import static
 from django.views.generic import RedirectView
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 admin.autodiscover()
-from project.dash_apps import simple
+# from project.dash_apps import simple
 
 admin.site.site_header = "چارگون"
 admin.site.site_title = "مدیریت سیستم"

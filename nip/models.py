@@ -49,14 +49,14 @@ class Hospital(models.Model):
 
 
 class WorkSection(models.Model):
-    hospital = models.ForeignKey(Hospital, verbose_name=u'بیمارستان', on_delete=models.CASCADE)
+    Hospital = models.ForeignKey(Hospital, verbose_name=u'بیمارستان', on_delete=models.CASCADE)
     Code = models.CharField('کد', max_length=5)
     Title = models.CharField('عنوان', max_length=50)
     ExternalId = models.IntegerField('شناسه دیدگاه', null=True, blank=True)
     ExternalGuid = models.CharField('شناسه شاخص دیدگاه', max_length=60, null=True, blank=True)
 
     def __str__(self):
-        return self.hospital.Title + '->' + self.Title
+        return self.Hospital.Title + '->' + self.Title
 
     class Meta:
         verbose_name = 'بخش'
