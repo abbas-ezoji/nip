@@ -327,8 +327,22 @@ class ShiftRecommendManager(models.Model):
     def save(self, *args, **kwargs):
         if not self.id:
             super().save(*args, **kwargs)
-        if self.TaskStatus > 0:
-            # test.delay(1, 2)
+        if self.TaskStatus == 1:                  # just run optimizer
+            self.Comments = set_shift_async.delay(self.WorkSection.id,
+                                                  self.YearWorkingPeriod,
+                                                  self.coh_const_DayRequirements,
+                                                  self.coh_const_PersonnelPerformanceTime,
+                                                  self.PopulationSize,
+                                                  self.GenerationCount,
+                                                  self.MaxFitConstRate,
+                                                  self.CrossoverProbability,
+                                                  self.MutationProbability,
+                                                  self.Elitism,
+                                                  self.ShowPlot,
+                                                  self.DevByParent,
+                                                  self.RecommenderStatus
+                                                  )
+        elif self.TaskStatus == 2:
             self.Comments = set_shift_async.delay(self.WorkSection.id,
                                                   self.YearWorkingPeriod,
                                                   self.coh_const_DayRequirements,
@@ -344,3 +358,4 @@ class ShiftRecommendManager(models.Model):
                                                   self.RecommenderStatus
                                                   )
         super(ShiftRecommendManager, self).save(*args, **kwargs)
+

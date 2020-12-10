@@ -6,7 +6,7 @@ html {
 body {
     font-family: IRANSans;
 }
-
+/*
 .sidebar {
     right: 0 !important;
     left: auto !important;
@@ -226,3 +226,5 @@ input[type=checkbox] + label:before {
 .inline-group ul.tools a.add:before, .inline-group div.add-row a:before, .inline-group .tabular tr.add-row td a:befor {
     margin-left: 4px;
     margin-left: 0.28571rem;
+
+ */
