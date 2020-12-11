@@ -343,6 +343,7 @@ class ShiftRecommendManager(models.Model):
                                                   self.RecommenderStatus
                                                   )
         elif self.TaskStatus == 2:
+
             self.Comments = set_shift_async.delay(self.WorkSection.id,
                                                   self.YearWorkingPeriod,
                                                   self.coh_const_DayRequirements,

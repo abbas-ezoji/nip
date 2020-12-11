@@ -212,7 +212,7 @@ class ShiftsAdmin(admin.ModelAdmin):
 class PersonnelAdmin(admin.ModelAdmin):
     list_display = ('YearWorkingPeriod', 'WorkSection', 'PersonnelNo', 'FullName',
                     'PersonnelTypes', 'RequirementWorkMins_esti', 'EfficiencyRolePoint')
-    list_filter = ('YearWorkingPeriod', 'WorkSection', 'PersonnelNo', 'FullName',
+    list_filter = ('YearWorkingPeriod','WorkSection__Hospital', 'WorkSection', 'PersonnelNo', 'FullName',
                    'PersonnelTypes', 'RequirementWorkMins_esti', 'EfficiencyRolePoint')
 
 
@@ -408,8 +408,8 @@ class PersonnelShiftDateAssignmentsAdmin(admin.ModelAdmin):
 
 @admin.register(WorkSectionRequirements)
 class WorkSectionRequirementsAdmin(admin.ModelAdmin):
-    list_display = ('WorkSection', 'PersonnelTypeReq', 'ShiftType', 'ReqMinCount', 'ReqMaxCount',)
-    list_filter = ('WorkSection__Hospital', 'WorkSection', 'ShiftType',)
+    list_display = ('WorkSection', 'Year', 'Month', 'PersonnelTypeReq', 'ShiftType', 'ReqMinCount', 'ReqMaxCount',)
+    list_filter = ('WorkSection__Hospital', 'WorkSection', 'Year', 'Month', 'ShiftType',)
 
     # def get_urls(self):
     #     urls = super().get_urls()

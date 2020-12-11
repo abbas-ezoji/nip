@@ -60,13 +60,13 @@ def update_shift(PersonnelBaseId, Date, ShiftGuid):
 
 
 def get_hospital(external_id):
-    query = ''' SELECT
-                        ID, Guid, Title
-                    FROM
-                        Didgah_Common..com_Departments
-                    WHERE
-                        Deleted = 0 AND Code = '1000'
-                        AND (ID = {0} OR {0}=0)
+    query = '''SELECT
+                    ID, Guid, Title
+                FROM
+                    Didgah_Common..com_Departments
+                WHERE
+                    Deleted = 0 AND Code = '1000'
+                    AND (ID = {0} OR {0}=0)
                 '''.format(external_id)
 
     hospital_df = pd.read_sql(query, engine)

@@ -54,3 +54,16 @@ def set_shift_async(self, work_section_id, year_working_period, coh_day, coh_prs
         logger.error(e)
 
     return present_id
+
+
+@task(bind=True, name="get_hospital")
+def get_hospital_async(self, PersonnelBaseId, Date, ShiftGuid):
+    logger.info(f"PersonnelBaseId={PersonnelBaseId}, Date={Date}, ShiftGuid={ShiftGuid}")
+    try:
+        logger.info("Start:")
+        q = etl.update_shift(PersonnelBaseId=PersonnelBaseId, Date=Date, ShiftGuid=ShiftGuid)
+    except Exception as e:
+        logger.error(e)
+        q = ''
+
+    return q
