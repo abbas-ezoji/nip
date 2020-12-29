@@ -140,7 +140,7 @@ class ShiftConstPersonnelTimesInline(admin.TabularInline):
 @admin.register(ShiftAssignments)
 class ShiftAssignmentsAdmin(TabbedModelAdmin):
     list_display = ('WorkSection', 'YearWorkingPeriod', 'Rank', 'Cost', 'EndTime', 'view_shifts_link')
-    list_filter = ('WorkSection', 'YearWorkingPeriod', 'Rank')
+    list_filter = ('WorkSection__Hospital', 'WorkSection', 'YearWorkingPeriod', 'Rank')
     readonly_fields = ('WorkSection', 'YearWorkingPeriod', 'Rank', 'Cost', 'EndTime')
 
     tab_overview = (
@@ -180,7 +180,7 @@ class ShiftAssignmentsAdmin(TabbedModelAdmin):
         url = (
                 reverse("admin:nip_personnelshiftdateassignments_changelist")
                 + "?"
-                + urlencode({"shiftassignments__id": f"{obj.id}"})
+                + urlencode({"ShiftAssignment__id": f"{obj.id}"})
         )
         return format_html('<a href="{}">مشاهده شیفت </a>', url)
 
@@ -245,7 +245,7 @@ class PersonnelShiftDateAssignmentsAdmin(admin.ModelAdmin):
     # list_display = [field.name for field in PersonnelShiftDateAssignments._meta.get_fields()]
     list_display = ('shift_colored',)
     list_filter = ('ShiftAssignment__WorkSection', 'YearWorkingPeriod',
-                   'ShiftAssignment__Rank',)
+                   'ShiftAssignment__Rank', )
 
     def shift_colored(self, obj):
         color_dict = {'0': 'white',
@@ -443,17 +443,8 @@ class WorkSectionRequirementsAdmin(admin.ModelAdmin):
     #     return super().changelist_view(request, extra_context=extra_context)
 
 
-class PersonnelLeavesAdmin(admin.ModelAdmin):
-    list_display = ('Personnel', 'YearWorkingPeriod', 'Day', 'ExternalId')
-    list_filter = ('Personnel__WorkSection', 'Personnel__FullName', 'YearWorkingPeriod', 'Day',)
+@admin.register(HardConstraints)
+class HardConstraintsAdmin(admin.ModelAdmin):
+    list_display = ('Personnel', 'YearWorkingPeriod', 'Day', 'ShiftType')
+    list_filter = ('Personnel', 'YearWorkingPeriod', 'Day', 'ShiftType')
 
-# admin.site.register(WorkSection, WorkSectionAdmin)
-# admin.site.register(PersonnelLeaves, PersonnelLeavesAdmin)
-# admin.site.register(WorkSectionRequirements, WorkSectionRequirementsAdmin)
-# admin.site.register(Shifts, ShiftsAdmin)
-# admin.site.register(Personnel, PersonnelAdmin)
-# admin.site.register(PersonnelTypes, PersonnelTypesAdmin)
-# admin.site.register(ShiftAssignments, ShiftAssignmentsAdmin)
-# admin.site.register(PersonnelShiftDateAssignments, PersonnelShiftDateAssignmentsAdmin)
-# admin.site.register(ShiftRecommendManager, ShiftRecommendManagerAdmin)
-# admin.site.register(Hospital, HospitalAdmin)

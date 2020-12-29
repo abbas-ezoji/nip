@@ -45,6 +45,7 @@ class shift():
                  show_plot=False,
                  by_parent=True,
                  new=0):
+        print(f'work_section_id: {work_section_id} year_working_period: {year_working_period}')
         self.work_section_id = work_section_id
         self.year_working_period = year_working_period
         self.coh_day = coh_day
@@ -147,7 +148,7 @@ class shift():
         query_leaves = '''SELECT P.[YearWorkingPeriod]
                               ,[Day]      
                               ,[Personnel_id]
-                          FROM [nip_personnelleaves] l join 
+                          FROM [nip_hardconstraints] l join 
                              [nip_personnel] p on p.id=l.Personnel_id
                           WHERE P.WorkSection_id = {} AND P.YearWorkingPeriod = {}
                           '''.format(work_section_id, year_working_period)
@@ -279,14 +280,17 @@ class shift():
                                                    'EfficiencyRolePoint',
                                                    'RequirementWorkMins_esti'
                                                    ])
-            chromosom_df.rename(
-                columns={'D01': 1, 'D02': 2, 'D03': 3, 'D04': 4, 'D05': 5, 'D06': 6,
-                         'D07': 7, 'D08': 8, 'D09': 9, 'D10': 10, 'D11': 11, 'D12': 12,
-                         'D13': 13, 'D14': 14, 'D15': 15, 'D16': 16, 'D17': 17, 'D18': 18,
-                         'D19': 19, 'D20': 20, 'D21': 21, 'D22': 22, 'D23': 23, 'D24': 24,
-                         'D25': 25, 'D26': 26, 'D27': 27, 'D28': 28, 'D29': 29, 'D30': 30,
-                         'D31': 31},
-                inplace=True)
+            columns={'D01': 1, 'D02': 2, 'D03': 3, 'D04': 4, 'D05': 5, 'D06': 6,
+                     'D07': 7, 'D08': 8, 'D09': 9, 'D10': 10, 'D11': 11, 'D12': 12,
+                     'D13': 13, 'D14': 14, 'D15': 15, 'D16': 16, 'D17': 17, 'D18': 18,
+                     'D19': 19, 'D20': 20, 'D21': 21, 'D22': 22, 'D23': 23, 'D24': 24,
+                     'D25': 25, 'D26': 26, 'D27': 27, 'D28': 28, 'D29': 29, 'D30': 30,
+                     'D31': 31}
+            if PersianMonth>6:
+                del columns['D31'] 
+            if PersianMonth==12:
+                del columns['D30'] 
+            chromosom_df.rename(columns=columns, inplace=True)
         # ---------------------- calcute typid_req_day--------------------------------#
         req_day = day_req_df.reset_index()
         typid_req_day = req_day.groupby(['Day', 'prs_typ_id', 'shift_type_id']).agg(
@@ -370,7 +374,7 @@ class shift():
                 diffs_max.append(np.max(diff))
 
             max_err = len(prs_sht_req) * max(prs_sht_req[:, 2]) * col
-            cost = (sum(diffs_sum) + sum(diffs_max)) / max_err
+            cost = (sum(diffs_sum) + sum(diffs_max)) / (max_err+1)
 
             return cost
 
@@ -448,7 +452,10 @@ class shift():
         sol_fitness, sol = ga.best_individual()
 
         sol_df = chromosom_df.copy()
-        days = range(31)
+        working_period = year_working_period%100
+        
+        days = range(len(sol_df.columns)) 
+            
         for day in days:
             sol_df[day + 1] = sol[:, day]
 

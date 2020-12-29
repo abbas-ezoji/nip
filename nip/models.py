@@ -122,10 +122,12 @@ class Shifts(models.Model):
         verbose_name_plural = 'شیفت'
 
 
-class PersonnelLeaves(models.Model):
+class HardConstraints(models.Model):
     Personnel = models.ForeignKey(Personnel, verbose_name=u'پرسنل', on_delete=models.CASCADE)
     YearWorkingPeriod = models.IntegerField('سال-دوره', )
     Day = models.IntegerField('روز', )
+    ShiftType = models.ForeignKey(ShiftTypes, verbose_name='نوع شیفت', on_delete=models.CASCADE,
+                                  db_column='ShiftType_id', null=True, blank=True)
     Value = models.IntegerField('مقدار', null=True, blank=True)
     ExternalId = models.IntegerField('شناسه دیدگاه', null=True, blank=True)
     ExternalGuid = models.CharField('شناسه شاخص دیدگاه', max_length=60, null=True, blank=True)
@@ -135,6 +137,7 @@ class PersonnelLeaves(models.Model):
 
     class Meta:
         verbose_name_plural = 'پرسنل - قیدهای تایید شده'
+        db_table = 'nip_hardconstraints'
 
 
 class PersonnelRequest(models.Model):
