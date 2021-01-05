@@ -15,6 +15,19 @@ def test(self, a, b):
     return a + b
 
 
+@task(bind=True, name="ETL")
+def ETL_async(self, YearWorkingPeriod):
+    logger.info(f"ETL run for YearWorkingPeriod={YearWorkingPeriod}")
+    try:
+        logger.info("Start:")
+        q = etl.ETL(YearWorkingPeriod)
+    except Exception as e:
+        logger.error(e)
+        q = ''
+
+    return q
+
+
 @task(bind=True, name="update_shift")
 def update_shift_async(self, PersonnelBaseId, Date, ShiftGuid):
     logger.info(f"PersonnelBaseId={PersonnelBaseId}, Date={Date}, ShiftGuid={ShiftGuid}")

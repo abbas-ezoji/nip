@@ -1,7 +1,25 @@
+import pandas as pd
 from django.db import models
 from django.utils.html import format_html
 from django.contrib.auth.models import User
-from nip.tasks import set_shift_async, test
+from nip.tasks import set_shift_async, ETL_async
+from django.contrib import messages
+from sqlalchemy import create_engine
+from project.db import get_db
+
+DATABASES = get_db()
+USER = DATABASES['nip']['USER']
+PASSWORD = DATABASES['nip']['PASSWORD']
+HOST = DATABASES['nip']['HOST']
+# PORT = DATABASES['nip']['PORT']
+NAME = DATABASES['nip']['NAME']
+
+engine = create_engine('mssql+pyodbc://{}:{}@{}/{}?driver=SQL+Server' \
+                       .format(USER,
+                               PASSWORD,
+                               HOST,
+                               NAME
+                               ))
 
 
 class Dim_Date(models.Model):
@@ -32,6 +50,29 @@ class Dim_Date(models.Model):
 
     class Meta:
         verbose_name_plural = 'تاریخ'
+
+
+class ETL(models.Model):
+    id = models.AutoField(db_column='Id', primary_key=True)
+    YearWorkingPeriod = models.IntegerField('سال-دوره', db_column='YearWorkingPeriod')
+    HospitalDepartmentCode = models.IntegerField('کد بیمارستان', db_column='HospitalDepartmentCode')
+
+    def __str__(self):
+        return str(self.YearWorkingPeriod)
+
+    class Meta:
+        verbose_name = 'فرایند استخراج داده'
+        verbose_name_plural = 'فرایند استخراج داده'
+        db_table = 'nip_ETL'
+
+    def save(self, *args, **kwargs):
+        if not self.id:
+            super().save(*args, **kwargs)
+
+        ETL_async.delay(self.YearWorkingPeriod)
+
+        super(ETL, self).save(*args, **kwargs)
+
 
 
 class Hospital(models.Model):
@@ -88,13 +129,13 @@ class PersonnelTypes(models.Model):
 
 
 class Personnel(models.Model):
-    PersonnelNo = models.CharField('شماره پرسنلی', max_length=100, null=True, blank=True,)
+    PersonnelNo = models.CharField('شماره پرسنلی', max_length=100, null=True, blank=True, )
     FullName = models.CharField('نام کامل', max_length=100)
     WorkSection = models.ForeignKey(WorkSection, verbose_name=u'بخش', on_delete=models.CASCADE)
     YearWorkingPeriod = models.IntegerField('سال-دوره', )
     RequirementWorkMins_esti = models.IntegerField('زمان پیش بینی شده', )
     PersonnelTypes = models.ForeignKey(PersonnelTypes, verbose_name=u'تخصص', on_delete=models.CASCADE)
-    EfficiencyRolePoint = models.IntegerField('امتیاز بهره وری', )
+    EfficiencyRolePoint = models.FloatField('امتیاز بهره وری', )
     ExternalId = models.IntegerField('شناسه دیدگاه', null=True, blank=True)
     ExternalGuid = models.CharField('شناسه شاخص دیدگاه', max_length=60, null=True, blank=True)
 
@@ -328,9 +369,18 @@ class ShiftRecommendManager(models.Model):
         verbose_name_plural = 'مدیریت - سیستم هوشمند شیفت'
 
     def save(self, *args, **kwargs):
-        if not self.id:
+        if not self.id or self.TaskStatus == 0:
             super().save(*args, **kwargs)
-        if self.TaskStatus == 1:                  # just run optimizer
+
+        pers_count = pd.read_sql_query('''SELECT COUNT(*) FROM [nip_personnel]
+                    WHERE [YearWorkingPeriod]={} AND [WorkSection_id] = {}
+                    '''.format(self.YearWorkingPeriod, self.WorkSection.id), engine)
+        print(pers_count)
+        if len(pers_count) == 0:
+            messages.error('Don\'t Save', messages.ERROR)
+            return
+
+        if self.TaskStatus == 1:  # just run optimizer
             self.Comments = set_shift_async.delay(self.WorkSection.id,
                                                   self.YearWorkingPeriod,
                                                   self.coh_const_DayRequirements,
@@ -362,4 +412,3 @@ class ShiftRecommendManager(models.Model):
                                                   self.RecommenderStatus
                                                   )
         super(ShiftRecommendManager, self).save(*args, **kwargs)
-

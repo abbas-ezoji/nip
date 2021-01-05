@@ -72,3 +72,13 @@ def get_hospital(external_id):
     hospital_df = pd.read_sql(query, engine)
 
     return hospital_df
+
+
+def ETL(YearWorkingPeriod):
+    query = '''EXEC [dbo].[etl_RunAllByYearWorkingPeriod] {}
+            '''.format(YearWorkingPeriod)
+
+    with engine.connect() as con:
+        con.execute(query)
+
+    return 1
