@@ -270,8 +270,8 @@ class shift():
             shift_list = np.flip(shifts[:, 0].tolist())
             for prs in chromosom_df.index:
                 chromosom_df.loc[prs] = np.random.choice(shift_list,
-                                                         p=[1 / 14, 1 / 14, 1 / 14,
-                                                            1 / 14, 2 / 14, 3 / 14, 5 / 14],
+                                                         # p=[1 / 14, 1 / 14, 1 / 14,
+                                                         #    1 / 14, 2 / 14, 3 / 14, 5 / 14],
                                                          size=len(chromosom_df.columns)
                                                          )
         else:

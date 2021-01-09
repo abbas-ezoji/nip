@@ -117,7 +117,7 @@ class Personnel(models.Model):
     ExternalGuid = models.CharField('شناسه شاخص دیدگاه', max_length=60, null=True, blank=True)
 
     def __str__(self):
-        return self.FullName + ' - ' + self.PersonnelTypes.Title
+        return self.FullName
 
     class Meta:
         verbose_name_plural = 'پرسنل'
@@ -255,6 +255,7 @@ class ShiftConstDayRequirements(models.Model):
 class ShiftConstPersonnelTimes(models.Model):
     ShiftAssignment = models.ForeignKey(ShiftAssignments, on_delete=models.CASCADE, null=True)
     Personnel = models.ForeignKey(Personnel, verbose_name=u'پرسنل', on_delete=models.CASCADE)
+    # Personnel = models.IntegerField(verbose_name=u'پرسنل', db_column='Personnel_id')
     PersonnelTypes = models.ForeignKey(PersonnelTypes, verbose_name=u'تخصص', on_delete=models.DO_NOTHING)
     EfficiencyRolePoint = models.IntegerField('امتیاز بهره وری')
     RequireMinsEstimate = models.IntegerField('زمان نیاز بهره وری')
@@ -262,8 +263,8 @@ class ShiftConstPersonnelTimes(models.Model):
     AssignedTimes = models.IntegerField('مقدار زمان اختصاص داده شده')
     Diff = models.IntegerField('اختلاف')
 
-    def __str__(self):
-        return str(self.Personnel.FullName) + '-' + str(self.PersonnelTypes.Title) + '-' + str(self.EfficiencyRolePoint)
+    # def __str__(self):
+    #     return str(self.Personnel.FullName) + '-' + str(self.PersonnelTypes.Title) + '-' + str(self.EfficiencyRolePoint)
 
     class Meta:
         verbose_name_plural = 'اختلاف زمانی پرسنل'
@@ -358,34 +359,34 @@ class ShiftRecommendManager(models.Model):
             return
 
         if self.TaskStatus == 1:  # just run optimizer
-            self.Comments = set_shift_async.delay(self.WorkSection.id,
-                                                  self.YearWorkingPeriod,
-                                                  self.coh_const_DayRequirements,
-                                                  self.coh_const_PersonnelPerformanceTime,
-                                                  self.PopulationSize,
-                                                  self.GenerationCount,
-                                                  self.MaxFitConstRate,
-                                                  self.CrossoverProbability,
-                                                  self.MutationProbability,
-                                                  self.Elitism,
-                                                  self.ShowPlot,
-                                                  self.DevByParent,
-                                                  self.RecommenderStatus
+            self.Comments = set_shift_async.delay(work_section_id=self.WorkSection.id,
+                                                  year_working_period=self.YearWorkingPeriod,
+                                                  coh_day=self.coh_const_DayRequirements,
+                                                  coh_prs=self.coh_const_PersonnelPerformanceTime,
+                                                  population_size=self.PopulationSize,
+                                                  generations=self.GenerationCount,
+                                                  max_const_count=self.MaxFitConstRate,
+                                                  crossover_probability=self.CrossoverProbability,
+                                                  mutation_probability=self.MutationProbability,
+                                                  elitism=False,
+                                                  show_plot=True,
+                                                  by_parent=True,
+                                                  new=self.RecommenderStatus
                                                   )
         elif self.TaskStatus == 2:
 
-            self.Comments = set_shift_async.delay(self.WorkSection.id,
-                                                  self.YearWorkingPeriod,
-                                                  self.coh_const_DayRequirements,
-                                                  self.coh_const_PersonnelPerformanceTime,
-                                                  self.PopulationSize,
-                                                  self.GenerationCount,
-                                                  self.MaxFitConstRate,
-                                                  self.CrossoverProbability,
-                                                  self.MutationProbability,
-                                                  self.Elitism,
-                                                  self.ShowPlot,
-                                                  self.DevByParent,
-                                                  self.RecommenderStatus
+            self.Comments = set_shift_async.delay(work_section_id=self.WorkSection.id,
+                                                  year_working_period=self.YearWorkingPeriod,
+                                                  coh_day=self.coh_const_DayRequirements,
+                                                  coh_prs=self.coh_const_PersonnelPerformanceTime,
+                                                  population_size=self.PopulationSize,
+                                                  generations=self.GenerationCount,
+                                                  max_const_count=self.MaxFitConstRate,
+                                                  crossover_probability=self.CrossoverProbability,
+                                                  mutation_probability=self.MutationProbability,
+                                                  elitism=False,
+                                                  show_plot=True,
+                                                  by_parent=True,
+                                                  new=self.RecommenderStatus
                                                   )
         super(ShiftRecommendManager, self).save(*args, **kwargs)
