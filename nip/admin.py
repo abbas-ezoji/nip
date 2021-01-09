@@ -24,12 +24,6 @@ from reportlab.pdfgen import canvas
 from tabbed_admin import TabbedModelAdmin
 
 
-@admin.register(ETL)
-class ETLAdmin(admin.ModelAdmin):
-    list_display = ('YearWorkingPeriod', 'HospitalDepartmentCode', )
-    list_filter = ('YearWorkingPeriod', 'HospitalDepartmentCode', )
-
-
 @admin.register(Hospital)
 class HospitalAdmin(admin.ModelAdmin):
     list_display = ('Code', 'Title', 'ExternalId', 'view_personnel_link',)

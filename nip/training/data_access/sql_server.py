@@ -132,6 +132,7 @@ class nip_data(object):
             # ------------------------ insert new solution ------------------------#
 
             for index, t in sol_df.iterrows():
+                m = year_working_period%100
                 insert_qry = '''insert into nip_PersonnelShiftDateAssignments 
                                    ([Personnel_id]                                  
                                   ,[D01]
@@ -176,11 +177,13 @@ class nip_data(object):
                                   t[12], t[14], t[14], t[15], t[16], t[17],
                                   t[18], t[19], t[20], t[21], t[22], t[23],
                                   t[24], t[25], t[26], t[27], t[28], t[29],
-                                  t[30], t[31],
+                                  t[30] if m<12 else 'null', 
+                                  t[31] if m<7  else 'null',
                                   ShiftAssignment_id,
                                   year_working_period
                                   )
                 con.execute(insert_qry)
+                print(f'ShiftAssignment_id: {ShiftAssignment_id}')
 
         return ShiftAssignment_id
 

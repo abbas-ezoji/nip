@@ -2,7 +2,7 @@ import pandas as pd
 from django.db import models
 from django.utils.html import format_html
 from django.contrib.auth.models import User
-from nip.tasks import set_shift_async, ETL_async
+from nip.tasks import set_shift_async
 from django.contrib import messages
 from sqlalchemy import create_engine
 from project.db import get_db
@@ -50,29 +50,6 @@ class Dim_Date(models.Model):
 
     class Meta:
         verbose_name_plural = 'تاریخ'
-
-
-class ETL(models.Model):
-    id = models.AutoField(db_column='Id', primary_key=True)
-    YearWorkingPeriod = models.IntegerField('سال-دوره', db_column='YearWorkingPeriod')
-    HospitalDepartmentCode = models.IntegerField('کد بیمارستان', db_column='HospitalDepartmentCode')
-
-    def __str__(self):
-        return str(self.YearWorkingPeriod)
-
-    class Meta:
-        verbose_name = 'فرایند استخراج داده'
-        verbose_name_plural = 'فرایند استخراج داده'
-        db_table = 'nip_ETL'
-
-    def save(self, *args, **kwargs):
-        if not self.id:
-            super().save(*args, **kwargs)
-
-        ETL_async.delay(self.YearWorkingPeriod)
-
-        super(ETL, self).save(*args, **kwargs)
-
 
 
 class Hospital(models.Model):
@@ -215,37 +192,37 @@ class PersonnelShiftDateAssignments(models.Model):
     ShiftAssignment = models.ForeignKey(ShiftAssignments, on_delete=models.CASCADE, null=True)
     Personnel = models.ForeignKey(Personnel, verbose_name=u'پرسنل', on_delete=models.CASCADE, null=True)
     YearWorkingPeriod = models.IntegerField('سال-دوره', null=True, editable=False)
-    D01 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, default=1, db_column='D01')
-    D02 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D02', db_column='D02')
-    D03 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D03', db_column='D03')
-    D04 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D04', db_column='D04')
-    D05 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D05', db_column='D05')
-    D06 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D06', db_column='D06')
-    D07 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D07', db_column='D07')
-    D08 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D08', db_column='D08')
-    D09 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D09', db_column='D09')
-    D10 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D10', db_column='D10')
-    D11 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D11', db_column='D11')
-    D12 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D12', db_column='D12')
-    D13 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D13', db_column='D13')
-    D14 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D14', db_column='D14')
-    D15 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D15', db_column='D15')
-    D16 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D16', db_column='D16')
-    D17 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D17', db_column='D17')
-    D18 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D18', db_column='D18')
-    D19 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D19', db_column='D19')
-    D20 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D20', db_column='D20')
-    D21 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D21', db_column='D21')
-    D22 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D22', db_column='D22')
-    D23 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D23', db_column='D23')
-    D24 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D24', db_column='D24')
-    D25 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D25', db_column='D25')
-    D26 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D26', db_column='D26')
-    D27 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D27', db_column='D27')
-    D28 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D28', db_column='D28')
-    D29 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D29', db_column='D29')
-    D30 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D30', db_column='D30')
-    D31 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D31', db_column='D31')
+    D01 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, db_column='D01', null=True)
+    D02 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D02', db_column='D02', null=True)
+    D03 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D03', db_column='D03', null=True)
+    D04 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D04', db_column='D04', null=True)
+    D05 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D05', db_column='D05', null=True)
+    D06 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D06', db_column='D06', null=True)
+    D07 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D07', db_column='D07', null=True)
+    D08 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D08', db_column='D08', null=True)
+    D09 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D09', db_column='D09', null=True)
+    D10 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D10', db_column='D10', null=True)
+    D11 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D11', db_column='D11', null=True)
+    D12 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D12', db_column='D12', null=True)
+    D13 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D13', db_column='D13', null=True)
+    D14 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D14', db_column='D14', null=True)
+    D15 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D15', db_column='D15', null=True)
+    D16 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D16', db_column='D16', null=True)
+    D17 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D17', db_column='D17', null=True)
+    D18 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D18', db_column='D18', null=True)
+    D19 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D19', db_column='D19', null=True)
+    D20 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D20', db_column='D20', null=True)
+    D21 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D21', db_column='D21', null=True)
+    D22 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D22', db_column='D22', null=True)
+    D23 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D23', db_column='D23', null=True)
+    D24 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D24', db_column='D24', null=True)
+    D25 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D25', db_column='D25', null=True)
+    D26 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D26', db_column='D26', null=True)
+    D27 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D27', db_column='D27', null=True)
+    D28 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D28', db_column='D28', null=True)
+    D29 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D29', db_column='D29', null=True)
+    D30 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D30', db_column='D30', null=True)
+    D31 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D31', db_column='D31', null=True)
 
     def __str__(self):
         return self.Personnel.FullName

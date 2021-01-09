@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'nip',
+    'etl',
     'tabbed_admin',
     'channels',
     'bootstrap4',

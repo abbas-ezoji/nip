@@ -1,11 +1,11 @@
 from training import utils
 
-work_section_id=44009
+work_section_id=44008
 year_working_period=139909
 coh_day=0.99
 coh_prs=0.001
 population_size=80
-generations=10
+generations=5
 max_const_count=20
 crossover_probability=0.8
 mutation_probability=0.2
