@@ -26,6 +26,8 @@ SECRET_KEY = 'gs0nq4+wr2z-&su1mli^qpozv0xu4xs0f36@a-ji7wx7$s5r+0'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+DEBUG_PROPAGATE_EXCEPTIONS = True
+
 ALLOWED_HOSTS = ['*']
 
 
@@ -42,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'nip',
     'etl',
+    'basic_information',
     'tabbed_admin',
     'channels',
     'bootstrap4',
@@ -164,15 +167,13 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
-STATICFILES_DIR = [os.path.join(BASE_DIR, 'static'), ]
-document_root = STATIC_ROOT
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'nip', 'static'),
-    ]
+# STATICFILES_DIRS = [
+#     os.path.join(BASE_DIR, 'nip', 'static'),
+#     ]
 
 # Caching - demo uses redis as this is present due to channels use
 

@@ -24,50 +24,6 @@ from reportlab.pdfgen import canvas
 from tabbed_admin import TabbedModelAdmin
 
 
-@admin.register(Hospital)
-class HospitalAdmin(admin.ModelAdmin):
-    list_display = ('Code', 'Title', 'ExternalId', 'view_personnel_link',)
-    list_filter = ('Code', 'Title')
-
-    # search_fields = ("Title",)
-
-    def view_personnel_link(self, obj):
-        count = obj.worksection_set.count()
-        url = (
-                reverse("admin:nip_worksection_changelist")
-                + "?"
-                + urlencode({"hospital__id": f"{obj.id}"})
-        )
-        return format_html('<a href="{}">{} تعداد بخش</a>', url, count)
-
-    view_personnel_link.short_description = "مجموع بخشها"
-
-
-@admin.register(WorkSection)
-class WorkSectionAdmin(admin.ModelAdmin):
-    list_display = ('Title', 'Hospital', 'ExternalId', 'view_personnel_link',)
-    list_filter = ('Code', 'Title', 'Hospital',)
-
-    # search_fields = ("Title",)
-
-    def view_personnel_link(self, obj):
-        count = obj.personnel_set.count()
-        url = (
-                reverse("admin:nip_personnel_changelist")
-                + "?"
-                + urlencode({"WorkSection__id": f"{obj.id}"})
-        )
-        return format_html('<a href="{}">{} تعداد پرسنل</a>', url, count)
-
-    view_personnel_link.short_description = "مجموع پرسنل"
-
-
-@admin.register(PersonnelTypes)
-class PersonnelTypesAdmin(admin.ModelAdmin):
-    list_display = ('Code', 'Title')
-    list_filter = ('Code', 'Title')
-
-
 class PersonnelShiftDateAssignmentsInline(admin.TabularInline):
     model = PersonnelShiftDateAssignments
     extra = 0
@@ -185,35 +141,6 @@ class ShiftAssignmentsAdmin(TabbedModelAdmin):
         return format_html('<a href="{}">مشاهده شیفت </a>', url)
 
     view_shifts_link.short_description = "شیفتها"
-
-
-@admin.register(Shifts)
-class ShiftsAdmin(admin.ModelAdmin):
-    # list_display = [field.name for field in Shifts._meta.get_fields()]
-    list_display = ('Code', 'Title', 'Length', 'ExternalId', 'type_colored',)
-    list_filter = ('Code', 'Title', 'Length',)
-
-    def type_colored(self, obj):
-        color_dict = {'0': 'white',
-                      '1': 'green',
-                      '2': 'red',
-                      '3': 'blue',
-                      '12': 'orange',
-                      '13': 'brown',
-                      '23': 'Purple',
-                      }
-
-        return format_html(
-            ''' <input style="background:{};"/> 
-                '''.format(color_dict.get(obj.Type)))
-
-
-@admin.register(Personnel)
-class PersonnelAdmin(admin.ModelAdmin):
-    list_display = ('YearWorkingPeriod', 'WorkSection', 'PersonnelNo', 'FullName',
-                    'PersonnelTypes', 'RequirementWorkMins_esti', 'EfficiencyRolePoint')
-    list_filter = ('YearWorkingPeriod','WorkSection__Hospital', 'WorkSection', 'PersonnelNo', 'FullName',
-                   'PersonnelTypes', 'RequirementWorkMins_esti', 'EfficiencyRolePoint')
 
 
 class ShiftRecommendManagerForm(forms.ModelForm):
@@ -445,6 +372,6 @@ class WorkSectionRequirementsAdmin(admin.ModelAdmin):
 
 @admin.register(HardConstraints)
 class HardConstraintsAdmin(admin.ModelAdmin):
-    list_display = ('Personnel', 'YearWorkingPeriod', 'Day', 'ShiftType')
-    list_filter = ('Personnel', 'YearWorkingPeriod', 'Day', 'ShiftType')
+    list_display = ('Personnel', 'YearWorkingPeriod', 'Day', 'ShiftType', 'Value')
+    list_filter = ('Personnel', 'YearWorkingPeriod', 'Day', 'ShiftType', 'Value')
 
