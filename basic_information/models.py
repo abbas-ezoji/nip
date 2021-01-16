@@ -50,6 +50,7 @@ class Dim_Date(models.Model):
 
     class Meta:
         verbose_name_plural = 'تاریخ'
+        db_table = 'nip_dim_date'
 
 
 class Hospital(models.Model):
@@ -64,6 +65,7 @@ class Hospital(models.Model):
     class Meta:
         verbose_name = 'بیمارستان'
         verbose_name_plural = 'بیمارستان'
+        db_table = 'nip_hospital'
 
 
 class WorkSection(models.Model):
@@ -79,6 +81,7 @@ class WorkSection(models.Model):
     class Meta:
         verbose_name = 'بخش'
         verbose_name_plural = 'بخش'
+        db_table = 'nip_worksection'
 
 
 class ShiftTypes(models.Model):
@@ -90,6 +93,7 @@ class ShiftTypes(models.Model):
 
     class Meta:
         verbose_name_plural = 'نوع شیفت'
+        db_table = 'nip_shifttypes'
 
 
 class PersonnelTypes(models.Model):
@@ -103,6 +107,7 @@ class PersonnelTypes(models.Model):
 
     class Meta:
         verbose_name_plural = 'پرسنل - تخصص'
+        db_table = 'nip_personneltypes'
 
 
 class Personnel(models.Model):
@@ -122,6 +127,7 @@ class Personnel(models.Model):
 
     class Meta:
         verbose_name_plural = 'پرسنل'
+        db_table = 'nip_personnel'
 
 
 class Shifts(models.Model):
@@ -139,3 +145,4 @@ class Shifts(models.Model):
 
     class Meta:
         verbose_name_plural = 'شیفت'
+        db_table = 'nip_shifts'

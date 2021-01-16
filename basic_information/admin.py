@@ -34,7 +34,7 @@ class HospitalAdmin(admin.ModelAdmin):
     def view_personnel_link(self, obj):
         count = obj.worksection_set.count()
         url = (
-                reverse("admin:nip_worksection_changelist")
+                reverse("admin:basic_information_worksection_changelist")
                 + "?"
                 + urlencode({"hospital__id": f"{obj.id}"})
         )
@@ -53,7 +53,7 @@ class WorkSectionAdmin(admin.ModelAdmin):
     def view_personnel_link(self, obj):
         count = obj.personnel_set.count()
         url = (
-                reverse("admin:nip_personnel_changelist")
+                reverse("admin:basic_information_personnel_changelist")
                 + "?"
                 + urlencode({"WorkSection__id": f"{obj.id}"})
         )

@@ -59,6 +59,7 @@ class PersonnelRequest(models.Model):
 
     class Meta:
         verbose_name_plural = 'پرسنل - خوداظهاری'
+        db_table = 'nip_personnelrequest'
 
 
 class ShiftAssignments(models.Model):
@@ -75,6 +76,7 @@ class ShiftAssignments(models.Model):
 
     class Meta:
         verbose_name_plural = 'شیفت پیشنهادی - جزئیات'
+        db_table = 'nip_shiftassignments'
 
 
 class PersonnelShiftDateAssignments(models.Model):
@@ -118,6 +120,7 @@ class PersonnelShiftDateAssignments(models.Model):
 
     class Meta:
         verbose_name_plural = 'شیفت پیشنهادی - آرشیو '
+        db_table = 'nip_personnelshiftdateassignments'
 
 
 class ShiftConstDayRequirements(models.Model):
@@ -139,6 +142,7 @@ class ShiftConstDayRequirements(models.Model):
 
     class Meta:
         verbose_name_plural = 'نیازمندی روزانه'
+        db_table = 'nip_shiftconstdayrequirements'
 
 
 class ShiftConstPersonnelTimes(models.Model):
@@ -157,6 +161,7 @@ class ShiftConstPersonnelTimes(models.Model):
 
     class Meta:
         verbose_name_plural = 'اختلاف زمانی پرسنل'
+        db_table = 'nip_shiftconstpersonneltimes'
 
 
 class WorkSectionRequirements(models.Model):
@@ -177,6 +182,7 @@ class WorkSectionRequirements(models.Model):
 
     class Meta:
         verbose_name_plural = 'بخش - نیازمندی ها'
+        db_table = 'nip_worksectionrequirements'
 
 
 class tkp_Logs(models.Model):
@@ -195,6 +201,7 @@ class tkp_Logs(models.Model):
 
     class Meta:
         verbose_name_plural = 'Time Logs'
+        db_table = 'nip_tkp_logs'
 
 
 recommender_status = (
@@ -234,6 +241,7 @@ class ShiftRecommendManager(models.Model):
 
     class Meta:
         verbose_name_plural = 'مدیریت - سیستم هوشمند شیفت'
+        db_table = 'nip_shiftrecommendmanager'
 
     def save(self, *args, **kwargs):
         if not self.id or self.TaskStatus == 0:
