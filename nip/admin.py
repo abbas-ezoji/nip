@@ -373,5 +373,6 @@ class WorkSectionRequirementsAdmin(admin.ModelAdmin):
 @admin.register(HardConstraints)
 class HardConstraintsAdmin(admin.ModelAdmin):
     list_display = ('Personnel', 'YearWorkingPeriod', 'Day', 'ShiftType', 'Value')
-    list_filter = ('Personnel', 'YearWorkingPeriod', 'Day', 'ShiftType', 'Value')
+    list_filter = ('Personnel__WorkSection__Hospital', 'Personnel__WorkSection', 'Personnel',
+                   'YearWorkingPeriod', 'Day', 'ShiftType', 'Value')
 

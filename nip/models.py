@@ -24,8 +24,8 @@ engine = create_engine('mssql+pyodbc://{}:{}@{}/{}?driver=SQL+Server' \
 
 
 HardConstraintValues = (
-    (1, ("باید")),
-    (-1, ("نباید")),
+    (1, ("نباید")),
+    (-1, ("باید")),
 )
 
 

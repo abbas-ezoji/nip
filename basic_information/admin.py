@@ -93,5 +93,5 @@ class ShiftsAdmin(admin.ModelAdmin):
 class PersonnelAdmin(admin.ModelAdmin):
     list_display = ('YearWorkingPeriod', 'WorkSection', 'PersonnelNo', 'FullName',
                     'PersonnelTypes', 'RequirementWorkMins_esti', 'EfficiencyRolePoint')
-    list_filter = ('YearWorkingPeriod','WorkSection__Hospital', 'WorkSection', 'PersonnelNo', 'FullName',
+    list_filter = ('YearWorkingPeriod', 'WorkSection__Hospital', 'WorkSection', 'PersonnelNo', 'FullName',
                    'PersonnelTypes', 'Active')
