@@ -34,10 +34,11 @@ class HospitalAdmin(admin.ModelAdmin):
         qs = super(HospitalAdmin, self).get_queryset(request)
         user = request.user
         user_profile = authentication.UserProfile.objects.filter(User=user)[0]
-        hospital = user_profile.Hospital.id
-        work_section = user_profile.WorkSection.id
         if user.is_superuser or user_profile.Level == 1:
             return qs
+        hospital = user_profile.Hospital.id
+        work_section = user_profile.WorkSection.id
+
         if user_profile.Level == 2:
             return qs.filter(id=hospital)
         if user_profile.Level == 3:
@@ -60,14 +61,26 @@ class WorkSectionAdmin(admin.ModelAdmin):
     list_display = ('Title', 'Hospital', 'ExternalId', 'view_personnel_link',)
     list_filter = ('Code', 'Title', 'Hospital',)
 
+    def render_change_form(self, request, context, *args, **kwargs):
+        user = request.user
+        user_profile = authentication.UserProfile.objects.filter(User=user)[0]
+        if user.is_superuser or user_profile.Level == 1:
+            return super(WorkSectionAdmin, self).render_change_form(request, context, *args, **kwargs)
+
+        hospital = user_profile.Hospital.id
+        work_section = user_profile.WorkSection.id
+        context['adminform'].form.fields['Hospital'].queryset = Hospital.objects.filter(id=hospital)
+        return super(WorkSectionAdmin, self).render_change_form(request, context, *args, **kwargs)
+
     def get_queryset(self, request):
         qs = super(WorkSectionAdmin, self).get_queryset(request)
         user = request.user
         user_profile = authentication.UserProfile.objects.filter(User=user)[0]
-        hospital = user_profile.Hospital.id
-        work_section = user_profile.WorkSection.id
         if user.is_superuser or user_profile.Level == 1:
             return qs
+        hospital = user_profile.Hospital.id
+        work_section = user_profile.WorkSection.id
+
         if user_profile.Level == 2:
             return qs.filter(Hospital__id=hospital)
         if user_profile.Level == 3:
@@ -119,14 +132,29 @@ class PersonnelAdmin(admin.ModelAdmin):
     list_filter = ('YearWorkingPeriod', 'WorkSection__Hospital', 'WorkSection', 'PersonnelNo', 'FullName',
                    'PersonnelTypes', 'Active')
 
+    def render_change_form(self, request, context, *args, **kwargs):
+        user = request.user
+        user_profile = authentication.UserProfile.objects.filter(User=user)[0]
+        if user.is_superuser or user_profile.Level == 1:
+            return super(PersonnelAdmin, self).render_change_form(request, context, *args, **kwargs)
+
+        hospital = user_profile.Hospital.id
+        work_section = user_profile.WorkSection.id
+        if user_profile.Level == 2:
+            context['adminform'].form.fields['WorkSection'].queryset = WorkSection.objects.filter(Hospital__id=hospital)
+        if user_profile.Level == 3:
+            context['adminform'].form.fields['WorkSection'].queryset = WorkSection.objects.filter(id=work_section)
+        return super(PersonnelAdmin, self).render_change_form(request, context, *args, **kwargs)
+
     def get_queryset(self, request):
         qs = super(PersonnelAdmin, self).get_queryset(request)
         user = request.user
         user_profile = authentication.UserProfile.objects.filter(User=user)[0]
-        hospital = user_profile.Hospital.id
-        work_section = user_profile.WorkSection.id
         if user.is_superuser or user_profile.Level == 1:
             return qs
+        hospital = user_profile.Hospital.id
+        work_section = user_profile.WorkSection.id
+
         if user_profile.Level == 2:
             return qs.filter(WorkSection__Hospital__id=hospital)
         if user_profile.Level == 3:

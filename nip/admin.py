@@ -28,6 +28,26 @@ from authentication import models as authentication
 class PersonnelShiftDateAssignmentsInline(admin.TabularInline):
     model = PersonnelShiftDateAssignments
     extra = 0
+    readonly_fields = ('Personnel',)
+    fields = ['Personnel', 'D01', 'D02', 'D03', 'D04', 'D05', 'D06', 'D07', 'D08', 'D09', 'D10',
+                           'D11', 'D12', 'D13', 'D14', 'D15', 'D16', 'D17', 'D18', 'D19', 'D20',
+                           'D21', 'D22', 'D23', 'D24', 'D25', 'D26', 'D27', 'D28', 'D29', 'D30', 'D31']
+
+    def render_change_form(self, request, context, *args, **kwargs):
+        user = request.user
+        user_profile = authentication.UserProfile.objects.filter(User=user)[0]
+        if user.is_superuser or user_profile.Level == 1:
+            return super(PersonnelShiftDateAssignmentsInline, self).render_change_form(request, context, *args, **kwargs)
+
+        hospital = user_profile.Hospital.id
+        work_section = user_profile.WorkSection.id
+        if user_profile.Level == 2:
+            context['adminform'].form.fields['Personnel'].queryset = Personnel.objects.filter(\
+                WorkSection__Hospital__id=hospital)
+        if user_profile.Level == 3:
+            context['adminform'].form.fields['Personnel'].queryset = Personnel.objects.filter(\
+                WorkSection__id=work_section)
+        return super(PersonnelShiftDateAssignmentsInline, self).render_change_form(request, context, *args, **kwargs)
 
     def get_formset(self, request, obj=None, **kwargs):
         """
@@ -36,10 +56,12 @@ class PersonnelShiftDateAssignmentsInline(admin.TabularInline):
         """
         formset = super(PersonnelShiftDateAssignmentsInline, self).get_formset(request, obj, **kwargs)
         form = formset.form
-        widget = form.base_fields['Personnel'].widget
-        widget.can_add_related = False
-        widget.can_change_related = False
-        widget.can_delete_related = False
+
+        # widget = form.base_fields['Personnel'].widget
+        # widget.can_add_related = False
+        # widget.can_change_related = False
+        # widget.can_delete_related = False
+
         for d in range(1, 32):
             day = 'D' + (str(d) if d > 9 else '0' + str(d))
             widget = form.base_fields[day].widget
@@ -53,6 +75,9 @@ class ShiftConstDayRequirementsInline(admin.TabularInline):
     model = ShiftConstDayRequirements
     extra = 0
     ordering = ("-DiffCount", "Day", "PersonnelTypes", "ShiftTypes",)
+    readonly_fields = ("Day", "PersonnelTypes", "ShiftTypes",
+                       "PersonnelCount", "PersonnelPoints", "RequireMinCount",
+                       "RequireMaxCount", "DiffCount", )
 
     # readonly_fields = ([f for f in ShiftConstDayRequirements._meta.get_fields()])
     can_delete = False
@@ -61,37 +86,15 @@ class ShiftConstDayRequirementsInline(admin.TabularInline):
         qs = super(ShiftConstDayRequirementsInline, self).get_queryset(request)
         return qs.filter(DiffCount__gt=0)
 
-    def get_formset(self, request, obj=None, **kwargs):
-        formset = super(ShiftConstDayRequirementsInline, self).get_formset(request, obj, **kwargs)
-        form = formset.form
-        widget = form.base_fields['PersonnelTypes'].widget
-        widget.can_add_related = False
-        widget.can_change_related = False
-        widget.can_delete_related = False
-
-        return formset
-
 
 class ShiftConstPersonnelTimesInline(admin.TabularInline):
     model = ShiftConstPersonnelTimes
     extra = 0
     ordering = ("-EfficiencyRolePoint", "PersonnelTypes",)
     can_delete = False
-
-    def get_formset(self, request, obj=None, **kwargs):
-        formset = super(ShiftConstPersonnelTimesInline, self).get_formset(request, obj, **kwargs)
-        form = formset.form
-        widget = form.base_fields['PersonnelTypes'].widget
-        widget.can_add_related = False
-        widget.can_change_related = False
-        widget.can_delete_related = False
-
-        widget = form.base_fields['Personnel'].widget
-        widget.can_add_related = False
-        widget.can_change_related = False
-        widget.can_delete_related = False
-
-        return formset
+    readonly_fields = ("Personnel", "PersonnelTypes", "EfficiencyRolePoint",
+                       "RequireMinsEstimate", "ExtraForce", "AssignedTimes",
+                       "Diff",)
 
 
 @admin.register(ShiftAssignments)
@@ -104,10 +107,11 @@ class ShiftAssignmentsAdmin(TabbedModelAdmin):
         qs = super(ShiftAssignmentsAdmin, self).get_queryset(request)
         user = request.user
         user_profile = authentication.UserProfile.objects.filter(User=user)[0]
-        hospital = user_profile.Hospital.id
-        work_section = user_profile.WorkSection.id
         if user.is_superuser or user_profile.Level == 1:
             return qs
+
+        hospital = user_profile.Hospital.id
+        work_section = user_profile.WorkSection.id
         if user_profile.Level == 2:
             return qs.filter(WorkSection__Hospital__id=hospital)
         if user_profile.Level == 3:
@@ -176,6 +180,34 @@ class ShiftRecommendManagerAdmin(admin.ModelAdmin):
     list_filter = ('YearWorkingPeriod', 'WorkSection', 'TaskStatus', 'RecommenderStatus',)
     # form = ShiftRecommendManagerForm
 
+    def render_change_form(self, request, context, *args, **kwargs):
+        user = request.user
+        user_profile = authentication.UserProfile.objects.filter(User=user)[0]
+        if user.is_superuser or user_profile.Level == 1:
+            return super(ShiftRecommendManagerAdmin, self).render_change_form(request, context, *args, **kwargs)
+
+        hospital = user_profile.Hospital.id
+        work_section = user_profile.WorkSection.id
+        if user_profile.Level == 2:
+            context['adminform'].form.fields['WorkSection'].queryset = WorkSection.objects.filter(Hospital__id=hospital)
+        if user_profile.Level == 3:
+            context['adminform'].form.fields['WorkSection'].queryset = WorkSection.objects.filter(id=work_section)
+        return super(ShiftRecommendManagerAdmin, self).render_change_form(request, context, *args, **kwargs)
+
+    def get_queryset(self, request):
+        qs = super(ShiftRecommendManagerAdmin, self).get_queryset(request)
+        user = request.user
+        user_profile = authentication.UserProfile.objects.filter(User=user)[0]
+        if user.is_superuser or user_profile.Level == 1:
+            return qs
+
+        hospital = user_profile.Hospital.id
+        work_section = user_profile.WorkSection.id
+        if user_profile.Level == 2:
+            return qs.filter(WorkSection__Hospital__id=hospital)
+        if user_profile.Level == 3:
+            return qs.filter(WorkSection__id=work_section)
+
 
 def zero_pad(num):
     return str(num) if num // 10 else '0' + str(num)
@@ -187,6 +219,20 @@ class PersonnelShiftDateAssignmentsAdmin(admin.ModelAdmin):
     list_display = ('shift_colored',)
     list_filter = ('ShiftAssignment__WorkSection', 'YearWorkingPeriod',
                    'ShiftAssignment__Rank', )
+
+    def render_change_form(self, request, context, *args, **kwargs):
+        user = request.user
+        user_profile = authentication.UserProfile.objects.filter(User=user)[0]
+        if user.is_superuser or user_profile.Level == 1:
+            return super(PersonnelShiftDateAssignmentsAdmin, self).render_change_form(request, context, *args, **kwargs)
+
+        hospital = user_profile.Hospital.id
+        work_section = user_profile.WorkSection.id
+        if user_profile.Level == 2:
+            context['adminform'].form.fields['Personnel'].queryset = Personnel.objects.filter(WorkSection__Hospital__id=hospital)
+        if user_profile.Level == 3:
+            context['adminform'].form.fields['Personnel'].queryset = Personnel.objects.filter(WorkSection__id=work_section)
+        return super(PersonnelShiftDateAssignmentsAdmin, self).render_change_form(request, context, *args, **kwargs)
 
     def get_queryset(self, request):
         qs = super(PersonnelShiftDateAssignmentsAdmin, self).get_queryset(request)
@@ -364,6 +410,20 @@ class PersonnelShiftDateAssignmentsAdmin(admin.ModelAdmin):
 class WorkSectionRequirementsAdmin(admin.ModelAdmin):
     list_display = ('WorkSection', 'Year', 'Month', 'PersonnelTypeReq', 'ShiftType', 'ReqMinCount', 'ReqMaxCount',)
     list_filter = ('WorkSection__Hospital', 'WorkSection', 'Year', 'Month', 'ShiftType',)
+
+    def render_change_form(self, request, context, *args, **kwargs):
+        user = request.user
+        user_profile = authentication.UserProfile.objects.filter(User=user)[0]
+        if user.is_superuser or user_profile.Level == 1:
+            return super(WorkSectionRequirementsAdmin, self).render_change_form(request, context, *args, **kwargs)
+
+        hospital = user_profile.Hospital.id
+        work_section = user_profile.WorkSection.id
+        if user_profile.Level == 2:
+            context['adminform'].form.fields['WorkSection'].queryset = WorkSection.objects.filter(Hospital__id=hospital)
+        if user_profile.Level == 3:
+            context['adminform'].form.fields['WorkSection'].queryset = WorkSection.objects.filter(id=work_section)
+        return super(WorkSectionRequirementsAdmin, self).render_change_form(request, context, *args, **kwargs)
 
     def get_queryset(self, request):
         qs = super(WorkSectionRequirementsAdmin, self).get_queryset(request)
