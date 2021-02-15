@@ -173,9 +173,9 @@ class WorkSectionRequirements(models.Model):
     ShiftType = models.ForeignKey(ShiftTypes, verbose_name=u'نوع شیفت', on_delete=models.CASCADE)
     ReqMinCount = models.IntegerField('حداقل', )
     ReqMaxCount = models.IntegerField('حداکثر', )
-    day_diff_typ = models.IntegerField('تفاوت', null=True, blank=True)
-    Date = models.IntegerField('تاریخ', null=True, blank=True)
-    PersonnelTypeReqCount = models.IntegerField('تعداد پرسنل', null=True, blank=True)
+    # day_diff_typ = models.IntegerField('تفاوت', null=True, blank=True)
+    # Date = models.IntegerField('تاریخ', null=True, blank=True)
+    # PersonnelTypeReqCount = models.IntegerField('تعداد پرسنل', null=True, blank=True)
 
     def __str__(self):
         return self.WorkSection.Title + ' - ' + self.PersonnelTypeReq.Title + ' - ' + self.ShiftType.Title
