@@ -14,6 +14,7 @@ from django.urls import reverse
 from django.utils.http import urlencode
 from django.contrib import admin
 from .models import *
+from authentication import models as authentication
 from nip.tasks import update_shift_async, test
 import io
 from io import BytesIO
@@ -29,7 +30,18 @@ class HospitalAdmin(admin.ModelAdmin):
     list_display = ('Code', 'Title', 'ExternalId', 'view_personnel_link',)
     list_filter = ('Code', 'Title')
 
-    # search_fields = ("Title",)
+    def get_queryset(self, request):
+        qs = super(HospitalAdmin, self).get_queryset(request)
+        user = request.user
+        user_profile = authentication.UserProfile.objects.filter(User=user)[0]
+        hospital = user_profile.Hospital.id
+        work_section = user_profile.WorkSection.id
+        if user.is_superuser or user_profile.Level == 1:
+            return qs
+        if user_profile.Level == 2:
+            return qs.filter(id=hospital)
+        if user_profile.Level == 3:
+            return qs.filter(id=hospital)
 
     def view_personnel_link(self, obj):
         count = obj.worksection_set.count()
@@ -48,7 +60,18 @@ class WorkSectionAdmin(admin.ModelAdmin):
     list_display = ('Title', 'Hospital', 'ExternalId', 'view_personnel_link',)
     list_filter = ('Code', 'Title', 'Hospital',)
 
-    # search_fields = ("Title",)
+    def get_queryset(self, request):
+        qs = super(WorkSectionAdmin, self).get_queryset(request)
+        user = request.user
+        user_profile = authentication.UserProfile.objects.filter(User=user)[0]
+        hospital = user_profile.Hospital.id
+        work_section = user_profile.WorkSection.id
+        if user.is_superuser or user_profile.Level == 1:
+            return qs
+        if user_profile.Level == 2:
+            return qs.filter(Hospital__id=hospital)
+        if user_profile.Level == 3:
+            return qs.filter(id=work_section)
 
     def view_personnel_link(self, obj):
         count = obj.personnel_set.count()
@@ -95,3 +118,16 @@ class PersonnelAdmin(admin.ModelAdmin):
                     'PersonnelTypes', 'RequirementWorkMins_esti', 'EfficiencyRolePoint')
     list_filter = ('YearWorkingPeriod', 'WorkSection__Hospital', 'WorkSection', 'PersonnelNo', 'FullName',
                    'PersonnelTypes', 'Active')
+
+    def get_queryset(self, request):
+        qs = super(PersonnelAdmin, self).get_queryset(request)
+        user = request.user
+        user_profile = authentication.UserProfile.objects.filter(User=user)[0]
+        hospital = user_profile.Hospital.id
+        work_section = user_profile.WorkSection.id
+        if user.is_superuser or user_profile.Level == 1:
+            return qs
+        if user_profile.Level == 2:
+            return qs.filter(WorkSection__Hospital__id=hospital)
+        if user_profile.Level == 3:
+            return qs.filter(WorkSection__id=work_section)

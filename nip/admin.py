@@ -22,6 +22,7 @@ from django.http import HttpResponse
 from django.http import FileResponse
 from reportlab.pdfgen import canvas
 from tabbed_admin import TabbedModelAdmin
+from authentication import models as authentication
 
 
 class PersonnelShiftDateAssignmentsInline(admin.TabularInline):
@@ -99,6 +100,19 @@ class ShiftAssignmentsAdmin(TabbedModelAdmin):
     list_filter = ('WorkSection__Hospital', 'WorkSection', 'YearWorkingPeriod', 'Rank')
     readonly_fields = ('WorkSection', 'YearWorkingPeriod', 'Rank', 'Cost', 'EndTime')
 
+    def get_queryset(self, request):
+        qs = super(ShiftAssignmentsAdmin, self).get_queryset(request)
+        user = request.user
+        user_profile = authentication.UserProfile.objects.filter(User=user)[0]
+        hospital = user_profile.Hospital.id
+        work_section = user_profile.WorkSection.id
+        if user.is_superuser or user_profile.Level == 1:
+            return qs
+        if user_profile.Level == 2:
+            return qs.filter(WorkSection__Hospital__id=hospital)
+        if user_profile.Level == 3:
+            return qs.filter(WorkSection__id=work_section)
+
     tab_overview = (
         (None, {
             'fields': ('WorkSection', 'YearWorkingPeriod', 'Rank', 'Cost', 'EndTime')
@@ -173,6 +187,19 @@ class PersonnelShiftDateAssignmentsAdmin(admin.ModelAdmin):
     list_display = ('shift_colored',)
     list_filter = ('ShiftAssignment__WorkSection', 'YearWorkingPeriod',
                    'ShiftAssignment__Rank', )
+
+    def get_queryset(self, request):
+        qs = super(PersonnelShiftDateAssignmentsAdmin, self).get_queryset(request)
+        user = request.user
+        user_profile = authentication.UserProfile.objects.filter(User=user)[0]
+        hospital = user_profile.Hospital.id
+        work_section = user_profile.WorkSection.id
+        if user.is_superuser or user_profile.Level == 1:
+            return qs
+        if user_profile.Level == 2:
+            return qs.filter(ShiftAssignment__WorkSection__Hospital__id=hospital)
+        if user_profile.Level == 3:
+            return qs.filter(ShiftAssignment__WorkSection__id=work_section)
 
     def shift_colored(self, obj):
         color_dict = {'0': 'white',
@@ -337,6 +364,19 @@ class PersonnelShiftDateAssignmentsAdmin(admin.ModelAdmin):
 class WorkSectionRequirementsAdmin(admin.ModelAdmin):
     list_display = ('WorkSection', 'Year', 'Month', 'PersonnelTypeReq', 'ShiftType', 'ReqMinCount', 'ReqMaxCount',)
     list_filter = ('WorkSection__Hospital', 'WorkSection', 'Year', 'Month', 'ShiftType',)
+
+    def get_queryset(self, request):
+        qs = super(WorkSectionRequirementsAdmin, self).get_queryset(request)
+        user = request.user
+        user_profile = authentication.UserProfile.objects.filter(User=user)[0]
+        hospital = user_profile.Hospital.id
+        work_section = user_profile.WorkSection.id
+        if user.is_superuser or user_profile.Level == 1:
+            return qs
+        if user_profile.Level == 2:
+            return qs.filter(WorkSection__Hospital__id=hospital)
+        if user_profile.Level == 3:
+            return qs.filter(WorkSection__id=work_section)
 
     # def get_urls(self):
     #     urls = super().get_urls()

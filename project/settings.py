@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'nip',
     'etl',
     'basic_information',
+    'authentication',
     'tabbed_admin',
     'channels',
     'bootstrap4',
