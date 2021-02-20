@@ -237,6 +237,8 @@ class PersonnelShiftDateAssignmentsAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         qs = super(PersonnelShiftDateAssignmentsAdmin, self).get_queryset(request)
         user = request.user
+        if user.is_superuser:
+            return qs
         user_profile = authentication.UserProfile.objects.filter(User=user)[0]
         hospital = user_profile.Hospital.id
         work_section = user_profile.WorkSection.id
@@ -428,6 +430,8 @@ class WorkSectionRequirementsAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         qs = super(WorkSectionRequirementsAdmin, self).get_queryset(request)
         user = request.user
+        if user.is_superuser:
+            return qs
         user_profile = authentication.UserProfile.objects.filter(User=user)[0]
         hospital = user_profile.Hospital.id
         work_section = user_profile.WorkSection.id

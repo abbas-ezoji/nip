@@ -1,11 +1,17 @@
 from django.db import models
 from nip.tasks import ETL_async
 
+States = (
+    (0, ("غیرفعال")),
+    (1, ("فعال")),
+)
 
-class ETL(models.Model):
+
+class YearWorkingPeriod(models.Model):
     id = models.AutoField(db_column='Id', primary_key=True)
     YearWorkingPeriod = models.IntegerField('سال-دوره', db_column='YearWorkingPeriod')
-    HospitalDepartmentCode = models.IntegerField('کد بیمارستان', db_column='HospitalDepartmentCode')
+    State = models.IntegerField('وضعیت', db_column='State', choices=States, default=0)
+    Comment = models.TextField('توضیحات', db_column='Comment', null=True, blank=True)
 
     def __str__(self):
         return str(self.YearWorkingPeriod)
@@ -13,7 +19,7 @@ class ETL(models.Model):
     class Meta:
         verbose_name = 'فرایند استخراج داده'
         verbose_name_plural = 'فرایند استخراج داده'
-        db_table = 'nip_ETL'
+        db_table = 'ETL_YearWorkingPeriod'
 
     def save(self, *args, **kwargs):
         if not self.id:
@@ -21,5 +27,5 @@ class ETL(models.Model):
 
         ETL_async.delay(self.YearWorkingPeriod)
 
-        super(ETL, self).save(*args, **kwargs)
+        super(YearWorkingPeriod, self).save(*args, **kwargs)
 

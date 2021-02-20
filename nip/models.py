@@ -7,6 +7,7 @@ from django.contrib import messages
 from sqlalchemy import create_engine
 from project.db import get_db
 from basic_information.models import (WorkSection, ShiftTypes, PersonnelTypes, Personnel, Shifts)
+from etl import models as etl
 
 DATABASES = get_db()
 USER = DATABASES['nip']['USER']
@@ -31,7 +32,8 @@ HardConstraintValues = (
 
 class HardConstraints(models.Model):
     Personnel = models.ForeignKey(Personnel, verbose_name=u'پرسنل', on_delete=models.CASCADE)
-    YearWorkingPeriod = models.IntegerField('سال-دوره', )
+    YearWorkingPeriod = models.ForeignKey(etl.YearWorkingPeriod, verbose_name=u'سال-دوره',
+                                          on_delete=models.CASCADE, db_column='YearWorkingPeriod')
     Day = models.IntegerField('روز', )
     ShiftType = models.ForeignKey(ShiftTypes, verbose_name='نوع شیفت', on_delete=models.CASCADE,
                                   db_column='ShiftType_id', null=True, blank=True)
@@ -49,13 +51,14 @@ class HardConstraints(models.Model):
 
 class PersonnelRequest(models.Model):
     Personnel = models.ForeignKey(Personnel, verbose_name=u'پرسنل', on_delete=models.CASCADE)
-    YearWorkingPeriod = models.IntegerField('سال-دوره', )
+    YearWorkingPeriod = models.ForeignKey(etl.YearWorkingPeriod, verbose_name=u'سال-دوره',
+                                          on_delete=models.CASCADE, db_column='YearWorkingPeriod')
     Day = models.IntegerField('روز', )
     ShiftType = models.ForeignKey(ShiftTypes, verbose_name=u'نوع شیفت', on_delete=models.CASCADE)
     Value = models.IntegerField('مقدار', )
 
     def __str__(self):
-        return self.Personnel.Title + ' - ' + self.ShiftType.Title + ' - ' + str(self.Value)
+        return self.Personnel.FullName + ' - ' + self.ShiftType.Title + ' - ' + str(self.Value)
 
     class Meta:
         verbose_name_plural = 'پرسنل - خوداظهاری'
@@ -64,7 +67,8 @@ class PersonnelRequest(models.Model):
 
 class ShiftAssignments(models.Model):
     WorkSection = models.ForeignKey(WorkSection, verbose_name=u'بخش', on_delete=models.CASCADE)
-    YearWorkingPeriod = models.IntegerField('سال-دوره')
+    YearWorkingPeriod = models.ForeignKey(etl.YearWorkingPeriod, verbose_name=u'سال-دوره',
+                                          on_delete=models.CASCADE, db_column='YearWorkingPeriod')
     Rank = models.IntegerField('رتبه', )
     Cost = models.FloatField('هزینه', )
     EndTime = models.BigIntegerField('زمان تکمیل', null=True)
@@ -82,7 +86,8 @@ class ShiftAssignments(models.Model):
 class PersonnelShiftDateAssignments(models.Model):
     ShiftAssignment = models.ForeignKey(ShiftAssignments, on_delete=models.CASCADE, null=True)
     Personnel = models.ForeignKey(Personnel, verbose_name=u'پرسنل', on_delete=models.CASCADE, null=True)
-    YearWorkingPeriod = models.IntegerField('سال-دوره', null=True, editable=False)
+    YearWorkingPeriod = models.ForeignKey(etl.YearWorkingPeriod, verbose_name=u'سال-دوره', on_delete=models.CASCADE,
+                                          null=True, blank=True, db_column='YearWorkingPeriod')
     D01 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, db_column='D01', null=True)
     D02 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D02', db_column='D02', null=True)
     D03 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D03', db_column='D03', null=True)
@@ -218,7 +223,8 @@ task_status = (
 
 class ShiftRecommendManager(models.Model):
     WorkSection = models.ForeignKey(WorkSection, verbose_name=u'بخش', on_delete=models.CASCADE)
-    YearWorkingPeriod = models.IntegerField('سال-دوره')
+    YearWorkingPeriod = models.ForeignKey(etl.YearWorkingPeriod, verbose_name=u'سال-دوره',
+                                          on_delete=models.CASCADE, db_column='YearWorkingPeriod')
     coh_const_DayRequirements = models.FloatField('ضریب قید نیاز روزانه')
     coh_const_PersonnelPerformanceTime = models.FloatField('ضریب قید نفرساعت بهره وری')
     TaskStatus = models.IntegerField('وضعیت کل سیستم', choices=task_status, default=0)

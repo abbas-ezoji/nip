@@ -6,6 +6,7 @@ from nip.tasks import set_shift_async
 from django.contrib import messages
 from sqlalchemy import create_engine
 from project.db import get_db
+from etl import models as etl
 
 DATABASES = get_db()
 USER = DATABASES['nip']['USER']
@@ -114,9 +115,10 @@ class Personnel(models.Model):
     PersonnelNo = models.CharField('شماره پرسنلی', max_length=100, null=True, blank=True, )
     FullName = models.CharField('نام کامل', max_length=100)
     WorkSection = models.ForeignKey(WorkSection, verbose_name=u'بخش', on_delete=models.CASCADE)
-    YearWorkingPeriod = models.IntegerField('سال-دوره', )
+    YearWorkingPeriod = models.ForeignKey(etl.YearWorkingPeriod, verbose_name=u'سال-دوره',
+                                          on_delete=models.CASCADE, db_column='YearWorkingPeriod')
     RequirementWorkMins_esti = models.IntegerField('زمان پیش بینی شده', )
-    PersonnelTypes = models.ForeignKey(PersonnelTypes, verbose_name=u'تخصص', on_delete=models.CASCADE)
+    PersonnelTypes = models.ForeignKey(PersonnelTypes, verbose_name=u'تخصص', on_delete=models.DO_NOTHING)
     EfficiencyRolePoint = models.FloatField('امتیاز بهره وری', )
     ExternalId = models.IntegerField('شناسه دیدگاه', null=True, blank=True)
     ExternalGuid = models.CharField('شناسه شاخص دیدگاه', max_length=60, null=True, blank=True)
