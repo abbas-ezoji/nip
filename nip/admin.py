@@ -410,8 +410,8 @@ class PersonnelShiftDateAssignmentsAdmin(admin.ModelAdmin):
 
 @admin.register(WorkSectionRequirements)
 class WorkSectionRequirementsAdmin(admin.ModelAdmin):
-    list_display = ('WorkSection', 'Year', 'Month', 'PersonnelTypeReq', 'ShiftType', 'ReqMinCount', 'ReqMaxCount',)
-    list_filter = ('WorkSection__Hospital', 'WorkSection', 'Year', 'Month', 'ShiftType',)
+    list_display = ('WorkSection', 'YearWorkingPeriod', 'PersonnelTypeReq', 'ShiftType', 'ReqMinCount', 'ReqMaxCount',)
+    list_filter = ('WorkSection__Hospital', 'WorkSection', 'YearWorkingPeriod', 'ShiftType',)
 
     def render_change_form(self, request, context, *args, **kwargs):
         user = request.user

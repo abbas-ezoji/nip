@@ -86,8 +86,8 @@ class ShiftAssignments(models.Model):
 class PersonnelShiftDateAssignments(models.Model):
     ShiftAssignment = models.ForeignKey(ShiftAssignments, on_delete=models.CASCADE, null=True)
     Personnel = models.ForeignKey(Personnel, verbose_name=u'پرسنل', on_delete=models.CASCADE, null=True)
-    YearWorkingPeriod = models.ForeignKey(etl.YearWorkingPeriod, verbose_name=u'سال-دوره', on_delete=models.CASCADE,
-                                          null=True, blank=True, db_column='YearWorkingPeriod')
+    YearWorkingPeriod = models.ForeignKey(etl.YearWorkingPeriod, verbose_name=u'سال-دوره',
+                                          on_delete=models.CASCADE, db_column='YearWorkingPeriod')
     D01 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, db_column='D01', null=True)
     D02 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D02', db_column='D02', null=True)
     D03 = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, related_name='D03', db_column='D03', null=True)
@@ -171,8 +171,8 @@ class ShiftConstPersonnelTimes(models.Model):
 
 class WorkSectionRequirements(models.Model):
     WorkSection = models.ForeignKey(WorkSection, verbose_name=u'بخش', on_delete=models.CASCADE)
-    Year = models.IntegerField('سال', )
-    Month = models.IntegerField('دوره', )
+    YearWorkingPeriod = models.ForeignKey(etl.YearWorkingPeriod, verbose_name=u'سال-دوره',
+                                          on_delete=models.CASCADE, db_column='YearWorkingPeriod')
     DayType = models.IntegerField('نوع روز', )
     PersonnelTypeReq = models.ForeignKey(PersonnelTypes, verbose_name=u'تخصص', on_delete=models.CASCADE)
     ShiftType = models.ForeignKey(ShiftTypes, verbose_name=u'نوع شیفت', on_delete=models.CASCADE)
