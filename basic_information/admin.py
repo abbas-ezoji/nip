@@ -56,6 +56,23 @@ class HospitalAdmin(admin.ModelAdmin):
     view_personnel_link.short_description = "مجموع بخشها"
 
 
+class WorkSectionFilter(admin.SimpleListFilter):
+    title = 'بخش'
+    parameter_name = 'WorkSection'
+
+    def lookups(self, request, model_admin):
+        if 'WorkSection__Hospital__id__exact' in request.GET:
+            id = request.GET['WorkSection__Hospital__id__exact']
+            WorkSection = set([c.WorkSection for c in model_admin.model.objects.all().filter(WorkSection__Hospital__id=id)])
+        else:
+            WorkSection = set([c.WorkSection for c in model_admin.model.objects.all()])
+        return [(c.id, c.Title) for c in WorkSection]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(WorkSection__id__exact=self.value())
+
+
 @admin.register(WorkSection)
 class WorkSectionAdmin(admin.ModelAdmin):
     list_display = ('Title', 'Hospital', 'ExternalId', 'view_personnel_link',)
@@ -129,7 +146,9 @@ class ShiftsAdmin(admin.ModelAdmin):
 class PersonnelAdmin(admin.ModelAdmin):
     list_display = ('YearWorkingPeriod', 'WorkSection', 'PersonnelNo', 'FullName',
                     'PersonnelTypes', 'RequirementWorkMins_esti', 'EfficiencyRolePoint')
-    list_filter = ('YearWorkingPeriod', 'WorkSection__Hospital', 'WorkSection', 'PersonnelNo', 'FullName',
+    list_filter = ('YearWorkingPeriod',
+                   ('WorkSection__Hospital', admin.RelatedOnlyFieldListFilter), WorkSectionFilter,
+                   'PersonnelNo', 'FullName',
                    'PersonnelTypes', 'Active')
 
     def render_change_form(self, request, context, *args, **kwargs):

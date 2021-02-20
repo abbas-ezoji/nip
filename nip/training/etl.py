@@ -18,11 +18,11 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import create_engine
 
 DATABASES = get_db()
-USER = DATABASES['erp']['USER']
-PASSWORD = DATABASES['erp']['PASSWORD']
-HOST = DATABASES['erp']['HOST']
+USER = DATABASES['nip']['USER']
+PASSWORD = DATABASES['nip']['PASSWORD']
+HOST = DATABASES['nip']['HOST']
 # PORT = DATABASES['nip']['PORT']
-NAME = DATABASES['erp']['NAME']
+NAME = DATABASES['nip']['NAME']
 
 engine = create_engine('mssql+pyodbc://{}:{}@{}/{}?driver=SQL+Server' \
                        .format(USER,
