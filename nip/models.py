@@ -252,18 +252,21 @@ class ShiftRecommendManager(models.Model):
     def save(self, *args, **kwargs):
         if not self.id or self.TaskStatus == 0:
             super().save(*args, **kwargs)
-
+        # print('''SELECT COUNT(*) FROM [nip_personnel]
+        #             WHERE [YearWorkingPeriod]={} AND [WorkSection_id] = {}
+        #             '''.format(self.YearWorkingPeriod.id, self.WorkSection.id))
         pers_count = pd.read_sql_query('''SELECT COUNT(*) FROM [nip_personnel]
                     WHERE [YearWorkingPeriod]={} AND [WorkSection_id] = {}
-                    '''.format(self.YearWorkingPeriod, self.WorkSection.id), engine)
-        print(pers_count)
+                    '''.format(self.YearWorkingPeriod.id, self.WorkSection.id), engine)
+
+        year_working_period = self.YearWorkingPeriod.YearWorkingPeriod
         if len(pers_count) == 0:
             messages.error('Don\'t Save', messages.ERROR)
             return
 
         if self.TaskStatus == 1:  # just run optimizer
             self.Comments = set_shift_async.delay(work_section_id=self.WorkSection.id,
-                                                  year_working_period=self.YearWorkingPeriod,
+                                                  year_working_period=self.YearWorkingPeriod.id,
                                                   coh_day=self.coh_const_DayRequirements,
                                                   coh_prs=self.coh_const_PersonnelPerformanceTime,
                                                   population_size=self.PopulationSize,
@@ -279,7 +282,7 @@ class ShiftRecommendManager(models.Model):
         elif self.TaskStatus == 2:
 
             self.Comments = set_shift_async.delay(work_section_id=self.WorkSection.id,
-                                                  year_working_period=self.YearWorkingPeriod,
+                                                  year_working_period=self.YearWorkingPeriod.id,
                                                   coh_day=self.coh_const_DayRequirements,
                                                   coh_prs=self.coh_const_PersonnelPerformanceTime,
                                                   population_size=self.PopulationSize,

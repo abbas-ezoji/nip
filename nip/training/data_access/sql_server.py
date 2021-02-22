@@ -102,7 +102,7 @@ class nip_data(object):
         self.engine.execute(sp_rank)
 
     def insert_sol(self, sol_df, personnel_df, sol_fitness,
-                   work_sction_id, year_working_period,
+                   work_sction_id, year_working_period, year_working_period_value,
                    parent_rank, Rank, Cost, EndTime, UsedParentCount, present_id):
 
         sol_df = sol_df.reset_index()
@@ -132,7 +132,7 @@ class nip_data(object):
             # ------------------------ insert new solution ------------------------#
 
             for index, t in sol_df.iterrows():
-                m = year_working_period%100
+                m = year_working_period_value%100
                 insert_qry = '''insert into nip_PersonnelShiftDateAssignments 
                                    ([Personnel_id]                                  
                                   ,[D01]

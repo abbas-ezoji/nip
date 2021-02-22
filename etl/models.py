@@ -25,7 +25,7 @@ class YearWorkingPeriod(models.Model):
         if not self.id:
             super().save(*args, **kwargs)
 
-        ETL_async.delay(self.YearWorkingPeriod)
+        self.Comment = ETL_async.delay(self.YearWorkingPeriod)
 
         super(YearWorkingPeriod, self).save(*args, **kwargs)
 

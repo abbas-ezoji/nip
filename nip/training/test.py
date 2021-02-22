@@ -3,8 +3,9 @@ sys.path.insert(0, "D:\\nip_project\\nip\\training")
 
 from training import utils
 
-WorkSection=44131
-YearWorkingPeriod=139909
+WorkSection=45208
+YearWorkingPeriod=1005
+YearWorkingPeriod_value=139911
 coh_const_DayRequirements=0.999
 coh_const_PersonnelPerformanceTime=0.001
 TaskStatus=1
@@ -19,6 +20,7 @@ new = 1
 
 sh = utils.shift(work_section_id = WorkSection,
                 year_working_period = YearWorkingPeriod,
+                year_working_period_value = YearWorkingPeriod_value,
                 coh_day =coh_const_DayRequirements,
                 coh_prs = coh_const_PersonnelPerformanceTime,
                 population_size = PopulationSize,

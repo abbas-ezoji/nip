@@ -33,7 +33,8 @@ engine = create_engine(con_string)
 class shift():
     def __init__(self,
                  work_section_id=1,
-                 year_working_period=139806,
+                 year_working_period=4,
+                 year_working_period_value=139911,
                  coh_day=0.999,  # coh for day requirements const
                  coh_prs=0.001,  # coh for personnel times
                  population_size=80,
@@ -45,9 +46,10 @@ class shift():
                  show_plot=False,
                  by_parent=True,
                  new=0):
-        print(f'work_section_id: {work_section_id} year_working_period: {year_working_period}')
+        print(f'work_section_id: {work_section_id} year_working_period: {year_working_period_value}')
         self.work_section_id = work_section_id
         self.year_working_period = year_working_period
+        self.year_working_period_value = year_working_period_value
         self.coh_day = coh_day
         self.coh_prs = coh_prs
         self.population_size = population_size
@@ -62,7 +64,7 @@ class shift():
         self.present_id = self.set_present_id()
 
     def set_present_id(self):
-        present_id = (str(self.work_section_id) + '-' + str(self.year_working_period) +
+        present_id = (str(self.work_section_id) + '-' + str(self.year_working_period_value) +
                       '-' + str(int(round(time.time() * 1000))))
         self.present_id = present_id
         return present_id
@@ -74,6 +76,7 @@ class shift():
     def set_shift(self):
         work_section_id = self.work_section_id
         year_working_period = self.year_working_period
+        year_working_period_value = self.year_working_period_value
         coh_day = self.coh_day
         coh_prs = self.coh_prs
         population_size = self.population_size
@@ -86,12 +89,11 @@ class shift():
         by_parent = self.by_parent
         new = self.new
         # -------------------------------------------------------
-        PersianYear = int(year_working_period / 100)
-        PersianMonth = int(year_working_period % 100)
+        PersianYear = int(year_working_period_value / 100)
+        PersianMonth = int(year_working_period_value % 100)
 
         query_gene_last = '''SELECT TOP 1   
-        
-                                    [Rank]
+                                       [Rank]
                                    ,[Cost]      
                                    ,[WorkSection_id]
                                    ,[YearWorkingPeriod]
@@ -170,17 +172,18 @@ class shift():
                                   ,[day_diff_typ]
                             FROM 
                                 [nip_WorkSectionRequirements] R
-                                JOIN nip_dim_date D ON D.PersianYear=R.Year
-                                AND D.PersianMonth = R.Month               
+								join etl_yearworkingperiod wp on wp.id = r.yearWorkingperiod
+                                JOIN nip_dim_date D ON D.PersianYear=wp.yearworkingperiod/100
+                                AND D.PersianMonth = wp.yearworkingperiod%100          
                                 JOIN nip_shifttypes SHT ON SHT.ID = R.ShiftType_id              	
                             WHERE 
-                                YEAR = {} AND Month = {}
+                                r.YearWorkingPeriod= {}
                                 AND WorkSection_id = {}
                             ORDER BY 
                                 WorkSection_id,D.PersianDate
                                 ,PersonnelTypeReq_id,ShiftType_id                        
         
-                          '''.format(PersianYear, PersianMonth, work_section_id)
+                          '''.format(year_working_period, work_section_id)
         query_prs_req = '''SELECT  [Personnel_id] 
                                   ,p.[YearWorkingPeriod]
                                   ,p.[WorkSection_id]
@@ -478,7 +481,8 @@ class shift():
 
         ShiftAssignment_id = db.insert_sol(sol_df, personnel_df,
                                            sol_fitness, work_section_id,
-                                           year_working_period, parent_rank,
+                                           year_working_period, year_working_period_value,
+                                           parent_rank,
                                            Rank, Cost, EndTime, UsedParentCount,
                                            present_id
                                            )
