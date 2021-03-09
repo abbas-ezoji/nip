@@ -291,8 +291,10 @@ class shift():
                      'D31': 31}
             if PersianMonth>6:
                 del columns['D31'] 
+                chromosom_df.drop(columns=['D31'], axis=1, inplace=True)
             if PersianMonth==12:
                 del columns['D30'] 
+                chromosom_df.drop(columns=['D30'], axis=1, inplace=True)
             chromosom_df.rename(columns=columns, inplace=True)
         # ---------------------- calcute typid_req_day--------------------------------#
         req_day = day_req_df.reset_index()

@@ -42,11 +42,13 @@ def update_shift_async(self, PersonnelBaseId, Date, ShiftGuid):
 
 
 @task(bind=True, name="set_shift")
-def set_shift_async(self, work_section_id, year_working_period, coh_day, coh_prs,
+def set_shift_async(self, work_section_id, year_working_period, year_working_period_value, coh_day, coh_prs,
                     population_size, generations, max_const_count, crossover_probability,
                     mutation_probability, elitism, show_plot, by_parent, new):
+    print(year_working_period_value, year_working_period)
     sh = utils.shift(work_section_id=work_section_id,
                      year_working_period=year_working_period,
+                     year_working_period_value=year_working_period_value,
                      coh_day=coh_day,
                      coh_prs=coh_prs,
                      population_size=population_size,
@@ -64,6 +66,7 @@ def set_shift_async(self, work_section_id, year_working_period, coh_day, coh_prs
         logger.info("Start:")
         sh.set_shift()
     except Exception as e:
+        print('errrrrrror:'+ str(year_working_period_value))
         logger.error(e)
 
     return present_id

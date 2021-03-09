@@ -225,9 +225,9 @@ class ShiftRecommendManager(models.Model):
     WorkSection = models.ForeignKey(WorkSection, verbose_name=u'بخش', on_delete=models.CASCADE)
     YearWorkingPeriod = models.ForeignKey(etl.YearWorkingPeriod, verbose_name=u'سال-دوره',
                                           on_delete=models.CASCADE, db_column='YearWorkingPeriod')
-    coh_const_DayRequirements = models.FloatField('ضریب قید نیاز روزانه')
-    coh_const_PersonnelPerformanceTime = models.FloatField('ضریب قید نفرساعت بهره وری')
-    TaskStatus = models.IntegerField('وضعیت کل سیستم', choices=task_status, default=0)
+    coh_const_DayRequirements = models.FloatField('ضریب قید نیاز روزانه', default=0.9)
+    coh_const_PersonnelPerformanceTime = models.FloatField('ضریب قید نفرساعت بهره وری', default=0.1)
+    TaskStatus = models.IntegerField('وضعیت کل سیستم', choices=task_status, default=1)
     RecommenderStatus = models.IntegerField('وضعیت پیشنهاددهنده', choices=recommender_status, default=0)
     PopulationSize = models.IntegerField('تعداد جمعیت', default=80)
     GenerationCount = models.IntegerField('تعداد نسل', default=200)
@@ -265,8 +265,22 @@ class ShiftRecommendManager(models.Model):
             return
 
         if self.TaskStatus == 1:  # just run optimizer
+            WorkSection = 45265
+            YearWorkingPeriod = 1005
+            YearWorkingPeriod_value = 139911
+            coh_const_DayRequirements = 0.999
+            coh_const_PersonnelPerformanceTime = 0.001
+            TaskStatus = 1
+            RecommenderStatus = 0
+            PopulationSize = 80
+            GenerationCount = 200
+            MaxFitConstRate = 0.3
+            CrossoverProbability = 0.2
+            MutationProbability = 0.8
+            new = 1
             self.Comments = set_shift_async.delay(work_section_id=self.WorkSection.id,
                                                   year_working_period=self.YearWorkingPeriod.id,
+                                                  year_working_period_value=self.YearWorkingPeriod.YearWorkingPeriod,
                                                   coh_day=self.coh_const_DayRequirements,
                                                   coh_prs=self.coh_const_PersonnelPerformanceTime,
                                                   population_size=self.PopulationSize,
@@ -275,7 +289,7 @@ class ShiftRecommendManager(models.Model):
                                                   crossover_probability=self.CrossoverProbability,
                                                   mutation_probability=self.MutationProbability,
                                                   elitism=False,
-                                                  show_plot=True,
+                                                  show_plot=False,
                                                   by_parent=True,
                                                   new=self.RecommenderStatus
                                                   )
@@ -283,6 +297,7 @@ class ShiftRecommendManager(models.Model):
 
             self.Comments = set_shift_async.delay(work_section_id=self.WorkSection.id,
                                                   year_working_period=self.YearWorkingPeriod.id,
+                                                  year_working_period_value=self.YearWorkingPeriod.YearWorkingPeriod,
                                                   coh_day=self.coh_const_DayRequirements,
                                                   coh_prs=self.coh_const_PersonnelPerformanceTime,
                                                   population_size=self.PopulationSize,
@@ -291,7 +306,7 @@ class ShiftRecommendManager(models.Model):
                                                   crossover_probability=self.CrossoverProbability,
                                                   mutation_probability=self.MutationProbability,
                                                   elitism=False,
-                                                  show_plot=True,
+                                                  show_plot=False,
                                                   by_parent=True,
                                                   new=self.RecommenderStatus
                                                   )

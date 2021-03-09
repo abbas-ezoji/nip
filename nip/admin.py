@@ -432,7 +432,7 @@ class WorkSectionRequirementsAdmin(admin.ModelAdmin):
         user = request.user
         if user.is_superuser:
             return qs
-        user_profile = authentication.UserProfile.objects.filter(User=user)[0]
+        user_profile = authentication.UserProfile.objects.get(User=user)
         hospital = user_profile.Hospital.id
         work_section = user_profile.WorkSection.id
         if user.is_superuser or user_profile.Level == 1:
