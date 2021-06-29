@@ -147,11 +147,15 @@ class shift():
                             WHERE WorkSection_id = {0} AND YearWorkingPeriod = {1}
                           '''.format(work_section_id, year_working_period)
 
-        query_leaves = '''SELECT P.[YearWorkingPeriod]
-                              ,[Day]      
+        query_hard_const = '''SELECT P.[YearWorkingPeriod]
+                              ,isnull([Day], d.PersianDayOfMonth)[Day]
                               ,[Personnel_id]
-                          FROM [nip_hardconstraints] l join 
+                              ,l.[Value]
+                              ,l.ShiftType_id
+                        FROM [nip_hardconstraints] l join 
                              [nip_personnel] p on p.id=l.Personnel_id
+                        	 JOIN nip_Dim_Date D ON D.PersianYear = 1400 AND D.PersianMonth = 04 
+                        	 AND (L.Day = D.PersianDayOfMonth OR L.Day IS NULL)
                           WHERE P.WorkSection_id = {} AND P.YearWorkingPeriod = {}
                           '''.format(work_section_id, year_working_period)
 
@@ -214,7 +218,7 @@ class shift():
                   query_gene_last=query_gene_last,
                   query_gene_new=query_gene_new,
                   query_personnel=query_personnel,
-                  query_leaves=query_leaves,
+                  query_hard_const=query_hard_const,
                   query_shift=query_shift,
                   query_shift_req=query_shift_req,
                   query_prs_req=query_prs_req,
@@ -225,7 +229,7 @@ class shift():
         chromosom_df = pd.DataFrame(db.get_chromosom(work_section_id,
                                                      year_working_period, new))
         personnel_df = pd.DataFrame(db.get_personnel())
-        leaves_df = pd.DataFrame(db.get_leaves())
+        hard_const_df = pd.DataFrame(db.get_hard_const())
         shift_df = pd.DataFrame(db.get_shift())
         shifts = np.array(shift_df.reset_index().iloc[:, [0, 4]].values,
                           dtype=int)
@@ -344,13 +348,18 @@ class shift():
 
         personnels = np.append(personnels, diff, 1)
 
-        leave_days = list(leaves_df['Day'])
-        leave_prs = list(leaves_df['Personnel_id'])
-        leaves = np.ones((len(leave_days), 2), dtype=int)
-        for i, d in enumerate(leave_days):
-            prs = leave_prs[i]
-            leaves[i, 1] = d - 1
-            leaves[i, 0] = personnels[personnels[:, 1] == prs][0, 0]
+        hard_const_days = list(hard_const_df['Day'])
+        hard_const_prs = list(hard_const_df['Personnel_id'])
+        hard_const_val = list(hard_const_df['Value'])
+        hard_const_sht = list(hard_const_df['ShiftType_id'])
+        hard_const = np.ones((len(hard_const_days), 4), dtype=int)
+        for i, d in enumerate(hard_const_days):
+            prs = hard_const_prs[i]
+        
+            hard_const[i, 0] = personnels[personnels[:, 1] == prs][0, 0]
+            hard_const[i, 1] = d - 1
+            hard_const[i, 2] = hard_const_sht[i]
+            hard_const[i, 3] = hard_const_val[i]
 
         # ------------------------ Consttraint day_const function for day -------------#
         def calc_day_const(individual):
@@ -405,8 +414,9 @@ class shift():
 
         # ------------------------ SET Constraints functions --------------------------#
         def set_off_force(individual):
-            for l in leaves:
-                individual[l[0], l[1]] = 4
+            for l in hard_const:
+                if l[3]==1: # Shoud not be                    
+                    individual[l[0], l[1]] = 4
 
             return individual
 

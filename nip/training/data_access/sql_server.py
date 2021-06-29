@@ -18,7 +18,7 @@ class nip_data(object):
                  query_gene_last,
                  query_gene_new,
                  query_personnel,
-                 query_leaves,
+                 query_hard_const,
                  query_shift,
                  query_shift_req,
                  query_prs_req,
@@ -31,7 +31,7 @@ class nip_data(object):
         self.query_gene_new = query_gene_new
         # ----------------- Query for personnel info -------------------------#
         self.query_personnel = query_personnel
-        self.query_leaves = query_leaves
+        self.query_hard_const = query_hard_const
         # -------------------Query for shift info-----------------------------#
         self.query_shift = query_shift
         # -------------------Query for shift_req info-------------------------#
@@ -61,9 +61,9 @@ class nip_data(object):
         personnel_df = pd.read_sql(self.query_personnel, self.engine)
         return personnel_df
 
-    def get_leaves(self):
-        leaves_df = pd.read_sql(self.query_leaves, self.engine)
-        return leaves_df
+    def get_hard_const(self):
+        hard_const_df = pd.read_sql(self.query_hard_const, self.engine)
+        return hard_const_df
 
     def get_shift(self):
         shift_df = pd.read_sql(self.query_shift, self.engine)

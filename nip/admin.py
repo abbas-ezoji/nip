@@ -382,12 +382,13 @@ class PersonnelShiftDateAssignmentsAdmin(admin.ModelAdmin):
             Personnel_id = getattr(prs_date_shift, 'Personnel_id')
             personnel = Personnel.objects.filter(id=Personnel_id)
             PersonnelBaseId = personnel[0].ExternalId
-            year_period = getattr(prs_date_shift, 'YearWorkingPeriod')
+            year_period = (getattr(prs_date_shift, 'YearWorkingPeriod')).YearWorkingPeriod
             year_month = str(year_period // 100) + '/' + zero_pad(year_period % 100) + '/'
             for j, field in enumerate(field_names):
                 if j > 3:
                     shift = Shifts.objects.filter(Title=str(getattr(obj, field)))
                     ShiftGuid = shift[0].ExternalGuid
+                    # ShiftId = shift[0].ExternalId
                     Date = year_month + zero_pad(j - 3)
                     prs_date_shift_list.append([PersonnelBaseId, Date, ShiftGuid])
 

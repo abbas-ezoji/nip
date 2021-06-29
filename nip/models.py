@@ -34,7 +34,7 @@ class HardConstraints(models.Model):
     Personnel = models.ForeignKey(Personnel, verbose_name=u'پرسنل', on_delete=models.CASCADE)
     YearWorkingPeriod = models.ForeignKey(etl.YearWorkingPeriod, verbose_name=u'سال-دوره',
                                           on_delete=models.CASCADE, db_column='YearWorkingPeriod')
-    Day = models.IntegerField('روز', )
+    Day = models.IntegerField('روز', null=True, blank=True )
     ShiftType = models.ForeignKey(ShiftTypes, verbose_name='نوع شیفت', on_delete=models.CASCADE,
                                   db_column='ShiftType_id', null=True, blank=True)
     Value = models.IntegerField('مقدار', choices=HardConstraintValues, null=True, blank=True)
@@ -47,6 +47,13 @@ class HardConstraints(models.Model):
     class Meta:
         verbose_name_plural = 'پرسنل - قیدهای تایید شده'
         db_table = 'nip_hardconstraints'
+
+    # def save(self, *args, **kwargs):
+    #     if not self.id == 0:
+    #         super().save(*args, **kwargs)
+    #
+    #
+    #     super(HardConstraints, self).save(*args, **kwargs)
 
 
 class PersonnelRequest(models.Model):
@@ -66,6 +73,7 @@ class PersonnelRequest(models.Model):
 
 
 class ShiftAssignments(models.Model):
+    # ShiftRecommendManager = models.ForeignKey('ShiftRecommendManager', )
     WorkSection = models.ForeignKey(WorkSection, verbose_name=u'بخش', on_delete=models.CASCADE)
     YearWorkingPeriod = models.ForeignKey(etl.YearWorkingPeriod, verbose_name=u'سال-دوره',
                                           on_delete=models.CASCADE, db_column='YearWorkingPeriod')
