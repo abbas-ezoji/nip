@@ -353,12 +353,13 @@ class shift():
         hard_const_val = list(hard_const_df['Value'])
         hard_const_sht = list(hard_const_df['ShiftType_id'])
         hard_const = np.ones((len(hard_const_days), 4), dtype=int)
+        import math
         for i, d in enumerate(hard_const_days):
             prs = hard_const_prs[i]
-        
+            
             hard_const[i, 0] = personnels[personnels[:, 1] == prs][0, 0]
             hard_const[i, 1] = d - 1
-            hard_const[i, 2] = hard_const_sht[i]
+            hard_const[i, 2] = 0 if math.isnan(hard_const_sht[i]) else hard_const_sht[i]
             hard_const[i, 3] = hard_const_val[i]
 
         # ------------------------ Consttraint day_const function for day -------------#
@@ -415,8 +416,16 @@ class shift():
         # ------------------------ SET Constraints functions --------------------------#
         def set_off_force(individual):
             for l in hard_const:
-                if l[3]==1: # Shoud not be                    
-                    individual[l[0], l[1]] = 4
+                if l[3]==1: # Shoud not be   
+                    if l[2]==0: # All shift type              
+                        individual[l[0], l[1]] = 4
+                    else:
+                        individual[l[0], l[1]] = individual[l[0], l[1]] if individual[l[0], l[1]] != l[2] else 4
+                elif l[3]==-1: # Shoud be   
+                    if l[2]==0: # All shift type              
+                        individual[l[0], l[1]] = l[2] if individual[l[0], l[1]] != 4 else 1
+                    else:
+                        individual[l[0], l[1]] = l[2]
 
             return individual
 
