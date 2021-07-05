@@ -5,11 +5,11 @@ from django.contrib.auth.models import User
 from nip.tasks import set_shift_async
 from django.contrib import messages
 from sqlalchemy import create_engine
-from project.db import get_db
+from project.db import get_dbs
 from basic_information.models import (WorkSection, ShiftTypes, PersonnelTypes, Personnel, Shifts)
 from etl import models as etl
 
-DATABASES = get_db()
+DATABASES = get_dbs()
 USER = DATABASES['nip']['USER']
 PASSWORD = DATABASES['nip']['PASSWORD']
 HOST = DATABASES['nip']['HOST']

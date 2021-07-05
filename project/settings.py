@@ -100,19 +100,22 @@ ASGI_APPLICATION = 'project.routing.application'
 #         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
 #     }
 # }
-DATABASES = {
-    'default': {
-        'NAME': 'nip',
-        'ENGINE': 'sql_server.pyodbc',
-        'HOST': 'TUMS-NIP',
-        'USER': 'sa',
-        'PASSWORD': 'VI?9NHuvpj',
+from project.db import get_db
 
-        'OPTIONS': {
-                    'driver': 'SQL Server Native Client 11.0',
-                }
-    }
-}
+DATABASES = get_db()
+# DATABASES = {
+#     'default': {
+#         'NAME': 'nip',
+#         'ENGINE': 'sql_server.pyodbc',
+#         'HOST': 'TUMS-NIP',
+#         'USER': 'sa',
+#         'PASSWORD': 'VI?9NHuvpj',
+#
+#         'OPTIONS': {
+#                     'driver': 'SQL Server Native Client 11.0',
+#                 }
+#     }
+# }
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql_psycopg2',
