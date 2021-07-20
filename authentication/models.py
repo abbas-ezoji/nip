@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from basic_information import  models as bs
+from basic_information import models as bs
 
 levels = (
     (1, ("دانشگاه")),

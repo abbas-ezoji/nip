@@ -33,7 +33,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('nip/', include('nip.urls')),
     path('', admin.site.urls),
-    path('django_plotly_dash/', include('django_plotly_dash.urls')),
+    # path('django_plotly_dash/', include('django_plotly_dash.urls')),
+    path(r'api/', include('api.urls')),
     # path('', RedirectView.as_view(url='nip/')),
 ]
 
