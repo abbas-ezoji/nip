@@ -5,4 +5,5 @@ from . import views
 
 urlpatterns = [
     path('personnel/', views.Personnel.as_view()),
+    path('psd/', views.PersonnelShiftDateAssignments.as_view()),
 ]

@@ -2,10 +2,10 @@ from django.contrib.auth.models import User, Group
 from rest_framework import serializers
 from basic_information import models as basic_information
 from nip import models as nip
+from etl import models as etl
 
 
 class SerializerHospital(serializers.ModelSerializer):
-
     class Meta:
         model = basic_information.Hospital
         fields = ['id', 'Title']
@@ -27,9 +27,61 @@ class SerializerPersonnel(serializers.ModelSerializer):
         fields = ['id', 'PersonnelNo', 'FullName', 'WorkSection']
 
 
-# class SerializerPersonnelShiftDateAssignments(serializers.ModelSerializer):
-#
-#
+class SerializerShift(serializers.ModelSerializer):
+    class Meta:
+        model = basic_information.Shifts
+        fields = ['id', 'Code', 'Type', 'Title']
+
+
+class SerializerYearWorkingPeriod(serializers.ModelSerializer):
+    class Meta:
+        model = etl.YearWorkingPeriod
+        fields = ['id', 'YearWorkingPeriod', 'State']
+
+
+class SerializerShiftAssignments(serializers.ModelSerializer):
+    class Meta:
+        model = nip.ShiftAssignments
+        fields = ['id', 'Rank']
+
+
+class SerializerPersonnelShiftDateAssignments(serializers.ModelSerializer):
+    ShiftAssignment = SerializerShiftAssignments(read_only=True)
+    Personnel = SerializerPersonnel(read_only=True)
+    YearWorkingPeriod = SerializerYearWorkingPeriod(read_only=True)
+    D01 = SerializerShift(read_only=True)
+    D02 = SerializerShift(read_only=True)
+    D03 = SerializerShift(read_only=True)
+    D04 = SerializerShift(read_only=True)
+    D05 = SerializerShift(read_only=True)
+    D06 = SerializerShift(read_only=True)
+    D07 = SerializerShift(read_only=True)
+    D08 = SerializerShift(read_only=True)
+    D09 = SerializerShift(read_only=True)
+    D11 = SerializerShift(read_only=True)
+    D12 = SerializerShift(read_only=True)
+    D13 = SerializerShift(read_only=True)
+    D14 = SerializerShift(read_only=True)
+    D15 = SerializerShift(read_only=True)
+    D16 = SerializerShift(read_only=True)
+    D17 = SerializerShift(read_only=True)
+    D18 = SerializerShift(read_only=True)
+    D19 = SerializerShift(read_only=True)
+    D20 = SerializerShift(read_only=True)
+    D21 = SerializerShift(read_only=True)
+    D22 = SerializerShift(read_only=True)
+    D23 = SerializerShift(read_only=True)
+    D24 = SerializerShift(read_only=True)
+    D25 = SerializerShift(read_only=True)
+    D26 = SerializerShift(read_only=True)
+    D27 = SerializerShift(read_only=True)
+    D28 = SerializerShift(read_only=True)
+    D29 = SerializerShift(read_only=True)
+
+    class Meta:
+        model = nip.PersonnelShiftDateAssignments
+        fields = '__all__'
+
 # class SerializerShift(serializers.ModelSerializer):
 #     home_sections = SerializerHomeSection(many=True)
 #     promotions = SerializerPromotion(many=True)
