@@ -58,6 +58,7 @@ class SerializerPersonnelShiftDateAssignments(serializers.ModelSerializer):
     D07 = SerializerShift(read_only=True)
     D08 = SerializerShift(read_only=True)
     D09 = SerializerShift(read_only=True)
+    D10 = SerializerShift(read_only=True)
     D11 = SerializerShift(read_only=True)
     D12 = SerializerShift(read_only=True)
     D13 = SerializerShift(read_only=True)
@@ -77,6 +78,8 @@ class SerializerPersonnelShiftDateAssignments(serializers.ModelSerializer):
     D27 = SerializerShift(read_only=True)
     D28 = SerializerShift(read_only=True)
     D29 = SerializerShift(read_only=True)
+    D30 = SerializerShift(read_only=True)
+    D31 = SerializerShift(read_only=True)
 
     class Meta:
         model = nip.PersonnelShiftDateAssignments

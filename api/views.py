@@ -30,9 +30,15 @@ class PersonnelShiftDateAssignments(generics.ListAPIView):
     serializer_class = serializers.SerializerPersonnelShiftDateAssignments
 
     def get_queryset(self):
-        p_id = int(self.request.GET.get('id', 0))
-        if p_id:
-            psd = nip.PersonnelShiftDateAssignments.objects.all().filter(pk=p_id)
+        p_id = int(self.request.GET.get('p_id', 0))
+        yw_id = int(self.request.GET.get('yw_id', 0))
+        if p_id and yw_id:
+            psd = nip.PersonnelShiftDateAssignments.objects.filter(Personnel=p_id,
+                                                                   YearWorkingPeriod__YearWorkingPeriod=yw_id,
+                                                                   ShiftAssignment__Rank=1)
+        elif p_id and yw_id == 0:
+            psd = nip.PersonnelShiftDateAssignments.objects.filter(Personnel=p_id,
+                                                                   ShiftAssignment__Rank=1)
         else:
             psd = nip.PersonnelShiftDateAssignments.objects.all()
 

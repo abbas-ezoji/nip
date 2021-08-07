@@ -132,6 +132,7 @@ class PersonnelShiftDateAssignments(models.Model):
         return self.Personnel.FullName
 
     class Meta:
+        ordering = ['ShiftAssignment__Rank']
         verbose_name_plural = 'شیفت پیشنهادی - آرشیو '
         db_table = 'nip_personnelshiftdateassignments'
 
