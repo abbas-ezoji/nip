@@ -100,7 +100,7 @@ class ShiftConstPersonnelTimesInline(admin.TabularInline):
 @admin.register(ShiftAssignments)
 class ShiftAssignmentsAdmin(TabbedModelAdmin):
     list_display = ('WorkSection', 'YearWorkingPeriod', 'Rank', 'Cost', 'EndTime', 'view_shifts_link')
-    list_filter = ('WorkSection__Hospital', 'WorkSection', 'YearWorkingPeriod', 'Rank')
+    list_filter = ('WorkSection__Hospital', 'WorkSection', 'YearWorkingPeriod', 'Rank', 'ShiftRecommendManager')
     readonly_fields = ('WorkSection', 'YearWorkingPeriod', 'Rank', 'Cost', 'EndTime')
 
     def get_queryset(self, request):
@@ -176,8 +176,8 @@ class ShiftRecommendManagerForm(forms.ModelForm):
 @admin.register(ShiftRecommendManager)
 class ShiftRecommendManagerAdmin(admin.ModelAdmin):
     list_display = ('YearWorkingPeriod', 'WorkSection', 'coh_const_DayRequirements', 'coh_const_PersonnelPerformanceTime',
-                    'TaskStatus', 'RecommenderStatus',)
-    list_filter = ('YearWorkingPeriod', 'WorkSection', 'TaskStatus', 'RecommenderStatus',)
+                    'TaskStatus', 'RecommenderStatus', 'view_shift_link')
+    list_filter = ('YearWorkingPeriod', 'WorkSection', 'TaskStatus', 'RecommenderStatus', )
     # form = ShiftRecommendManagerForm
 
     def render_change_form(self, request, context, *args, **kwargs):
@@ -207,6 +207,17 @@ class ShiftRecommendManagerAdmin(admin.ModelAdmin):
             return qs.filter(WorkSection__Hospital__id=hospital)
         if user_profile.Level == 3:
             return qs.filter(WorkSection__id=work_section)
+
+    def view_shift_link(self, obj):
+        count = obj.shiftassignments_set.count()
+        url = (
+                reverse("admin:nip_shiftassignments_changelist")
+                + "?"
+                + urlencode({"ShiftRecommendManager__id": f"{obj.id}"})
+        )
+        return format_html('<a href="{}">{} تعداد شیفت</a>', url, count)
+
+    view_shift_link.short_description = "شیفت ها"
 
 
 def zero_pad(num):

@@ -103,7 +103,8 @@ class nip_data(object):
 
     def insert_sol(self, sol_df, personnel_df, sol_fitness,
                    work_sction_id, year_working_period, year_working_period_value,
-                   parent_rank, Rank, Cost, EndTime, UsedParentCount, present_id):
+                   parent_rank, Rank, Cost, EndTime, UsedParentCount,
+                   present_id, rec_id):
 
         sol_df = sol_df.reset_index()
         sol_df = sol_df.drop(columns=['prs_typ_id', 'EfficiencyRolePoint',
@@ -116,11 +117,12 @@ class nip_data(object):
                               ,[EndTime]
                               ,[UsedParentCount]
                               ,[WorkSection_id]
-                              ,[present_id])
-                               values (?, ?, ?, ?, ?, ?, ?)'''
+                              ,[present_id]
+                              ,[ShiftRecommendManager_id])
+                               values (?, ?, ?, ?, ?, ?, ?, ?)'''
                         , (year_working_period, Rank, Cost,
                            EndTime, UsedParentCount,
-                           work_sction_id, present_id)
+                           work_sction_id, present_id, rec_id)
                         )
 
             inserted_shift = pd.read_sql_query('''SELECT * 

@@ -3,7 +3,7 @@ sys.path.insert(0, "D:\\nip_project\\nip\\training")
 
 from training import utils
 
-WorkSection=45234
+WorkSection=45262
 YearWorkingPeriod=1016
 YearWorkingPeriod_value=140004
 coh_const_DayRequirements=0.999
@@ -16,6 +16,7 @@ MaxFitConstRate=0.3
 CrossoverProbability=0.2
 MutationProbability=0.8
 new = 0
+rec_id=1059
 # DevByParent=on
 
 sh = utils.shift(work_section_id = WorkSection,
@@ -31,7 +32,8 @@ sh = utils.shift(work_section_id = WorkSection,
                 elitism = False,
                 show_plot = True,
                 by_parent = True,
-                new = new)
+                new = new,
+                rec_id=rec_id)
 ppp = sh.get_present_id()
 
 present_id = sh.set_shift()

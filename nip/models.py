@@ -73,7 +73,8 @@ class PersonnelRequest(models.Model):
 
 
 class ShiftAssignments(models.Model):
-    # ShiftRecommendManager = models.ForeignKey('ShiftRecommendManager', )
+    ShiftRecommendManager = models.ForeignKey('ShiftRecommendManager', verbose_name=u'بهینه ساز',
+                                              on_delete=models.CASCADE, null=True, blank=True)
     WorkSection = models.ForeignKey(WorkSection, verbose_name=u'بخش', on_delete=models.CASCADE)
     YearWorkingPeriod = models.ForeignKey(etl.YearWorkingPeriod, verbose_name=u'سال-دوره',
                                           on_delete=models.CASCADE, db_column='YearWorkingPeriod')
@@ -300,7 +301,8 @@ class ShiftRecommendManager(models.Model):
                                                   elitism=False,
                                                   show_plot=False,
                                                   by_parent=True,
-                                                  new=self.RecommenderStatus
+                                                  new=self.RecommenderStatus,
+                                                  rec_id=self.id
                                                   )
         elif self.TaskStatus == 2:
 
@@ -317,6 +319,7 @@ class ShiftRecommendManager(models.Model):
                                                   elitism=False,
                                                   show_plot=False,
                                                   by_parent=True,
-                                                  new=self.RecommenderStatus
+                                                  new=self.RecommenderStatus,
+                                                  rec_id=self.id
                                                   )
         super(ShiftRecommendManager, self).save(*args, **kwargs)

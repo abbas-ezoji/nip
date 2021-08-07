@@ -44,7 +44,7 @@ def update_shift_async(self, PersonnelBaseId, Date, ShiftGuid):
 @task(bind=True, name="set_shift")
 def set_shift_async(self, work_section_id, year_working_period, year_working_period_value, coh_day, coh_prs,
                     population_size, generations, max_const_count, crossover_probability,
-                    mutation_probability, elitism, show_plot, by_parent, new):
+                    mutation_probability, elitism, show_plot, by_parent, new, rec_id):
     print(year_working_period_value, year_working_period)
     sh = utils.shift(work_section_id=work_section_id,
                      year_working_period=year_working_period,
@@ -59,9 +59,11 @@ def set_shift_async(self, work_section_id, year_working_period, year_working_per
                      elitism=True,
                      show_plot=show_plot,
                      by_parent=True,
-                     new=new)
+                     new=new,
+                     rec_id=rec_id)
+
     present_id = sh.get_present_id()
-    logger.info(f"present_id={present_id}, WorkSection={work_section_id}, YearWorkingPeriod={year_working_period}")
+    logger.info(f"rec_id: {rec_id}, present_id={present_id}, WorkSection={work_section_id}, YearWorkingPeriod={year_working_period}")
     try:
         logger.info("Start:")
         sh.set_shift()

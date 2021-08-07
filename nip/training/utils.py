@@ -45,7 +45,8 @@ class shift():
                  elitism=False,
                  show_plot=False,
                  by_parent=True,
-                 new=0):
+                 new=0,
+                 rec_id=1059):
         print(f'work_section_id: {work_section_id} year_working_period: {year_working_period_value}')
         self.work_section_id = work_section_id
         self.year_working_period = year_working_period
@@ -62,6 +63,8 @@ class shift():
         self.by_parent = by_parent
         self.new = new
         self.present_id = self.set_present_id()
+        self.rec_id = rec_id
+
 
     def set_present_id(self):
         present_id = (str(self.work_section_id) + '-' + str(self.year_working_period_value) +
@@ -88,6 +91,7 @@ class shift():
         show_plot = self.show_plot
         by_parent = self.by_parent
         new = self.new
+        rec_id = self.rec_id
         # -------------------------------------------------------
         PersianYear = int(year_working_period_value / 100)
         PersianMonth = int(year_working_period_value % 100)
@@ -505,7 +509,7 @@ class shift():
                                            year_working_period, year_working_period_value,
                                            parent_rank,
                                            Rank, Cost, EndTime, UsedParentCount,
-                                           present_id
+                                           present_id, rec_id
                                            )
 
         db.update_sps(work_section_id, year_working_period, parent_rank)
