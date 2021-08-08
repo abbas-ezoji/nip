@@ -138,6 +138,16 @@ class PersonnelShiftDateAssignments(models.Model):
         db_table = 'nip_personnelshiftdateassignments'
 
 
+class PersonnelShiftDateAssignmentsTabular(models.Model):
+    PersonnelShiftDateAssignments = models.ForeignKey(PersonnelShiftDateAssignments, on_delete=models.DO_NOTHING, null=True)
+    Personnel = models.ForeignKey(Personnel, verbose_name=u'پرسنل', on_delete=models.DO_NOTHING, null=True)
+    YearWorkingPeriod = models.ForeignKey(etl.YearWorkingPeriod, verbose_name=u'سال-دوره',
+                                          on_delete=models.DO_NOTHING, db_column='YearWorkingPeriod')
+    DayNo = models.IntegerField('روز')
+    Shift = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, null=True)
+    Date = models.DateField('تاریخ', null=True)
+
+
 class ShiftConstDayRequirements(models.Model):
     ShiftAssignment = models.ForeignKey(ShiftAssignments, on_delete=models.CASCADE, null=True)
     Day = models.IntegerField('روز')

@@ -16,7 +16,7 @@ MaxFitConstRate=0.3
 CrossoverProbability=0.2
 MutationProbability=0.8
 new = 0
-rec_id=1059
+rec_id=54
 # DevByParent=on
 
 sh = utils.shift(work_section_id = WorkSection,

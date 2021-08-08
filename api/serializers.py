@@ -85,10 +85,24 @@ class SerializerPersonnelShiftDateAssignments(serializers.ModelSerializer):
         model = nip.PersonnelShiftDateAssignments
         fields = '__all__'
 
-# class SerializerShift(serializers.ModelSerializer):
-#     home_sections = SerializerHomeSection(many=True)
-#     promotions = SerializerPromotion(many=True)
-#
-#     class Meta:
-#         model = basic_information.Home
-#         fields = ['id', 'title', 'seo_title', 'meta_description', 'description', 'home_sections', 'promotions']
+
+class SerializerShiftLight(serializers.ModelSerializer):
+
+    class Meta:
+        model = basic_information.Shifts
+        fields = ['id', 'Type', 'Title']
+
+
+class SerializerPersonnelLight(serializers.ModelSerializer):
+    class Meta:
+        model = basic_information.Personnel
+        fields = ['id', 'FullName', 'PersonnelNo', 'PersonnelTypes']
+
+
+class SerializerPersonnelShiftDateAssignmentsTabular(serializers.ModelSerializer):
+    Personnel = SerializerPersonnelLight(read_only=True)
+    Shift = SerializerShiftLight(read_only=True)
+
+    class Meta:
+        model = nip.PersonnelShiftDateAssignmentsTabular
+        fields = ['Personnel', 'Shift']
