@@ -105,4 +105,4 @@ class SerializerPersonnelShiftDateAssignmentsTabular(serializers.ModelSerializer
 
     class Meta:
         model = nip.PersonnelShiftDateAssignmentsTabular
-        fields = ['Personnel', 'Shift']
+        fields = ['Date', 'DayNo', 'Personnel', 'Shift']
