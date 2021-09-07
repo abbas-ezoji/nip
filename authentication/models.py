@@ -6,6 +6,7 @@ levels = (
     (1, ("دانشگاه")),
     (2, ("بیمارستان")),
     (3, ("بخش ")),
+    (4, ("پرستار")),
 )
 
 
@@ -14,3 +15,19 @@ class UserProfile(models.Model):
     Hospital = models.ForeignKey(bs.Hospital, models.DO_NOTHING, null=True, blank=True)
     WorkSection = models.ForeignKey(bs.WorkSection, models.DO_NOTHING, null=True, blank=True)
     Level = models.IntegerField(choices=levels, default=1)
+    PersonnelNo = models.CharField('شماره پرسنلی شخصی', max_length=20, null=True, blank=True)
+
+    def __str__(self):
+        return self.User.username
+
+    def save(self, *args, **kwargs):
+        if not self.id or self.PersonnelNo is None:
+            super().save(*args, **kwargs)
+
+        perno = self.PersonnelNo
+        personnels = bs.Personnel.objects.filter(PersonnelNo=perno)
+        for p in personnels:
+            p.User = self.User
+            p.save()
+
+        super(UserProfile, self).save(*args, **kwargs)

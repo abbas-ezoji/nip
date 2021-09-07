@@ -63,18 +63,18 @@ class ShiftDayDetails(generics.ListAPIView):
                                                                           Personnel__id=p_id,
                                                                           YearWorkingPeriod__YearWorkingPeriod=yw_id,
                                                                           DayNo=day,
-                                                            PersonnelShiftDateAssignments__ShiftAssignment__Rank=rank)
+                                                                          PersonnelShiftDateAssignments__ShiftAssignment__Rank=rank)
         elif p_id and yw_id and day == 0:
             psd = nip.PersonnelShiftDateAssignmentsTabular.objects.filter(Shift__Length__gte=nooff,
                                                                           Personnel__id=p_id,
                                                                           YearWorkingPeriod__YearWorkingPeriod=yw_id,
-                                                            PersonnelShiftDateAssignments__ShiftAssignment__Rank=rank)
+                                                                          PersonnelShiftDateAssignments__ShiftAssignment__Rank=rank)
         elif p_id == 0 and worksection and yw_id and day:
             psd = nip.PersonnelShiftDateAssignmentsTabular.objects.filter(Shift__Length__gte=nooff,
                                                                           Personnel__WorkSection__id=worksection,
                                                                           YearWorkingPeriod__YearWorkingPeriod=yw_id,
                                                                           DayNo=day,
-                                                            PersonnelShiftDateAssignments__ShiftAssignment__Rank=rank)
+                                                                          PersonnelShiftDateAssignments__ShiftAssignment__Rank=rank)
         else:
             psd = nip.PersonnelShiftDateAssignmentsTabular.objects.filter(id=0)
 

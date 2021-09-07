@@ -145,11 +145,11 @@ class ShiftsAdmin(admin.ModelAdmin):
 @admin.register(Personnel)
 class PersonnelAdmin(admin.ModelAdmin):
     list_display = ('YearWorkingPeriod', 'WorkSection', 'PersonnelNo', 'FullName',
-                    'PersonnelTypes', 'RequirementWorkMins_esti', 'EfficiencyRolePoint')
+                    'PersonnelTypes', 'RequirementWorkMins_esti', 'EfficiencyRolePoint', 'User')
     list_filter = ('YearWorkingPeriod',
                    ('WorkSection__Hospital', admin.RelatedOnlyFieldListFilter), WorkSectionFilter,
                    'PersonnelNo', 'FullName',
-                   'PersonnelTypes', 'Active')
+                   'PersonnelTypes', 'Active', 'User')
 
     def render_change_form(self, request, context, *args, **kwargs):
         user = request.user

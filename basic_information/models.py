@@ -8,6 +8,7 @@ from sqlalchemy import create_engine
 from project.db import get_dbs
 from etl import models as etl
 
+
 DATABASES = get_dbs()
 USER = DATABASES['nip']['USER']
 PASSWORD = DATABASES['nip']['PASSWORD']
@@ -123,6 +124,8 @@ class Personnel(models.Model):
     ExternalId = models.IntegerField('شناسه دیدگاه', null=True, blank=True)
     ExternalGuid = models.CharField('شناسه شاخص دیدگاه', max_length=60, null=True, blank=True)
     Active = models.IntegerField('فعال', default=1)
+    User = models.ForeignKey(User, verbose_name=u'کاربر',
+                                on_delete=models.DO_NOTHING, null=True, blank=True)
 
     def __str__(self):
         return self.FullName
