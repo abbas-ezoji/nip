@@ -39,21 +39,35 @@ class SerializerHospital(serializers.ModelSerializer):
 
 
 class SerializerWorkSection(serializers.ModelSerializer):
-    user = SerializerHospital(read_only=True)
+    Hospital = SerializerHospital(read_only=True)
 
     class Meta:
         model = bs.WorkSection
         fields = ['id', 'Hospital', 'Code', 'Title', ]
 
 
+class SerializerPersonnel(serializers.ModelSerializer):
+    Hospital = SerializerHospital(read_only=True)
+    WorkSection = SerializerWorkSection(read_only=True)
+    User = UserSerializer(read_only=True)
+
+    class Meta:
+        model = bs.Personnel
+        fields = ['id', 'PersonnelNo', 'Hospital', 'WorkSection', 'FullName',
+                  'PersonnelTypes', 'EfficiencyRolePoint', 'Active', 'User', ]
+
+
 class SerializerProfile(serializers.ModelSerializer):
     User = UserSerializer(read_only=True)
     Hospital = SerializerHospital(read_only=True)
     WorkSection = SerializerWorkSection(read_only=True)
+    # Personnel = SerializerPersonnel(read_only=True)
 
     class Meta:
         model = prf.UserProfile
-        fields = ['id', 'User', 'Hospital', 'WorkSection', 'Level', 'PersonnelNo', ]
+        fields = ['id', 'User', 'Hospital', 'WorkSection', 'Level', 'PersonnelNo',
+                  # 'Personnel',
+                  ]
 
 
 class RegisterSerializer(serializers.ModelSerializer):

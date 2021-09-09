@@ -20,6 +20,11 @@ class UserProfile(models.Model):
     def __str__(self):
         return self.User.username
 
+    def Personnel(self):
+        personnel = bs.Personnel.objects.filter(User=self.User)
+        print('personnel = ', personnel)
+        return personnel
+
     def save(self, *args, **kwargs):
         if not self.id or self.PersonnelNo is None:
             super().save(*args, **kwargs)

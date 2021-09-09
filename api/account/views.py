@@ -283,7 +283,7 @@ class ChangePasswordView(APIView):
 
 
 @permission_classes([IsAuthenticated, ])
-class UserGet(generics.ListAPIView):
+class UserGet_old(generics.ListAPIView):
     queryset = prf.UserProfile.objects.all()
     serializer_class = SerializerProfile
 
@@ -292,6 +292,17 @@ class UserGet(generics.ListAPIView):
         profile = prf.UserProfile.objects.filter(User=user_id)
         return profile
 
+
+@permission_classes([IsAuthenticated, ])
+class UserGet(generics.ListAPIView):
+    queryset = bs.Personnel.objects.all()
+    serializer_class = SerializerPersonnel
+
+    def get_queryset(self):
+        user_id = self.request.user.id
+        personnels = bs.Personnel.objects.filter(User=user_id)
+        print(personnels)
+        return personnels
 
 @permission_classes([IsAuthenticated])
 class SetNickName(APIView):
