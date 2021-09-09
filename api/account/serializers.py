@@ -6,6 +6,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.models import User
 from authentication import models as prf
 from basic_information import models as bs
+from etl import models as etl
 from django.contrib.auth.hashers import make_password
 
 
@@ -46,14 +47,22 @@ class SerializerWorkSection(serializers.ModelSerializer):
         fields = ['id', 'Hospital', 'Code', 'Title', ]
 
 
+class SerializerYearWorkingPeriod(serializers.ModelSerializer):
+
+    class Meta:
+        model = etl.YearWorkingPeriod
+        fields = ['id', 'YearWorkingPeriod', 'State', ]
+
+
 class SerializerPersonnel(serializers.ModelSerializer):
     Hospital = SerializerHospital(read_only=True)
     WorkSection = SerializerWorkSection(read_only=True)
     User = UserSerializer(read_only=True)
+    YearWorkingPeriod = SerializerYearWorkingPeriod(read_only=True)
 
     class Meta:
         model = bs.Personnel
-        fields = ['id', 'PersonnelNo', 'Hospital', 'WorkSection', 'FullName',
+        fields = ['id', 'PersonnelNo', 'YearWorkingPeriod', 'Hospital', 'WorkSection', 'FullName',
                   'PersonnelTypes', 'EfficiencyRolePoint', 'Active', 'User', ]
 
 

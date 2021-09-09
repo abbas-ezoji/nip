@@ -300,9 +300,10 @@ class UserGet(generics.ListAPIView):
 
     def get_queryset(self):
         user_id = self.request.user.id
-        personnels = bs.Personnel.objects.filter(User=user_id)
-        print(personnels)
-        return personnels
+        personnel = bs.Personnel.objects.filter(User=user_id)
+        print(personnel)
+        return personnel
+
 
 @permission_classes([IsAuthenticated])
 class SetNickName(APIView):
