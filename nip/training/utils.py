@@ -198,7 +198,7 @@ class shift():
                                   ,[Day]
                                   ,[ShiftType_id] as shift_type_id
                                   ,[Value]
-                          FROM [nip_personnelrequest] r join [nip_personnel] p
+                          FROM [nip_selfdeclaration] r join [nip_personnel] p
                                on p.id = r.Personnel_id
                           WHERE p.[WorkSection_id] = {0}
                                 and p.[YearWorkingPeriod] = {1}

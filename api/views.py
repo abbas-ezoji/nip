@@ -79,3 +79,7 @@ class ShiftDayDetails(generics.ListAPIView):
             psd = nip.PersonnelShiftDateAssignmentsTabular.objects.filter(id=0)
 
         return psd
+
+
+
+

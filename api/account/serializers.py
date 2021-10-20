@@ -102,4 +102,4 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
 
 
-
+# class SelfDeclarationSerializer(serializers.ModelSerializer):

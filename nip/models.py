@@ -56,7 +56,7 @@ class HardConstraints(models.Model):
     #     super(HardConstraints, self).save(*args, **kwargs)
 
 
-class PersonnelRequest(models.Model):
+class SelfDeclaration(models.Model):
     Personnel = models.ForeignKey(Personnel, verbose_name=u'پرسنل', on_delete=models.CASCADE)
     YearWorkingPeriod = models.ForeignKey(etl.YearWorkingPeriod, verbose_name=u'سال-دوره',
                                           on_delete=models.CASCADE, db_column='YearWorkingPeriod')
@@ -69,7 +69,7 @@ class PersonnelRequest(models.Model):
 
     class Meta:
         verbose_name_plural = 'پرسنل - خوداظهاری'
-        db_table = 'nip_personnelrequest'
+        # db_table = 'nip_personnelrequest'
 
 
 class ShiftAssignments(models.Model):

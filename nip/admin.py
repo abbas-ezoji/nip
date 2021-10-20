@@ -493,7 +493,7 @@ class HardConstraintsAdmin(admin.ModelAdmin):
                    'YearWorkingPeriod', 'Day', 'ShiftType', 'Value')
 
 
-@admin.register(PersonnelRequest)
+@admin.register(SelfDeclaration)
 class PersonnelRequestAdmin(admin.ModelAdmin):
     list_display = ('Personnel', 'YearWorkingPeriod', 'Day', 'ShiftType', 'Value')
     list_filter = ('Personnel__WorkSection__Hospital', 'Personnel__WorkSection', 'Personnel',
