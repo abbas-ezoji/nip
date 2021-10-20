@@ -1,6 +1,10 @@
 from rest_framework import generics
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from django.contrib.auth.models import User
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from rest_framework.decorators import permission_classes
+from rest_framework import status
 from django.shortcuts import get_object_or_404
 from basic_information import models as basic_information
 from . import serializers
@@ -81,5 +85,53 @@ class ShiftDayDetails(generics.ListAPIView):
         return psd
 
 
+@permission_classes([AllowAny, ])
+class SelfDeclarationGet(generics.ListAPIView):
+    queryset = nip.SelfDeclaration.objects.all()
+    serializer_class = serializers.SerializerSelfDeclaration
+
+    def get_queryset(self):
+        p_id = int(self.request.GET.get('personnel_id', 0))
+        year_working_period = int(self.request.GET.get('yearworkingperiod_id', 0))
+        day = int(self.request.GET.get('day', 0))
+        if p_id:
+            work_section = nip.Personnel.objects.get(id=p_id).WorkSection.id
+            print(work_section)
+            self_dec = nip.SelfDeclaration.objects.filter(YearWorkingPeriod=year_working_period, Day=day,
+                                                          Personnel__WorkSection=work_section)
+
+        else:
+            self_dec = nip.SelfDeclaration.objects.all()
+
+        return self_dec
 
 
+@permission_classes([IsAuthenticated])
+class SelfDeclarationPost(APIView):
+
+    def post(self, request, *args, **kwargs):
+        user_id = request.user.id
+        personnel_id = request.data.get('personnel_id', None)
+        year_working_period = request.data.get('yearworkingperiod_id', None)
+        day = request.data.get('day', None)
+        shift_type = request.data.get('shift_type', None)
+        value = request.data.get('value', None)
+
+        self_dec = nip.SelfDeclaration.objects.filter(Personnel=personnel_id, YearWorkingPeriod=year_working_period,
+                                                      Day=day, ShiftType=shift_type)
+        if personnel_id and year_working_period and day and shift_type and value:
+            if self_dec:
+                self_dec.Value = value
+                self_dec.save()
+            else:
+                self_dec = nip.SelfDeclaration(Personnel=personnel_id, YearWorkingPeriod=year_working_period,
+                                               Day=day, ShiftType=shift_type, Value=value)
+                self_dec.save()
+
+            content = {'message': 'data set',
+                       'self_dec': self_dec.id}
+
+            return Response(content, status=status.HTTP_200_OK)
+        else:
+            content = {'message': 'Fill all required fields'}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
