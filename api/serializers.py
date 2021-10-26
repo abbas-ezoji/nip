@@ -110,5 +110,14 @@ class SerializerPersonnelShiftDateAssignmentsTabular(serializers.ModelSerializer
 
 class SerializerSelfDeclaration(serializers.ModelSerializer):
     class Meta:
-        model = User
+        model = nip.SelfDeclaration
+        fields = '__all__'
+
+
+class SerializerSelfDeclarationDayDetails(serializers.ModelSerializer):
+    Personnel = SerializerPersonnelLight(read_only=True)
+    Shift = SerializerShiftLight(read_only=True)
+
+    class Meta:
+        model = nip.SelfDeclaration
         fields = '__all__'

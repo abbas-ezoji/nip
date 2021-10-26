@@ -63,18 +63,20 @@ class ShiftDayDetails(generics.ListAPIView):
         rank = int(self.request.GET.get('rank', 1))
 
         if p_id and yw_id and day:
-            psd = nip.PersonnelShiftDateAssignmentsTabular.objects.filter(Shift__Length__gte=nooff,
+            psd = nip.PersonnelShiftDateAssignmentsTabular.objects.filter(# Shift__Length__gte=nooff,
                                                                           Personnel__id=p_id,
                                                                           YearWorkingPeriod__YearWorkingPeriod=yw_id,
                                                                           DayNo=day,
                                                                           PersonnelShiftDateAssignments__ShiftAssignment__Rank=rank)
         elif p_id and yw_id and day == 0:
-            psd = nip.PersonnelShiftDateAssignmentsTabular.objects.filter(Shift__Length__gte=nooff,
+            print('p_id and yw_id and day == 0', p_id , yw_id , day, nooff, rank)
+            psd = nip.PersonnelShiftDateAssignmentsTabular.objects.filter(# Shift__Length__gte=nooff,
                                                                           Personnel__id=p_id,
-                                                                          YearWorkingPeriod__YearWorkingPeriod=yw_id,
+                                                                          YearWorkingPeriod__id=yw_id,
                                                                           PersonnelShiftDateAssignments__ShiftAssignment__Rank=rank)
+            print(psd)
         elif p_id == 0 and worksection and yw_id and day:
-            psd = nip.PersonnelShiftDateAssignmentsTabular.objects.filter(Shift__Length__gte=nooff,
+            psd = nip.PersonnelShiftDateAssignmentsTabular.objects.filter(# Shift__Length__gte=nooff,
                                                                           Personnel__WorkSection__id=worksection,
                                                                           YearWorkingPeriod__YearWorkingPeriod=yw_id,
                                                                           DayNo=day,
@@ -106,25 +108,50 @@ class SelfDeclarationGet(generics.ListAPIView):
         return self_dec
 
 
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny, ])
+class SelfDeclarationGetDayDetails(generics.ListAPIView):
+    queryset = nip.SelfDeclaration.objects.all()
+    serializer_class = serializers.SerializerSelfDeclarationDayDetails
+
+    def get_queryset(self):
+        work_section = int(self.request.GET.get('worksection_id', 0))
+        year_working_period = int(self.request.GET.get('yw_id', 0))
+        day = int(self.request.GET.get('day', 0))
+        print(work_section, year_working_period, day)
+        self_dec = nip.SelfDeclaration.objects.filter(YearWorkingPeriod=year_working_period,
+                                                      Day=day,
+                                                      Personnel__WorkSection__id=work_section
+                                                      )
+
+        return self_dec
+
+
+
+@permission_classes([AllowAny])
 class SelfDeclarationPost(APIView):
 
     def post(self, request, *args, **kwargs):
-        user_id = request.user.id
         personnel_id = request.data.get('personnel_id', None)
-        year_working_period = request.data.get('yearworkingperiod_id', None)
+        year_working_period_id = request.data.get('yearworkingperiod_id', None)
         day = request.data.get('day', None)
-        shift_type = request.data.get('shift_type', None)
+        shift_type_id = request.data.get('shift_type', None)
         value = request.data.get('value', None)
 
-        self_dec = nip.SelfDeclaration.objects.filter(Personnel=personnel_id, YearWorkingPeriod=year_working_period,
-                                                      Day=day, ShiftType=shift_type)
-        if personnel_id and year_working_period and day and shift_type and value:
+        personnel = nip.Personnel.objects.get(pk=personnel_id)
+        YearWorkingPeriod = etl.YearWorkingPeriod.objects.get(pk=year_working_period_id)
+        shift_type = basic_information.ShiftTypes.objects.get(pk=shift_type_id)
+        print(personnel, YearWorkingPeriod, shift_type)
+
+        self_dec = nip.SelfDeclaration.objects.filter(Personnel=personnel, YearWorkingPeriod=YearWorkingPeriod,
+                                                      Day=day, ShiftType=shift_type)[0]
+        print(self_dec)
+        if personnel_id and year_working_period_id and day and shift_type and value:
             if self_dec:
                 self_dec.Value = value
                 self_dec.save()
             else:
-                self_dec = nip.SelfDeclaration(Personnel=personnel_id, YearWorkingPeriod=year_working_period,
+                print('else')
+                self_dec = nip.SelfDeclaration(Personnel=personnel, YearWorkingPeriod=YearWorkingPeriod,
                                                Day=day, ShiftType=shift_type, Value=value)
                 self_dec.save()
 

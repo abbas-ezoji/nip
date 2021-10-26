@@ -293,13 +293,14 @@ class UserGet_old(generics.ListAPIView):
         return profile
 
 
-@permission_classes([IsAuthenticated, ])
+@permission_classes([AllowAny, ])
 class UserGet(generics.ListAPIView):
     queryset = bs.Personnel.objects.all()
     serializer_class = SerializerPersonnel
 
     def get_queryset(self):
-        user_id = self.request.user.id
+        # user_id = self.request.user.id
+        user_id = 1
         personnel = bs.Personnel.objects.filter(User=user_id)
         print(personnel)
         return personnel
