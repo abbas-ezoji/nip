@@ -91,7 +91,7 @@ class ShiftTypes(models.Model):
     Title = models.CharField('عنوان', max_length=50)
 
     def __str__(self):
-        return self.Title
+        return self.Code
 
     class Meta:
         verbose_name_plural = 'نوع شیفت'

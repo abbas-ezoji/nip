@@ -114,9 +114,16 @@ class SerializerSelfDeclaration(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class SerializerShiftType(serializers.ModelSerializer):
+
+    class Meta:
+        model = basic_information.ShiftTypes
+        fields = ['Code', 'Title']
+
+
 class SerializerSelfDeclarationDayDetails(serializers.ModelSerializer):
     Personnel = SerializerPersonnelLight(read_only=True)
-    Shift = SerializerShiftLight(read_only=True)
+    ShiftType = SerializerShiftType(read_only=True)
 
     class Meta:
         model = nip.SelfDeclaration

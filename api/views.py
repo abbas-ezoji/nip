@@ -94,13 +94,11 @@ class SelfDeclarationGet(generics.ListAPIView):
 
     def get_queryset(self):
         p_id = int(self.request.GET.get('personnel_id', 0))
-        year_working_period = int(self.request.GET.get('yearworkingperiod_id', 0))
-        day = int(self.request.GET.get('day', 0))
+        year_working_period = int(self.request.GET.get('yw_id', 0))
+        # day = int(self.request.GET.get('day', 0))
         if p_id:
-            work_section = nip.Personnel.objects.get(id=p_id).WorkSection.id
-            print(work_section)
-            self_dec = nip.SelfDeclaration.objects.filter(YearWorkingPeriod=year_working_period, Day=day,
-                                                          Personnel__WorkSection=work_section)
+            self_dec = nip.SelfDeclaration.objects.filter(YearWorkingPeriod=year_working_period,
+                                                          Personnel__id=p_id)
 
         else:
             self_dec = nip.SelfDeclaration.objects.all()
@@ -117,11 +115,13 @@ class SelfDeclarationGetDayDetails(generics.ListAPIView):
         work_section = int(self.request.GET.get('worksection_id', 0))
         year_working_period = int(self.request.GET.get('yw_id', 0))
         day = int(self.request.GET.get('day', 0))
-        print(work_section, year_working_period, day)
-        self_dec = nip.SelfDeclaration.objects.filter(YearWorkingPeriod=year_working_period,
-                                                      Day=day,
-                                                      Personnel__WorkSection__id=work_section
-                                                      )
+        shift_type = int(self.request.GET.get('shift_type', 0))
+        print(work_section, year_working_period, day, shift_type)
+        self_dec = nip.SelfDeclaration.objects.filter(YearWorkingPeriod__id=year_working_period,
+                                                   Day=day,
+                                                   Personnel__WorkSection__id=work_section,
+                                                   ShiftType__Code=shift_type
+                                                )
 
         return self_dec
 
@@ -132,18 +132,19 @@ class SelfDeclarationPost(APIView):
 
     def post(self, request, *args, **kwargs):
         personnel_id = request.data.get('personnel_id', None)
-        year_working_period_id = request.data.get('yearworkingperiod_id', None)
+        year_working_period_id = request.data.get('yw_id', None)
         day = request.data.get('day', None)
-        shift_type_id = request.data.get('shift_type', None)
+        shift_type_code = request.data.get('shift_type', None)
         value = request.data.get('value', None)
-
+        print(personnel_id, year_working_period_id, shift_type_code)
         personnel = nip.Personnel.objects.get(pk=personnel_id)
         YearWorkingPeriod = etl.YearWorkingPeriod.objects.get(pk=year_working_period_id)
-        shift_type = basic_information.ShiftTypes.objects.get(pk=shift_type_id)
+        shift_type = basic_information.ShiftTypes.objects.get(Code=shift_type_code)
         print(personnel, YearWorkingPeriod, shift_type)
 
         self_dec = nip.SelfDeclaration.objects.filter(Personnel=personnel, YearWorkingPeriod=YearWorkingPeriod,
-                                                      Day=day, ShiftType=shift_type)[0]
+                                                      Day=day, ShiftType=shift_type)
+        self_dec = self_dec[0] if self_dec else self_dec
         print(self_dec)
         if personnel_id and year_working_period_id and day and shift_type and value:
             if self_dec:
