@@ -5,10 +5,18 @@ from nip import models as nip
 from etl import models as etl
 
 
+class SerializerYearWorkingPeriod(serializers.ModelSerializer):
+    class Meta:
+        model = etl.YearWorkingPeriod
+        fields = ['id', 'YearWorkingPeriod', 'State']
+
+
 class SerializerDate(serializers.ModelSerializer):
+    # YearWorkingPeriod = SerializerYearWorkingPeriod(read_only=True)
+
     class Meta:
         model = basic_information.Dim_Date
-        fields = '__all__' # ['id', 'Date', 'PersianDate', 'SpecialDay']
+        fields = ['Date', 'PersianDate', 'SpecialDay', 'YearWorkingPeriod', 'PersianWeekDayTitle']
 
 
 class SerializerHospital(serializers.ModelSerializer):

@@ -10,6 +10,7 @@ from basic_information import models as basic_information
 from . import serializers
 from nip import models as nip
 from etl import models as etl
+import json
 from rest_framework.pagination import PageNumberPagination
 
 
@@ -130,38 +131,49 @@ class SelfDeclarationGetDayDetails(generics.ListAPIView):
 class SelfDeclarationPost(APIView):
 
     def post(self, request, *args, **kwargs):
-        personnel_id = request.data.get('personnel_id', None)
-        year_working_period_id = request.data.get('yw_id', None)
-        day = request.data.get('day', None)
-        shift_type_code = request.data.get('shift_type', None)
-        value = request.data.get('value', None)
-        print(personnel_id, year_working_period_id, shift_type_code)
-        personnel = nip.Personnel.objects.get(pk=personnel_id)
-        YearWorkingPeriod = etl.YearWorkingPeriod.objects.get(pk=year_working_period_id)
-        shift_type = basic_information.ShiftTypes.objects.get(Code=shift_type_code)
-        print(personnel, YearWorkingPeriod, shift_type)
+        all_data = request.data
+        data_count = 0
+        for i, data in enumerate(all_data):
+            print(data.get('personnel_id', None))
+            personnel_id = data.get('personnel_id', None)
+            year_working_period_id = data.get('yw_id', None)
+            day = data.get('day', None)
+            shift_type_code = data.get('shift_type', None)
+            value = data.get('value', None)
+            # personnel_id = request.data.get('personnel_id', None)
+            # year_working_period_id = request.data.get('yw_id', None)
+            # day = request.data.get('day', None)
+            # shift_type_code = request.data.get('shift_type', None)
+            # value = request.data.get('value', None)
+            print(personnel_id, year_working_period_id, shift_type_code)
+            personnel = nip.Personnel.objects.get(pk=personnel_id)
+            YearWorkingPeriod = etl.YearWorkingPeriod.objects.get(pk=year_working_period_id)
+            shift_type = basic_information.ShiftTypes.objects.get(Code=shift_type_code)
+            print(personnel, YearWorkingPeriod, shift_type)
 
-        self_dec = nip.SelfDeclaration.objects.filter(Personnel=personnel, YearWorkingPeriod=YearWorkingPeriod,
-                                                      Day=day, ShiftType=shift_type)
-        self_dec = self_dec[0] if self_dec else self_dec
-        print(self_dec)
-        if personnel_id and year_working_period_id and day and shift_type and value:
-            if self_dec:
-                self_dec.Value = value
-                self_dec.save()
+            self_dec = nip.SelfDeclaration.objects.filter(Personnel=personnel, YearWorkingPeriod=YearWorkingPeriod,
+                                                          Day=day, ShiftType=shift_type)
+            self_dec = self_dec[0] if self_dec else self_dec
+            print(self_dec)
+            if personnel_id and year_working_period_id and day and shift_type and value:
+                if self_dec:
+                    self_dec.Value = value
+                    self_dec.save()
+                else:
+                    print('else')
+                    self_dec = nip.SelfDeclaration(Personnel=personnel, YearWorkingPeriod=YearWorkingPeriod,
+                                                   Day=day, ShiftType=shift_type, Value=value)
+                    self_dec.save()
+
+                # return Response(content, status=status.HTTP_200_OK)
             else:
-                print('else')
-                self_dec = nip.SelfDeclaration(Personnel=personnel, YearWorkingPeriod=YearWorkingPeriod,
-                                               Day=day, ShiftType=shift_type, Value=value)
-                self_dec.save()
+                content = {'message': 'Fill all required fields'}
+                return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
-            content = {'message': 'data set',
-                       'self_dec': self_dec.id}
+        data_count = i+1
+        content = {'message': f'all {data_count} data is success'}
 
-            return Response(content, status=status.HTTP_200_OK)
-        else:
-            content = {'message': 'Fill all required fields'}
-            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        return Response(content, status=status.HTTP_200_OK)
 
 
 @permission_classes([AllowAny])
