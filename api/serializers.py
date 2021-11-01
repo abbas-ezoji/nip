@@ -5,6 +5,12 @@ from nip import models as nip
 from etl import models as etl
 
 
+class SerializerDate(serializers.ModelSerializer):
+    class Meta:
+        model = basic_information.Dim_Date
+        fields = '__all__' # ['id', 'Date', 'PersianDate', 'SpecialDay']
+
+
 class SerializerHospital(serializers.ModelSerializer):
     class Meta:
         model = basic_information.Hospital

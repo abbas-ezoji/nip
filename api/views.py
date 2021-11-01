@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.contrib.auth.models import User
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
-from rest_framework.decorators import permission_classes
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from basic_information import models as basic_information
@@ -63,20 +63,20 @@ class ShiftDayDetails(generics.ListAPIView):
         rank = int(self.request.GET.get('rank', 1))
 
         if p_id and yw_id and day:
-            psd = nip.PersonnelShiftDateAssignmentsTabular.objects.filter(# Shift__Length__gte=nooff,
+            psd = nip.PersonnelShiftDateAssignmentsTabular.objects.filter(Shift__Length__gte=nooff,
                                                                           Personnel__id=p_id,
                                                                           YearWorkingPeriod__YearWorkingPeriod=yw_id,
                                                                           DayNo=day,
                                                                           PersonnelShiftDateAssignments__ShiftAssignment__Rank=rank)
         elif p_id and yw_id and day == 0:
-            print('p_id and yw_id and day == 0', p_id , yw_id , day, nooff, rank)
-            psd = nip.PersonnelShiftDateAssignmentsTabular.objects.filter(# Shift__Length__gte=nooff,
+            print('p_id and yw_id and day == 0', p_id, yw_id, day, nooff, rank)
+            psd = nip.PersonnelShiftDateAssignmentsTabular.objects.filter(Shift__Length__gte=nooff,
                                                                           Personnel__id=p_id,
                                                                           YearWorkingPeriod__id=yw_id,
                                                                           PersonnelShiftDateAssignments__ShiftAssignment__Rank=rank)
-            print(psd)
+            # print(psd)
         elif p_id == 0 and worksection and yw_id and day:
-            psd = nip.PersonnelShiftDateAssignmentsTabular.objects.filter(# Shift__Length__gte=nooff,
+            psd = nip.PersonnelShiftDateAssignmentsTabular.objects.filter(Shift__Length__gte=nooff,
                                                                           Personnel__WorkSection__id=worksection,
                                                                           YearWorkingPeriod__YearWorkingPeriod=yw_id,
                                                                           DayNo=day,
@@ -118,13 +118,12 @@ class SelfDeclarationGetDayDetails(generics.ListAPIView):
         shift_type = int(self.request.GET.get('shift_type', 0))
         print(work_section, year_working_period, day, shift_type)
         self_dec = nip.SelfDeclaration.objects.filter(YearWorkingPeriod__id=year_working_period,
-                                                   Day=day,
-                                                   Personnel__WorkSection__id=work_section,
-                                                   ShiftType__Code=shift_type
-                                                )
+                                                      Day=day,
+                                                      Personnel__WorkSection__id=work_section,
+                                                      ShiftType__Code=shift_type
+                                                      )
 
         return self_dec
-
 
 
 @permission_classes([AllowAny])
@@ -163,3 +162,18 @@ class SelfDeclarationPost(APIView):
         else:
             content = {'message': 'Fill all required fields'}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
+
+@permission_classes([AllowAny])
+class SelfDeclarationInitial(generics.ListAPIView):
+    queryset = basic_information.Dim_Date.objects.all()
+    serializer_class = serializers.SerializerDate
+
+    def get_queryset(self):
+        # user_id = request.user.id
+        personnel_id = self.request.GET.get('personnel_id', None)
+        yw = etl.YearWorkingPeriod.objects.get(State=1)
+        print(yw)
+        dates = basic_information.Dim_Date.objects.filter(YearWorkingPeriod=yw)
+
+        return dates

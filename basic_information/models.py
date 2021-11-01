@@ -34,6 +34,8 @@ class Dim_Date(models.Model):
     WorkingPeriodYear = models.IntegerField(null=True, blank=True)
     WorkingPeriod = models.IntegerField(null=True, blank=True)
     WorkingPeriodTitle = models.CharField(max_length=20, null=True, blank=True)
+    YearWorkingPeriod = models.ForeignKey(etl.YearWorkingPeriod, verbose_name=u'سال-دوره', on_delete=models.DO_NOTHING,
+                                          null=True, blank=True)
     PersianSemester = models.FloatField()
     PersianSemesterTitle = models.CharField(max_length=20)
     PersianQuarter = models.FloatField()
