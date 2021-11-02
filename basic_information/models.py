@@ -52,6 +52,9 @@ class Dim_Date(models.Model):
     def __str__(self):
         return str(self.PersianYear) + str(self.PersianMonth) + str(self.PersianDayOfMonth)
 
+    def Day(self):
+        return int(self.PersianDayOfMonth)
+
     class Meta:
         verbose_name_plural = 'تاریخ'
         db_table = 'nip_dim_date'
@@ -93,7 +96,7 @@ class ShiftTypes(models.Model):
     Title = models.CharField('عنوان', max_length=50)
 
     def __str__(self):
-        return self.Code
+        return self.Title
 
     class Meta:
         verbose_name_plural = 'نوع شیفت'

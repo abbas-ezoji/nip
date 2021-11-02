@@ -134,17 +134,12 @@ class SelfDeclarationPost(APIView):
         all_data = request.data
         data_count = 0
         for i, data in enumerate(all_data):
-            print(data.get('personnel_id', None))
-            personnel_id = data.get('personnel_id', None)
-            year_working_period_id = data.get('yw_id', None)
-            day = data.get('day', None)
-            shift_type_code = data.get('shift_type', None)
-            value = data.get('value', None)
-            # personnel_id = request.data.get('personnel_id', None)
-            # year_working_period_id = request.data.get('yw_id', None)
-            # day = request.data.get('day', None)
-            # shift_type_code = request.data.get('shift_type', None)
-            # value = request.data.get('value', None)
+            personnel_id = data.get('Personnel', None)
+            year_working_period_id = data.get('YearWorkingPeriod', None)
+            day = data.get('Day', None)
+            shift_type_code = data.get('ShiftType', None)
+            value = data.get('Value', None)
+
             print(personnel_id, year_working_period_id, shift_type_code)
             personnel = nip.Personnel.objects.get(pk=personnel_id)
             YearWorkingPeriod = etl.YearWorkingPeriod.objects.get(pk=year_working_period_id)

@@ -208,6 +208,7 @@ class WorkSectionRequirements(models.Model):
     class Meta:
         verbose_name_plural = 'بخش - نیازمندی ها'
         db_table = 'nip_worksectionrequirements'
+        ordering = ['WorkSection', 'YearWorkingPeriod', 'PersonnelTypeReq', 'ShiftType']
 
 
 class tkp_Logs(models.Model):

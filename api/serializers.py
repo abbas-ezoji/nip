@@ -16,7 +16,7 @@ class SerializerDate(serializers.ModelSerializer):
 
     class Meta:
         model = basic_information.Dim_Date
-        fields = ['Date', 'PersianDate', 'SpecialDay', 'YearWorkingPeriod', 'PersianWeekDayTitle']
+        fields = ['Day', 'Date', 'PersianDate', 'SpecialDay', 'YearWorkingPeriod', 'PersianWeekDayTitle']
 
 
 class SerializerHospital(serializers.ModelSerializer):
@@ -122,17 +122,19 @@ class SerializerPersonnelShiftDateAssignmentsTabular(serializers.ModelSerializer
         fields = ['Date', 'DayNo', 'Personnel', 'Shift']
 
 
-class SerializerSelfDeclaration(serializers.ModelSerializer):
-    class Meta:
-        model = nip.SelfDeclaration
-        fields = '__all__'
-
-
 class SerializerShiftType(serializers.ModelSerializer):
 
     class Meta:
         model = basic_information.ShiftTypes
         fields = ['Code', 'Title']
+
+
+class SerializerSelfDeclaration(serializers.ModelSerializer):
+    ShiftType = SerializerShiftType(read_only=True)
+
+    class Meta:
+        model = nip.SelfDeclaration
+        fields = '__all__'
 
 
 class SerializerSelfDeclarationDayDetails(serializers.ModelSerializer):
