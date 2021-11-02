@@ -64,6 +64,9 @@ class SelfDeclaration(models.Model):
     ShiftType = models.ForeignKey(ShiftTypes, verbose_name=u'نوع شیفت', on_delete=models.CASCADE)
     Value = models.IntegerField('مقدار', )
 
+    def ShiftTypeCode(self):
+        return int(self.ShiftType.Code)
+
     def __str__(self):
         return self.Personnel.FullName + ' - ' + self.ShiftType.Title + ' - ' + str(self.Value)
 

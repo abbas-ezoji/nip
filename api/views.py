@@ -137,7 +137,7 @@ class SelfDeclarationPost(APIView):
             personnel_id = data.get('Personnel', None)
             year_working_period_id = data.get('YearWorkingPeriod', None)
             day = data.get('Day', None)
-            shift_type_code = data.get('ShiftType', None)
+            shift_type_code = data.get('ShiftTypeCode', None)
             value = data.get('Value', None)
 
             print(personnel_id, year_working_period_id, shift_type_code)

@@ -130,11 +130,11 @@ class SerializerShiftType(serializers.ModelSerializer):
 
 
 class SerializerSelfDeclaration(serializers.ModelSerializer):
-    ShiftType = SerializerShiftType(read_only=True)
+    # ShiftType = SerializerShiftType(read_only=True)
 
     class Meta:
         model = nip.SelfDeclaration
-        fields = '__all__'
+        fields = ['Personnel', 'YearWorkingPeriod', 'Day', 'ShiftTypeCode', 'Value']
 
 
 class SerializerSelfDeclarationDayDetails(serializers.ModelSerializer):
