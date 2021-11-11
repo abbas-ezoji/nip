@@ -5,6 +5,7 @@ from . import views
 urlpatterns = [
     path('personnel/', views.Personnel.as_view()),
     path('psd/', views.PersonnelShiftDateAssignments.as_view()),
+    path('shifts-personnel-details/', views.ShiftPersonnelDetails.as_view()),
     path('shifts-day-details/', views.ShiftDayDetails.as_view()),
     path('self-declaration-initial/', views.SelfDeclarationInitial.as_view()),
     path('self-declaration-post/', views.SelfDeclarationPost.as_view()),

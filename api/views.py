@@ -53,7 +53,7 @@ class PersonnelShiftDateAssignments(generics.ListAPIView):
 @permission_classes([AllowAny, ])
 class ShiftDayDetails(generics.ListAPIView):
     queryset = nip.PersonnelShiftDateAssignmentsTabular.objects.all()
-    serializer_class = serializers.SerializerPersonnelShiftDateAssignmentsTabular
+    serializer_class = serializers.SerializerPersonnelShiftDateAssignmentsTabular_DayDetail
 
     def get_queryset(self):
         p_id = int(self.request.GET.get('p_id', 0))
@@ -62,28 +62,33 @@ class ShiftDayDetails(generics.ListAPIView):
         worksection = int(self.request.GET.get('worksection', 0))
         nooff = int(self.request.GET.get('nooff', 0))
         rank = int(self.request.GET.get('rank', 1))
+        print(worksection, yw_id, day)
+        psd = nip.PersonnelShiftDateAssignmentsTabular.objects.filter(Shift__Length__gte=nooff,
+                                                                      Personnel__WorkSection__id=worksection,
+                                                                      YearWorkingPeriod__id=yw_id,
+                                                                      DayNo=day,
+                                                                      PersonnelShiftDateAssignments__ShiftAssignment__Rank=rank)
 
-        if p_id and yw_id and day:
-            psd = nip.PersonnelShiftDateAssignmentsTabular.objects.filter(Shift__Length__gte=nooff,
-                                                                          Personnel__id=p_id,
-                                                                          YearWorkingPeriod__YearWorkingPeriod=yw_id,
-                                                                          DayNo=day,
-                                                                          PersonnelShiftDateAssignments__ShiftAssignment__Rank=rank)
-        elif p_id and yw_id and day == 0:
-            print('p_id and yw_id and day == 0', p_id, yw_id, day, nooff, rank)
-            psd = nip.PersonnelShiftDateAssignmentsTabular.objects.filter(Shift__Length__gte=nooff,
-                                                                          Personnel__id=p_id,
-                                                                          YearWorkingPeriod__id=yw_id,
-                                                                          PersonnelShiftDateAssignments__ShiftAssignment__Rank=rank)
-            # print(psd)
-        elif p_id == 0 and worksection and yw_id and day:
-            psd = nip.PersonnelShiftDateAssignmentsTabular.objects.filter(Shift__Length__gte=nooff,
-                                                                          Personnel__WorkSection__id=worksection,
-                                                                          YearWorkingPeriod__YearWorkingPeriod=yw_id,
-                                                                          DayNo=day,
-                                                                          PersonnelShiftDateAssignments__ShiftAssignment__Rank=rank)
-        else:
-            psd = nip.PersonnelShiftDateAssignmentsTabular.objects.filter(id=0)
+        return psd
+
+
+@permission_classes([AllowAny, ])
+class ShiftPersonnelDetails(generics.ListAPIView):
+    queryset = nip.PersonnelShiftDateAssignmentsTabular.objects.all()
+    serializer_class = serializers.SerializerPersonnelShiftDateAssignmentsTabular_PersonnelDetails
+
+    def get_queryset(self):
+        p_id = int(self.request.GET.get('p_id', 0))
+        yw_id = int(self.request.GET.get('yw_id', 0))
+        day = int(self.request.GET.get('day', 0))
+        worksection = int(self.request.GET.get('worksection', 0))
+        nooff = int(self.request.GET.get('nooff', 0))
+        rank = int(self.request.GET.get('rank', 1))
+        print(p_id, yw_id)
+        psd = nip.PersonnelShiftDateAssignmentsTabular.objects.filter(Shift__Length__gte=nooff,
+                                                                      Personnel__id=p_id,
+                                                                      YearWorkingPeriod__id=yw_id,
+                                                                      PersonnelShiftDateAssignments__ShiftAssignment__Rank=rank)
 
         return psd
 
@@ -150,22 +155,26 @@ class SelfDeclarationPost(APIView):
                                                           Day=day, ShiftType=shift_type)
             self_dec = self_dec[0] if self_dec else self_dec
             print(self_dec)
-            if personnel_id and year_working_period_id and day and shift_type and value:
+            if personnel_id and year_working_period_id and day and shift_type:
                 if self_dec:
-                    self_dec.Value = value
-                    self_dec.save()
+                    if value == 0:
+                        self_dec.delete()
+                    else:
+                        self_dec.Value = value
+                        self_dec.save()
                 else:
-                    print('else')
-                    self_dec = nip.SelfDeclaration(Personnel=personnel, YearWorkingPeriod=YearWorkingPeriod,
-                                                   Day=day, ShiftType=shift_type, Value=value)
-                    self_dec.save()
+                    if value:
+                        print('else')
+                        self_dec = nip.SelfDeclaration(Personnel=personnel, YearWorkingPeriod=YearWorkingPeriod,
+                                                       Day=day, ShiftType=shift_type, Value=value)
+                        self_dec.save()
 
                 # return Response(content, status=status.HTTP_200_OK)
             else:
                 content = {'message': 'Fill all required fields'}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
-        data_count = i+1
+        data_count = i + 1
         content = {'message': f'all {data_count} data is success'}
 
         return Response(content, status=status.HTTP_200_OK)

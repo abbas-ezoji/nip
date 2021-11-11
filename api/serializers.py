@@ -113,13 +113,21 @@ class SerializerPersonnelLight(serializers.ModelSerializer):
         fields = ['id', 'FullName', 'PersonnelNo', 'PersonnelTypes']
 
 
-class SerializerPersonnelShiftDateAssignmentsTabular(serializers.ModelSerializer):
+class SerializerPersonnelShiftDateAssignmentsTabular_DayDetail(serializers.ModelSerializer):
     Personnel = SerializerPersonnelLight(read_only=True)
     Shift = SerializerShiftLight(read_only=True)
 
     class Meta:
         model = nip.PersonnelShiftDateAssignmentsTabular
         fields = ['Date', 'DayNo', 'Personnel', 'Shift']
+
+
+class SerializerPersonnelShiftDateAssignmentsTabular_PersonnelDetails(serializers.ModelSerializer):
+    Shift = SerializerShiftLight(read_only=True)
+
+    class Meta:
+        model = nip.PersonnelShiftDateAssignmentsTabular
+        fields = ['Date', 'DayNo', 'Shift']
 
 
 class SerializerShiftType(serializers.ModelSerializer):
