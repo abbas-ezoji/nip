@@ -2,6 +2,8 @@ import pandas as pd
 from django.db import models
 from django.utils.html import format_html
 from django.contrib.auth.models import User
+
+import basic_information.models
 from nip.tasks import set_shift_async
 from django.contrib import messages
 from sqlalchemy import create_engine
@@ -87,12 +89,26 @@ class ShiftAssignments(models.Model):
     UsedParentCount = models.IntegerField('تعداد مصرف', )
     present_id = models.CharField('شناسه', null=True, max_length=50, editable=False)
 
+
     def __str__(self):
         return self.WorkSection.Title + str(self.YearWorkingPeriod) + ' -> ' + str(self.Rank)
 
     class Meta:
         verbose_name_plural = 'شیفت پیشنهادی - جزئیات'
         db_table = 'nip_shiftassignments'
+
+
+class PersonnelShiftAssignmentPoints(models.Model):
+    ShiftAssignment = models.ForeignKey(ShiftAssignments, on_delete=models.CASCADE)
+    Personnel = models.ForeignKey(Personnel, on_delete=models.CASCADE)
+    Rank = models.IntegerField(default=0)
+    Point = models.FloatField(default=0)
+
+    def __str__(self):
+        return self.ShiftAssignment + str(self.YearWorkingPeriod) + ' -> ' + str(self.Rank)
+
+    class Meta:
+        verbose_name_plural = 'شیفت پیشنهادی - ارزیابی'
 
 
 class PersonnelShiftDateAssignments(models.Model):
