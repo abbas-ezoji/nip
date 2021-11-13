@@ -486,6 +486,13 @@ class WorkSectionRequirementsAdmin(admin.ModelAdmin):
     #     return super().changelist_view(request, extra_context=extra_context)
 
 
+@admin.register(PersonnelShiftAssignmentPoints)
+class PersonnelShiftAssignmentPointsAdmin(admin.ModelAdmin):
+    list_display = ('ShiftAssignment', 'Personnel', 'Rank', 'Point',)
+    list_filter = ('ShiftAssignment__YearWorkingPeriod', 'ShiftAssignment__WorkSection__Hospital',
+                   'ShiftAssignment__WorkSection', 'Personnel__FullName')
+
+
 @admin.register(HardConstraints)
 class HardConstraintsAdmin(admin.ModelAdmin):
     list_display = ('Personnel', 'YearWorkingPeriod', 'Day', 'ShiftType', 'Value')
