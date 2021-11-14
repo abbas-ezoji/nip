@@ -8,7 +8,7 @@ from nip.tasks import set_shift_async
 from django.contrib import messages
 from sqlalchemy import create_engine
 from project.db import get_dbs
-from basic_information.models import (WorkSection, ShiftTypes, PersonnelTypes, Personnel, Shifts)
+from basic_information.models import (WorkSection, ShiftTypes, PersonnelTypes, Personnel, Shifts, Dim_Date)
 from etl import models as etl
 
 DATABASES = get_dbs()
@@ -172,6 +172,23 @@ class PersonnelShiftDateAssignmentsTabular(models.Model):
 
     def ShiftAssignment(self):
         return self.PersonnelShiftDateAssignments.ShiftAssignment
+
+    def DimDate(self):
+        date = self.Date
+        dim_date = Dim_Date.objects.get(Date=date)
+        return dim_date
+
+    def PersianDate(self):
+        dim_date = self.DimDate()
+        return dim_date.PersianDate
+
+    def SpecialDay(self):
+        dim_date = self.DimDate()
+        return dim_date.SpecialDay
+
+    def PersianWeekDayTitle(self):
+        dim_date = self.DimDate()
+        return dim_date.PersianWeekDayTitle
 
 
 class ShiftConstDayRequirements(models.Model):
