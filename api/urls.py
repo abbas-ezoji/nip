@@ -11,5 +11,7 @@ urlpatterns = [
     path('self-declaration-post/', views.SelfDeclarationPost.as_view()),
     path('self-declaration-get/', views.SelfDeclarationGet.as_view()),
     path('self-declaration-get-day-details/', views.SelfDeclarationGetDayDetails.as_view()),
+    path('personnel-shiftAssignment-points-post/', views.PersonnelShiftAssignmentPointsPost.as_view()),
+    path('personnel-shiftAssignment-points-get/', views.PersonnelShiftAssignmentPointsGet.as_view()),
     path('account/', include('api.account.urls')),
 ]

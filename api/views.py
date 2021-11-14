@@ -193,3 +193,60 @@ class SelfDeclarationInitial(generics.ListAPIView):
         dates = basic_information.Dim_Date.objects.filter(YearWorkingPeriod=yw)
 
         return dates
+
+
+@permission_classes([AllowAny])
+class PersonnelShiftAssignmentPointsPost(APIView):
+
+    def post(self, request, *args, **kwargs):
+        personnel_id = request.data.get('Personnel', None)
+        shift_assignment_id = request.data.get('ShiftAssignment', None)
+        rank = request.data.get('Rank', 0)
+        point = request.data.get('Point', 0)
+
+        print(personnel_id, shift_assignment_id, rank, point)
+        personnel = nip.Personnel.objects.get(pk=personnel_id)
+        shift_assignment = nip.ShiftAssignments.objects.get(pk=shift_assignment_id)
+        print(personnel, shift_assignment)
+
+        personnel_shift_point = nip.PersonnelShiftAssignmentPoints.objects.filter(Personnel=personnel,
+                                                                                      ShiftAssignment=shift_assignment)
+        personnel_shift_point = personnel_shift_point[0] if personnel_shift_point else personnel_shift_point
+        print(personnel_shift_point)
+
+        if personnel_shift_point:
+            if rank == 0 and point == 0:
+                personnel_shift_point.delete()
+            else:
+                personnel_shift_point.Rank = rank
+                personnel_shift_point.Point = point
+                personnel_shift_point.save()
+        else:
+            if rank or point:
+                print('else')
+                personnel_shift_point = nip.PersonnelShiftAssignmentPoints(Personnel=personnel,
+                                                                               ShiftAssignment=shift_assignment,
+                                                                               Rank=rank, Point=point)
+                personnel_shift_point.save()
+            else:
+                content = {'message': 'Fill all required fields'}
+                return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
+        content = {'message': 'set data is success'}
+
+        return Response(content, status=status.HTTP_200_OK)
+
+
+@permission_classes([AllowAny])
+class PersonnelShiftAssignmentPointsGet(generics.ListAPIView):
+    queryset = nip.PersonnelShiftAssignmentPoints.objects.all()
+    serializer_class = serializers.SerializerPersonnelShiftAssignmentPoints
+
+    def get_queryset(self):
+        # user_id = request.user.id
+        personnel_id = self.request.GET.get('personnel', None)
+        shift_assignment_id = self.request.GET.get('ShiftAssignment', None)
+
+        point_shift_assignment = nip.PersonnelShiftAssignmentPoints.objects.filter(ShiftAssignment__id=shift_assignment_id)
+
+        return point_shift_assignment

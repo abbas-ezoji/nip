@@ -89,6 +89,10 @@ class ShiftAssignments(models.Model):
     UsedParentCount = models.IntegerField('تعداد مصرف', )
     present_id = models.CharField('شناسه', null=True, max_length=50, editable=False)
 
+    def FinalRank(self):
+        shift_ass_id = self.id
+        PersonnelShiftAssignmentPoints.objects.filter(ShiftAssignment=shift_ass_id)
+        return 0
 
     def __str__(self):
         return self.WorkSection.Title + str(self.YearWorkingPeriod) + ' -> ' + str(self.Rank)
@@ -105,7 +109,7 @@ class PersonnelShiftAssignmentPoints(models.Model):
     Point = models.FloatField(default=0)
 
     def __str__(self):
-        return self.ShiftAssignment + str(self.YearWorkingPeriod) + ' -> ' + str(self.Rank)
+        return str(self.Rank)
 
     class Meta:
         verbose_name_plural = 'شیفت پیشنهادی - ارزیابی'
@@ -165,6 +169,9 @@ class PersonnelShiftDateAssignmentsTabular(models.Model):
     DayNo = models.IntegerField('روز')
     Shift = models.ForeignKey(Shifts, on_delete=models.DO_NOTHING, null=True)
     Date = models.DateField('تاریخ', null=True)
+
+    def ShiftAssignment(self):
+        return self.PersonnelShiftDateAssignments.ShiftAssignment
 
 
 class ShiftConstDayRequirements(models.Model):
