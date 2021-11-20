@@ -363,7 +363,7 @@ class shift():
             
             hard_const[i, 0] = personnels[personnels[:, 1] == prs][0, 0]
             hard_const[i, 1] = d - 1
-            hard_const[i, 2] = 0 if math.isnan(hard_const_sht[i]) else hard_const_sht[i]
+            hard_const[i, 2] = 0 if hard_const_sht[i] is None else hard_const_sht[i]
             hard_const[i, 3] = hard_const_val[i]
 
         # ------------------------ Consttraint day_const function for day -------------#
@@ -418,7 +418,7 @@ class shift():
             return cost
 
         # ------------------------ SET Constraints functions --------------------------#
-        def set_off_force(individual):
+        def set_hard_const(individual):
             for l in hard_const:
                 if l[3]==1: # Shoud not be   
                     if l[2]==0: # All shift type              
@@ -435,7 +435,7 @@ class shift():
 
         # ----------------------- fitness all ----------------------------------------#
         def fitness(individual, meta_data):
-            individual = set_off_force(individual)
+            individual = set_hard_const(individual)
             ind_length = individual.copy()
             for s in shifts:
                 shift = s[0]

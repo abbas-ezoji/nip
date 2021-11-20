@@ -15,6 +15,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 from datetime import timedelta
 from rest_framework import status
+from authentication import models as authentication
 
 
 class RegisterView(generics.CreateAPIView):
@@ -301,7 +302,10 @@ class UserGet(generics.ListAPIView):
     def get_queryset(self):
         # user_id = self.request.user.id
         user_id = 1
-        personnel = bs.Personnel.objects.filter(User=user_id)
+        user_profile = authentication.UserProfile.objects.get(User__id=user_id)
+        perosnnel_no = user_profile.PersonnelNo
+        personnel = bs.Personnel.objects.filter(PersonnelNo=perosnnel_no,
+                                                YearWorkingPeriod__State=1).order_by('-YearWorkingPeriod')
         print(personnel)
         return personnel
 
