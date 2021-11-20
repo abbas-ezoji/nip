@@ -102,19 +102,6 @@ class ShiftAssignments(models.Model):
         db_table = 'nip_shiftassignments'
 
 
-class PersonnelShiftAssignmentPoints(models.Model):
-    ShiftAssignment = models.ForeignKey(ShiftAssignments, on_delete=models.CASCADE)
-    Personnel = models.ForeignKey(Personnel, on_delete=models.CASCADE)
-    Rank = models.IntegerField(default=0)
-    Point = models.FloatField(default=0)
-
-    def __str__(self):
-        return str(self.Rank)
-
-    class Meta:
-        verbose_name_plural = 'شیفت پیشنهادی - ارزیابی'
-
-
 class PersonnelShiftDateAssignments(models.Model):
     ShiftAssignment = models.ForeignKey(ShiftAssignments, on_delete=models.CASCADE, null=True)
     Personnel = models.ForeignKey(Personnel, verbose_name=u'پرسنل', on_delete=models.CASCADE, null=True)
@@ -189,6 +176,28 @@ class PersonnelShiftDateAssignmentsTabular(models.Model):
     def PersianWeekDayTitle(self):
         dim_date = self.DimDate()
         return dim_date.PersianWeekDayTitle
+
+
+class PersonnelShiftAssignmentPoints(models.Model):
+    ShiftAssignment = models.ForeignKey(ShiftAssignments, on_delete=models.CASCADE)
+    Personnel = models.ForeignKey(Personnel, on_delete=models.CASCADE)
+    Rank = models.IntegerField(default=0)
+    Point = models.FloatField(default=0)
+
+    def ShiftAssignmentDetails(self):
+        shift_assignment = self.ShiftAssignment
+        personnel = self.Personnel
+        print(shift_assignment, personnel)
+        shift_detail = PersonnelShiftDateAssignmentsTabular.objects.filter(PersonnelShiftDateAssignments__ShiftAssignment=shift_assignment,
+                                                                           Personnel=personnel)
+        print(shift_detail)
+        return shift_detail
+
+    def __str__(self):
+        return str(self.Rank)
+
+    class Meta:
+        verbose_name_plural = 'شیفت پیشنهادی - ارزیابی'
 
 
 class ShiftConstDayRequirements(models.Model):

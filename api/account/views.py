@@ -305,7 +305,8 @@ class UserGet(generics.ListAPIView):
         user_profile = authentication.UserProfile.objects.get(User__id=user_id)
         perosnnel_no = user_profile.PersonnelNo
         personnel = bs.Personnel.objects.filter(PersonnelNo=perosnnel_no,
-                                                YearWorkingPeriod__State=1).order_by('-YearWorkingPeriod')
+                                                # YearWorkingPeriod__State=1
+                                                ).order_by('-YearWorkingPeriod')
         print(personnel)
         return personnel
 

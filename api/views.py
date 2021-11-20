@@ -247,6 +247,7 @@ class PersonnelShiftAssignmentPointsGet(generics.ListAPIView):
         personnel_id = self.request.GET.get('personnel', None)
         shift_assignment_id = self.request.GET.get('ShiftAssignment', None)
 
-        point_shift_assignment = nip.PersonnelShiftAssignmentPoints.objects.filter(ShiftAssignment__id=shift_assignment_id)
+        point_shift_assignment = nip.PersonnelShiftAssignmentPoints.objects.filter(ShiftAssignment__id=shift_assignment_id,
+                                                                                   Personnel__id=personnel_id)
 
         return point_shift_assignment
