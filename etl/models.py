@@ -2,8 +2,14 @@ from django.db import models
 from nip.tasks import ETL_async
 
 States = (
-    (0, ("غیرفعال")),
-    (1, ("فعال")),
+    (0, ("بسته شده")),
+    (1, ("جاری")),
+    (2, ("بعدی")),
+)
+
+EtlStates = (
+    (0, ("خاموش")),
+    (1, ("روشن")),
 )
 
 
@@ -11,6 +17,7 @@ class YearWorkingPeriod(models.Model):
     id = models.AutoField(db_column='Id', primary_key=True)
     YearWorkingPeriod = models.IntegerField('سال-دوره', db_column='YearWorkingPeriod')
     State = models.IntegerField('وضعیت', db_column='State', choices=States, default=0)
+    EtlState = models.IntegerField('.ضعیت استخراج', db_column='EtlState', choices=EtlStates, default=0)
     Comment = models.TextField('توضیحات', db_column='Comment', null=True, blank=True)
 
     def __str__(self):
