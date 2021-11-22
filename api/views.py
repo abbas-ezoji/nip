@@ -94,6 +94,43 @@ class ShiftPersonnelDetails(generics.ListAPIView):
 
 
 @permission_classes([AllowAny, ])
+class ShiftPersonnelDetails_ByID(generics.ListAPIView):
+    queryset = nip.PersonnelShiftDateAssignmentsTabular.objects.all()
+    serializer_class = serializers.SerializerPersonnelShiftDateAssignmentsTabular_PersonnelDetails
+
+    def get_queryset(self):
+        shift_assignment_id = int(self.request.GET.get('shiftassignment', 0))
+
+        psd = nip.PersonnelShiftDateAssignmentsTabular.objects.filter(PersonnelShiftDateAssignments__ShiftAssignment__id=shift_assignment_id)
+
+        return psd
+
+
+@permission_classes([AllowAny, ])
+class ShiftAssignment(generics.ListAPIView):
+    queryset = nip.ShiftAssignments.objects.all()
+    serializer_class = serializers.SerializerShiftAssignmentsDetails
+
+    def get_queryset(self):
+        p_id = int(self.request.GET.get('p_id', 0))
+        yw_id = int(self.request.GET.get('yw_id', 0))
+        nooff = int(self.request.GET.get('nooff', 0))
+        rank = int(self.request.GET.get('rank', 0))
+        print(p_id, yw_id)
+        personnel = basic_information.Personnel.objects.get(pk=p_id)
+        worksection = personnel.WorkSection
+        if rank:
+            shift_ass = nip.ShiftAssignments.objects.filter(WorkSection=worksection,
+                                                            YearWorkingPeriod__id=yw_id,
+                                                            Rank=rank).order_by('Rank')
+        else:
+            shift_ass = nip.ShiftAssignments.objects.filter(WorkSection=worksection,
+                                                            YearWorkingPeriod__id=yw_id).order_by('Rank')
+
+        return shift_ass
+
+
+@permission_classes([AllowAny, ])
 class SelfDeclarationGet(generics.ListAPIView):
     queryset = nip.SelfDeclaration.objects.all()
     serializer_class = serializers.SerializerSelfDeclaration
@@ -201,6 +238,7 @@ class PersonnelShiftAssignmentPointsPost(APIView):
     def post(self, request, *args, **kwargs):
         personnel_id = request.data.get('Personnel', None)
         shift_assignment_id = request.data.get('ShiftAssignment', None)
+        liked = request.data.get('Liked', 0)
         rank = request.data.get('Rank', 0)
         point = request.data.get('Point', 0)
 
@@ -210,12 +248,12 @@ class PersonnelShiftAssignmentPointsPost(APIView):
         print(personnel, shift_assignment)
 
         personnel_shift_point = nip.PersonnelShiftAssignmentPoints.objects.filter(Personnel=personnel,
-                                                                                      ShiftAssignment=shift_assignment)
+                                                                                  ShiftAssignment=shift_assignment)
         personnel_shift_point = personnel_shift_point[0] if personnel_shift_point else personnel_shift_point
         print(personnel_shift_point)
 
         if personnel_shift_point:
-            if rank == 0 and point == 0:
+            if rank == 0 and point == 0 and liked == 0:
                 personnel_shift_point.delete()
             else:
                 personnel_shift_point.Rank = rank
@@ -225,8 +263,8 @@ class PersonnelShiftAssignmentPointsPost(APIView):
             if rank or point:
                 print('else')
                 personnel_shift_point = nip.PersonnelShiftAssignmentPoints(Personnel=personnel,
-                                                                               ShiftAssignment=shift_assignment,
-                                                                               Rank=rank, Point=point)
+                                                                           ShiftAssignment=shift_assignment,
+                                                                           Liked=liked, Rank=rank, Point=point)
                 personnel_shift_point.save()
             else:
                 content = {'message': 'Fill all required fields'}
@@ -245,7 +283,7 @@ class PersonnelShiftAssignmentPointsGet(generics.ListAPIView):
     def get_queryset(self):
         # user_id = request.user.id
         personnel_id = self.request.GET.get('personnel', None)
-        shift_assignment_id = self.request.GET.get('ShiftAssignment', None)
+        shift_assignment_id = self.request.GET.get('shiftAssignment', None)
 
         point_shift_assignment = nip.PersonnelShiftAssignmentPoints.objects.filter(ShiftAssignment__id=shift_assignment_id,
                                                                                    Personnel__id=personnel_id)

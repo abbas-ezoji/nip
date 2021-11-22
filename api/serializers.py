@@ -59,6 +59,15 @@ class SerializerShiftAssignments(serializers.ModelSerializer):
         fields = ['id', 'Rank']
 
 
+class SerializerShiftAssignmentsDetails(serializers.ModelSerializer):
+    PositiveVoted = serializers.IntegerField()
+    NegativeVoted = serializers.IntegerField()
+
+    class Meta:
+        model = nip.ShiftAssignments
+        fields = ['id', 'Rank', 'PositiveVoted', 'NegativeVoted']
+
+
 class SerializerPersonnelShiftDateAssignments(serializers.ModelSerializer):
     ShiftAssignment = SerializerShiftAssignments(read_only=True)
     Personnel = SerializerPersonnel(read_only=True)

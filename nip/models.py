@@ -25,7 +25,6 @@ engine = create_engine('mssql+pyodbc://{}:{}@{}/{}?driver=SQL+Server' \
                                NAME
                                ))
 
-
 HardConstraintValues = (
     (1, ("نباید")),
     (-1, ("باید")),
@@ -36,7 +35,7 @@ class HardConstraints(models.Model):
     Personnel = models.ForeignKey(Personnel, verbose_name=u'پرسنل', on_delete=models.CASCADE)
     YearWorkingPeriod = models.ForeignKey(etl.YearWorkingPeriod, verbose_name=u'سال-دوره',
                                           on_delete=models.CASCADE, db_column='YearWorkingPeriod')
-    Day = models.IntegerField('روز', null=True, blank=True )
+    Day = models.IntegerField('روز', null=True, blank=True)
     ShiftType = models.ForeignKey(ShiftTypes, verbose_name='نوع شیفت', on_delete=models.CASCADE,
                                   db_column='ShiftType_id', null=True, blank=True)
     Value = models.IntegerField('مقدار', choices=HardConstraintValues, null=True, blank=True)
@@ -88,6 +87,21 @@ class ShiftAssignments(models.Model):
     EndTime = models.BigIntegerField('زمان تکمیل', null=True)
     UsedParentCount = models.IntegerField('تعداد مصرف', )
     present_id = models.CharField('شناسه', null=True, max_length=50, editable=False)
+
+    def PositiveVoted(self):
+        shift_ass_id = self.id
+        psds = PersonnelShiftAssignmentPoints.objects.filter(ShiftAssignment=shift_ass_id)
+        pos_votes = [1 if psd.Liked > 0 else 0 for psd in psds]
+        sum_vote = sum(pos_votes)
+        print(sum_vote)
+        return sum_vote
+
+    def NegativeVoted(self):
+        shift_ass_id = self.id
+        psds = PersonnelShiftAssignmentPoints.objects.filter(ShiftAssignment=shift_ass_id)
+        neg_votes = [1 if psd.Liked < 0 else 0 for psd in psds]
+        sum_vote = sum(neg_votes)
+        return sum_vote
 
     def FinalRank(self):
         shift_ass_id = self.id
@@ -149,7 +163,8 @@ class PersonnelShiftDateAssignments(models.Model):
 
 
 class PersonnelShiftDateAssignmentsTabular(models.Model):
-    PersonnelShiftDateAssignments = models.ForeignKey(PersonnelShiftDateAssignments, on_delete=models.DO_NOTHING, null=True)
+    PersonnelShiftDateAssignments = models.ForeignKey(PersonnelShiftDateAssignments, on_delete=models.DO_NOTHING,
+                                                      null=True)
     Personnel = models.ForeignKey(Personnel, verbose_name=u'پرسنل', on_delete=models.DO_NOTHING, null=True)
     YearWorkingPeriod = models.ForeignKey(etl.YearWorkingPeriod, verbose_name=u'سال-دوره',
                                           on_delete=models.DO_NOTHING, db_column='YearWorkingPeriod')
@@ -183,13 +198,15 @@ class PersonnelShiftAssignmentPoints(models.Model):
     Personnel = models.ForeignKey(Personnel, on_delete=models.CASCADE)
     Rank = models.IntegerField(default=0)
     Point = models.FloatField(default=0)
+    Liked = models.IntegerField(default=0)
 
     def ShiftAssignmentDetails(self):
         shift_assignment = self.ShiftAssignment
         personnel = self.Personnel
         print(shift_assignment, personnel)
-        shift_detail = PersonnelShiftDateAssignmentsTabular.objects.filter(PersonnelShiftDateAssignments__ShiftAssignment=shift_assignment,
-                                                                           Personnel=personnel)
+        shift_detail = PersonnelShiftDateAssignmentsTabular.objects.filter(
+            PersonnelShiftDateAssignments__ShiftAssignment=shift_assignment,
+            Personnel=personnel)
         print(shift_detail)
         return shift_detail
 
@@ -250,6 +267,7 @@ class WorkSectionRequirements(models.Model):
     ShiftType = models.ForeignKey(ShiftTypes, verbose_name=u'نوع شیفت', on_delete=models.CASCADE)
     ReqMinCount = models.IntegerField('حداقل', )
     ReqMaxCount = models.IntegerField('حداکثر', )
+
     # day_diff_typ = models.IntegerField('تفاوت', null=True, blank=True)
     # Date = models.IntegerField('تاریخ', null=True, blank=True)
     # PersonnelTypeReqCount = models.IntegerField('تعداد پرسنل', null=True, blank=True)
@@ -301,7 +319,7 @@ class ShiftRecommendManager(models.Model):
     coh_const_DayRequirements = models.FloatField('ضریب قید نیاز روزانه', default=0.9)
     coh_const_PersonnelPerformanceTime = models.FloatField('ضریب قید نفرساعت بهره وری', default=0.1)
     TaskStatus = models.IntegerField('وضعیت کل سیستم', choices=task_status, default=1)
-    RecommenderStatus = models.IntegerField('وضعیت پیشنهاددهنده', choices=recommender_status, default=0)
+    RecommenderStatus = models.IntegerField('وضعیت پیشنهاددهنده', choices=recommender_status, default=1)
     PopulationSize = models.IntegerField('تعداد جمعیت', default=80)
     GenerationCount = models.IntegerField('تعداد نسل', default=200)
     MaxFitConstRate = models.FloatField('حداکثر نرخ ثبات هزینه', default=0.3)
