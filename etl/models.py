@@ -1,5 +1,7 @@
 from django.db import models
 from nip.tasks import ETL_async
+from django.db.models import Q
+
 
 States = (
     (0, ("بسته شده")),
@@ -33,6 +35,15 @@ class YearWorkingPeriod(models.Model):
             super().save(*args, **kwargs)
 
         # self.Comment = ETL_async.delay(self.YearWorkingPeriod)
+
+        # if self.State>0:
+        #     q = ~Q(id=3)
+        #     all_period = self.obetjcts.filter(State=self.State)
+        #     if self.instance.pk is not None:
+        #         all_period = all_period.exclude(pk=self.instance.pk)
+        #
+        #     all_period.State = 0
+        #     all_period.save()
 
         super(YearWorkingPeriod, self).save(*args, **kwargs)
 
