@@ -51,7 +51,7 @@ class SerializerYearWorkingPeriod(serializers.ModelSerializer):
 
     class Meta:
         model = etl.YearWorkingPeriod
-        fields = ['id', 'YearWorkingPeriod', 'State', ]
+        fields = ['id', 'YearWorkingPeriod', 'State', 'EtlState', ]
 
 
 class SerializerPersonnel(serializers.ModelSerializer):
