@@ -16,6 +16,7 @@ from rest_framework.decorators import api_view, permission_classes
 from datetime import timedelta
 from rest_framework import status
 from authentication import models as authentication
+from django.contrib.auth import authenticate as auth
 
 
 class RegisterView(generics.CreateAPIView):
@@ -263,6 +264,27 @@ class logout(APIView):
         return Response(status=status.HTTP_200_OK)
 
 
+@permission_classes([AllowAny])
+class login(APIView):
+
+    def post(self, request, *args, **kwargs):
+        username = request.data.get('username')
+        password = request.data.get('password')
+
+        if username and password:
+            print(username, password)
+            user = auth(request=request, username=username, password=password)
+            print(user)
+            if not user:
+                content = 'Unable to log in with provided credentials.'
+                return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            content = 'Must include "username" and "password".'
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        content = {'user_id': user.id}
+        return Response(content, status=status.HTTP_200_OK)
+
+
 @permission_classes([IsAuthenticated])
 class ChangePasswordView(APIView):
 
@@ -305,6 +327,23 @@ class UserGet(generics.ListAPIView):
         user_profile = authentication.UserProfile.objects.get(User__id=user_id)
         perosnnel_no = user_profile.PersonnelNo
         personnel = bs.Personnel.objects.filter(PersonnelNo=perosnnel_no,
+                                                # YearWorkingPeriod__State=1
+                                                ).order_by('-YearWorkingPeriod')
+        print(personnel)
+        return personnel
+
+
+@permission_classes([AllowAny, ])
+class SimpleUserGet(generics.ListAPIView):
+    queryset = bs.Personnel.objects.all()
+    serializer_class = SerializerPersonnel
+
+    def get_queryset(self):
+        user_id = self.request.GET.get('user')
+        user_profile = authentication.UserProfile.objects.get(User__id=user_id)
+        personnel_no = user_profile.PersonnelNo
+        print(user_id, user_profile, personnel_no)
+        personnel = bs.Personnel.objects.filter(PersonnelNo=personnel_no,
                                                 # YearWorkingPeriod__State=1
                                                 ).order_by('-YearWorkingPeriod')
         print(personnel)
