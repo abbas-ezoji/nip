@@ -142,13 +142,8 @@ class SelfDeclarationGet(generics.ListAPIView):
         p_id = int(self.request.GET.get('personnel_id', 0))
         year_working_period = int(self.request.GET.get('yw_id', 0))
         # day = int(self.request.GET.get('day', 0))
-        if p_id:
-            self_dec = nip.SelfDeclaration.objects.filter(YearWorkingPeriod=year_working_period,
-                                                          Personnel__id=p_id)
-
-        else:
-            self_dec = nip.SelfDeclaration.objects.all()
-
+        self_dec = nip.SelfDeclaration.objects.filter(YearWorkingPeriod=year_working_period,
+                                                      Personnel__id=p_id)
         return self_dec
 
 
