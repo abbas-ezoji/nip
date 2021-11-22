@@ -100,8 +100,11 @@ class ShiftPersonnelDetails_ByID(generics.ListAPIView):
 
     def get_queryset(self):
         shift_assignment_id = int(self.request.GET.get('shiftassignment', 0))
+        personnel_id = int(self.request.GET.get('personnel', 0))
 
-        psd = nip.PersonnelShiftDateAssignmentsTabular.objects.filter(PersonnelShiftDateAssignments__ShiftAssignment__id=shift_assignment_id)
+        psd = nip.PersonnelShiftDateAssignmentsTabular. \
+            objects.filter(PersonnelShiftDateAssignments__ShiftAssignment__id=shift_assignment_id,
+                           Personnel__id=personnel_id).order_by('DayNo')
 
         return psd
 
