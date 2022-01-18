@@ -2,4 +2,6 @@
 
 {% load static %}
 
+{%load plotly_dash%}
+
 {% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static 'override.css' %}" />{% endblock %}

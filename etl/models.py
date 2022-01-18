@@ -18,8 +18,8 @@ EtlStates = (
 class YearWorkingPeriod(models.Model):
     id = models.AutoField(db_column='Id', primary_key=True)
     YearWorkingPeriod = models.IntegerField('سال-دوره', db_column='YearWorkingPeriod')
-    State = models.IntegerField('وضعیت', db_column='State', choices=States, default=0)
-    EtlState = models.IntegerField('.ضعیت استخراج', db_column='EtlState', choices=EtlStates, default=0)
+    State = models.IntegerField('وضعیت دوره', db_column='State', choices=States, default=0)
+    EtlState = models.IntegerField('وضعیت استخراج', db_column='EtlState', choices=EtlStates, default=0)
     Comment = models.TextField('توضیحات', db_column='Comment', null=True, blank=True)
 
     def __str__(self):
