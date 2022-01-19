@@ -63,36 +63,41 @@ PAGE_SIZE = 30
 
 app = DjangoDash('simple')
 
-params = ['FullName', 'D01', 'D02', 'D03', 'D04', 'D05', 'D06', 'D07']
+params = ['FullName',
+          'D01', 'D02', 'D03', 'D04', 'D05', 'D06', 'D07', 'D08', 'D09', 'D10',
+          'D11', 'D12', 'D13', 'D14', 'D15', 'D16', 'D17', 'D18', 'D19', 'D20']
 
 app.layout = html.Div([
     dash_table.DataTable(
-        id='table-editing-simple',
-        columns=(
-            [{'id': p, 'name': p} for p in params]
-        ),
-        data=[
-            dict(Model=i, **{param: 0 for param in params})
-            for i in range(1, 5)
+        id='table',
+        columns=[
+            {"name": i, "id": i} for i in df.columns
         ],
-        editable=True
+        data=[
+            dict(Model=i, **{param: df.loc[i, param] for param in df.columns})
+            for i in range(len(df))
+        ],
+        editable=True,
+        # page_current=0,
+        # page_size=PAGE_SIZE,
+        # page_action='custom'
     ),
-    dcc.Graph(id='table-editing-simple-output', )
+    dcc.Graph(id='chart-output')
 ])
 
 
 @app.callback(
-    Output('table-editing-simple-output', 'figure'),
-    [Input('table-editing-simple', 'data'),
-     Input('table-editing-simple', 'columns')])
+    Output('chart-output', 'figure'),
+    [Input('table', 'data'),
+     Input('table', 'columns')])
 def display_output(rows, columns):
-    df1 = pd.DataFrame(rows, columns=[c['name'] for c in columns])
+    df = pd.DataFrame(rows, columns=[c['name'] for c in columns])
     return {
         'data': [{
             'type': 'parcoords',
             'dimensions': [{
                 'label': col['name'],
-                'values': df1[col['id']]
+                'values': df[col['id']]
             } for col in columns]
         }]
     }
