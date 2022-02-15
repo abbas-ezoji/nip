@@ -150,12 +150,12 @@ class ShiftAssignmentsAdmin(TabbedModelAdmin):
         return ['WorkSection', 'YearWorkingPeriod', 'Rank']
 
     def view_shifts_link(self, obj):
-        url = (
-                reverse("admin:nip_personnelshiftdateassignments_changelist")
-                + "?"
-                + urlencode({"ShiftAssignment__id": f"{obj.id}"})
-        )
-        # url = 'http://127.0.0.1:8000/django_plotly_dash/app/simple/'
+        # url = (
+        #         reverse("admin:nip_personnelshiftdateassignments_changelist")
+        #         + "?"
+        #         + urlencode({"ShiftAssignment__id": f"{obj.id}"})
+        # )
+        url = f'http://10.2.9.132:81/nip/model/{obj.id}'
         return format_html('<a href="{}">مشاهده شیفت </a>', url)
 
     view_shifts_link.short_description = "شیفتها"

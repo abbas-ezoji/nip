@@ -96,7 +96,7 @@ app.layout = html.Div([
         id='chart-output',
         figure=fig
     )
-])
+], style={"width": "100vw"})
 
 
 @app.callback(
