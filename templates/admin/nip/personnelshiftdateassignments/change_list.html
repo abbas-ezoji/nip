@@ -10,10 +10,11 @@
 {% block content %}
 
 
-<div class="{%plotly_class name='simple'%}">
-  {%plotly_app name="simple" ratio=0.3 %}
-</div>
-<!--   {{ block.super }}-->
+<!--<div class="{%plotly_class name='simple'%}">-->
+<!--  <p>{{request.GET.ShiftAssignment__id}}</p>-->
+<!--  {%plotly_app name="simple" initial_arguments='{"value": "4296"}' %}-->
+<!--</div>-->
+   {{ block.super }}
 
 
 {% endblock %}

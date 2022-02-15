@@ -1,3 +1,6 @@
 from django.shortcuts import render
 
-# Create your views here.
+
+def model(request, pk):
+    context = {'data': {'pk': pk}}
+    return render(request, 'table.html', context)
