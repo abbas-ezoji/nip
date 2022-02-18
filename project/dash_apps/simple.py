@@ -72,7 +72,8 @@ app.layout = html.Div([
     dcc.Input(
         id="input",
         placeholder="input type",
-        value=1
+        value=1,
+        type="hidden"
     ),
     dash_table.DataTable(
         id='table',
@@ -96,7 +97,7 @@ app.layout = html.Div([
         id='chart-output',
         figure=fig
     )
-], style={"width": "100vw"})
+], style={"height ": "100vh"})
 
 
 @app.callback(

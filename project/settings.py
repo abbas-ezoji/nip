@@ -67,6 +67,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'django_plotly_dash.middleware.BaseMiddleware',
+
 ]
 
 ROOT_URLCONF = 'project.urls'

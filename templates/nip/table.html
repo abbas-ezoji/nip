@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+    <head>
+
+    {% load plotly_dash%}
+
+    {% plotly_header %}
+
+    </head>
+    <body>
+
+    {%plotly_app name="simple" initial_arguments=data ratio=1 %}
+
+    {%plotly_message_pipe%}
+
+
+    </body>
+
+    {% plotly_footer %}
+</html>
+
+
