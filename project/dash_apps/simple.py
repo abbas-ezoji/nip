@@ -63,8 +63,21 @@ PAGE_SIZE = 30
 
 app = DjangoDash('simple')
 
-shifts = ['M', 'A', 'N', 'OFF', 'MA', 'MN', 'AN']
-shifts = ['1', '2', '3', '4', '12', '13', '23']
+query_shifts = '''
+SELECT [id]
+      ,[Code]
+      ,[Title]
+      ,[Length]
+      ,[StartTime]
+      ,[EndTime]
+      ,[Type]
+      ,[ExternalGuid]
+      ,[ExternalId]
+  FROM [nip].[dbo].[nip_shifts]
+'''
+
+shifts_df = pd.read_sql(query_shifts, engine)
+shifts = shifts_df['id'].values
 
 fig = px.bar(df, x="FullName", y="D01", barmode="group")
 
@@ -83,11 +96,12 @@ app.layout = html.Div([
         data=df.to_dict('records'),
         dropdown={col: {
             'options': [
-                {'label': i, 'value': i}
-                for i in shifts
+                {'label': shift['Title'], 'value': shift['id']}
+                for i, shift in shifts_df.iterrows()
             ]
         } if i > 0 else {} for i, col in enumerate(df.columns)
         },
+
         editable=True,
         # page_current=0,
         # page_size=PAGE_SIZE,
@@ -126,5 +140,6 @@ def display_chart(rows, columns):
     fig = px.bar(df, x="FullName", y="D01", barmode="group")
 
     return fig
+
 
 
