@@ -155,7 +155,7 @@ class ShiftAssignmentsAdmin(TabbedModelAdmin):
         #         + "?"
         #         + urlencode({"ShiftAssignment__id": f"{obj.id}"})
         # )
-        url = f'http://10.2.9.132:81/nip/model/{obj.id}'
+        url = f'/nip/model/{obj.id}'
         return format_html('<a href="{}">مشاهده شیفت </a>', url)
 
     view_shifts_link.short_description = "شیفتها"

@@ -1,5 +1,8 @@
 import pandas as pd
+import numpy as np
+import copy
 import dash_core_components as dcc
+import dash_bootstrap_components as dbc
 import dash_html_components as html
 from django_plotly_dash import DjangoDash
 import plotly.graph_objects as go
@@ -61,7 +64,7 @@ df = pd.read_sql(query.format(1, 1), engine)
 
 PAGE_SIZE = 30
 
-app = DjangoDash('simple')
+app = DjangoDash('simple', external_stylesheets=[dbc.themes.BOOTSTRAP])
 
 query_shifts = '''
 SELECT [id]
@@ -78,10 +81,36 @@ SELECT [id]
 
 shifts_df = pd.read_sql(query_shifts, engine)
 shifts = shifts_df['id'].values
+df_colors = pd.DataFrame(data=dict(COLOR=['#1f77b4', '#d62728', '#e377c2', '#17becf', '#bcbd22'],
+                                   VALUE=[1, 2, 3, 12, 13]))
+
+import time
+
+def add_sum_shift_len(df):
+    sum_shift_len = []
+    for row in range(len(df)):
+        sum_shifts = 0
+        for col in df.columns:
+            if col == 'FullName':
+                continue
+            sh_id = df.loc[row, col]
+            if sh_id is None:
+                continue
+            sh_lenght = shifts_df[shifts_df['id'] == sh_id]['Length'].values[0]
+            sum_shifts += sh_lenght
+        sum_shifts_t = time.strftime('%H:%M:%S', time.gmtime(sum_shifts))
+        sum_shift_len.append(sum_shifts_t)
+
+    sum_shift_len = np.array(sum_shift_len)
+    df_sum_shift_len = pd.DataFrame(sum_shift_len, columns=['SumShift'])
+    df_sum_shift_len['FullName'] = df['FullName']
+    return df_sum_shift_len
+
+df_sum_shift_len = add_sum_shift_len(df)
 
 fig = px.bar(df, x="FullName", y="D01", barmode="group")
 
-app.layout = html.Div([
+app.layout = dbc.Container( html.Div([
     dcc.Input(
         id="input",
         placeholder="input type",
@@ -89,9 +118,18 @@ app.layout = html.Div([
         type="hidden"
     ),
     dash_table.DataTable(
+        id='table_sum',
+        columns=[
+            {"name": col, "id": col} for i, col in enumerate(df_sum_shift_len.columns)
+        ],
+        data=df_sum_shift_len.to_dict('records'),
+        style_cell={'textAlign': 'center'},
+    ),
+    dash_table.DataTable(
         id='table',
         columns=[
-            {"name": col, "id": col, 'presentation': 'dropdown'} for i, col in enumerate(df.columns)
+            {"name": col, "id": col, 'presentation': 'dropdown'} if col != 'FullName' and col != 'sum_shift_len'
+            else {"name": col, "id": col} for i, col in enumerate(df.columns)
         ],
         data=df.to_dict('records'),
         dropdown={col: {
@@ -99,9 +137,13 @@ app.layout = html.Div([
                 {'label': shift['Title'], 'value': shift['id']}
                 for i, shift in shifts_df.iterrows()
             ]
-        } if i > 0 else {} for i, col in enumerate(df.columns)
-        },
-
+        } if col != 'FullName' and col != 'sum_shift_len' else {} for i, col in enumerate(df.columns)
+                  },
+        style_cell={'textAlign': 'center', 'maxWidth': 0},
+        style_data=[
+            {'if': {'row_index': i, 'column_id': 'D01'}, 'background-color': df_colors['COLOR'][i],
+             'color': df_colors['COLOR'][i]}
+            for i in range(df_colors.shape[0])],
         editable=True,
         # page_current=0,
         # page_size=PAGE_SIZE,
@@ -112,7 +154,7 @@ app.layout = html.Div([
         figure=fig
     )
 ], style={"height ": "100vh"})
-
+)
 
 @app.callback(
     Output('table', 'data'),
@@ -120,14 +162,11 @@ app.layout = html.Div([
 )
 def change_output(value):
     df = pd.read_sql(query.format(value, 1), engine)
-    print(value)
-    # print(len(df_filtered))
-    # print(df['D01'].unique())
     data = [
         dict(Model=i, **{param: df.loc[i, param] for param in df.columns})
         for i in range(len(df))
     ]
-    print(data)
+    # print(data)
     return data
 
 
@@ -137,9 +176,21 @@ def change_output(value):
      Input('table', 'columns')])
 def display_chart(rows, columns):
     df = pd.DataFrame(rows, columns=[c['name'] for c in columns])
+    # df = add_sum_shift_len(df)
     fig = px.bar(df, x="FullName", y="D01", barmode="group")
 
     return fig
 
+@app.callback(
+    Output('table_sum', 'data'),
+    [Input('table', 'data'),
+     Input('table', 'columns')])
+def display_chart(rows, columns):
+    df = pd.DataFrame(rows, columns=[c['name'] for c in columns])
+    df_sum_shift_len = add_sum_shift_len(df)
+    data = [
+        dict(Model=i, **{param: df_sum_shift_len.loc[i, param] for param in df_sum_shift_len.columns})
+        for i in range(len(df_sum_shift_len))
+    ]
 
-
+    return data
