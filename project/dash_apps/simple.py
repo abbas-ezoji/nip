@@ -60,11 +60,9 @@ SELECT
   join nip_personnel p on p.id = sh.Personnel_id
   where ShiftAssignment_id = {} or 0 = {}
 '''
-df = pd.read_sql(query.format(1, 1), engine)
+df = pd.read_sql(query.format(4296, 1), engine)
 
 PAGE_SIZE = 30
-
-app = DjangoDash('simple', external_stylesheets=[dbc.themes.BOOTSTRAP])
 
 query_shifts = '''
 SELECT [id]
@@ -86,6 +84,7 @@ df_colors = pd.DataFrame(data=dict(COLOR=['#1f77b4', '#d62728', '#e377c2', '#17b
 
 import time
 
+
 def add_sum_shift_len(df):
     sum_shift_len = []
     for row in range(len(df)):
@@ -106,11 +105,22 @@ def add_sum_shift_len(df):
     df_sum_shift_len['FullName'] = df['FullName']
     return df_sum_shift_len
 
+
 df_sum_shift_len = add_sum_shift_len(df)
 
 fig = px.bar(df, x="FullName", y="D01", barmode="group")
 
-app.layout = dbc.Container( html.Div([
+table_header = [
+    html.Thead(html.Tr([html.Th("First Name"), html.Th("Last Name")]))
+]
+
+# import sd_material_ui
+
+app = DjangoDash('simple',
+                 meta_tags=[{"name": "viewport", "content": "width=device-width, initial-scale=1.0"}]
+                 )
+
+app.layout = html.Div([
     dcc.Input(
         id="input",
         placeholder="input type",
@@ -125,6 +135,7 @@ app.layout = dbc.Container( html.Div([
         data=df_sum_shift_len.to_dict('records'),
         style_cell={'textAlign': 'center'},
     ),
+    html.Button('تایید و انتقال به دیدگاه', id='submit-val', n_clicks=0),
     dash_table.DataTable(
         id='table',
         columns=[
@@ -154,7 +165,7 @@ app.layout = dbc.Container( html.Div([
         figure=fig
     )
 ], style={"height ": "100vh"})
-)
+
 
 @app.callback(
     Output('table', 'data'),
@@ -180,6 +191,7 @@ def display_chart(rows, columns):
     fig = px.bar(df, x="FullName", y="D01", barmode="group")
 
     return fig
+
 
 @app.callback(
     Output('table_sum', 'data'),
