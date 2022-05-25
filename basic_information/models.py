@@ -34,7 +34,7 @@ class Dim_Date(models.Model):
     WorkingPeriodYear = models.IntegerField(null=True, blank=True)
     WorkingPeriod = models.IntegerField(null=True, blank=True)
     WorkingPeriodTitle = models.CharField(max_length=20, null=True, blank=True)
-    YearWorkingPeriod = models.ForeignKey(etl.YearWorkingPeriod, verbose_name=u'سال-دوره', on_delete=models.DO_NOTHING,
+    YearWorkingPeriod = models.ForeignKey(etl.YearWorkingPeriod, verbose_name=u'سال-دوره', on_delete=models.CASCADE,
                                           null=True, blank=True)
     PersianSemester = models.FloatField()
     PersianSemesterTitle = models.CharField(max_length=20)
@@ -48,6 +48,7 @@ class Dim_Date(models.Model):
     PersianDayOfYear = models.FloatField()
     PersianWeekDay = models.FloatField()
     PersianWeekDayTitle = models.CharField(max_length=20)
+    PersianWeekDayTitleShort = models.CharField(max_length=2, default='ش')
 
     def __str__(self):
         return str(self.PersianYear) + str(self.PersianMonth) + str(self.PersianDayOfMonth)

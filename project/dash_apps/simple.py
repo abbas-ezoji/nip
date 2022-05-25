@@ -62,6 +62,8 @@ def get_prs_info_df(df):
     df_sum_shift_len = pd.DataFrame(sum_shift_len, columns=['FullName', 'sum'])
     return df_sum_shift_len
 
+def get_DayFullName(d):
+    return str(int(d[1:])) +'/' + date_df[date_df['day']==int(d[1:])]['PersianWeekDayTitleShort']
 
 # ----------------------- get data -------------------------------------------#
 DATABASES = get_db()
@@ -131,6 +133,28 @@ SELECT
   where ShiftAssignment_id = {} or 0 = {}
 '''
 df = pd.read_sql(query.format(4296, 1), engine)
+
+qry_date = '''
+SELECT [PersianDate]
+      ,cast(PersianDayOfMonth as int) day
+      ,[SpecialDay]
+      ,[PersianYear]      
+      ,[FiscalYear]
+      ,[WorkingPeriodYear]
+      ,[WorkingPeriod]            
+      ,[PersianWeekDay]
+      ,[PersianWeekDayTitle]
+      ,[PersianWeekDayTitleShort]
+      ,[YearWorkingPeriod_id]
+    ,(d.PersianYear*100) + PersianMonth
+  FROM 
+    [nip_dim_date] d 
+    join ETL_YearWorkingPeriod wp on wp.YearWorkingPeriod = (d.PersianYear*100) + PersianMonth
+    join nip_shiftassignments s on s.YearWorkingPeriod = wp.Id
+WHERE S.id = {}
+'''
+date_df = pd.read_sql(qry_date.format(4296), engine)
+
 prs_info_df = get_prs_info_df(df)
 
 day_info_df = get_day_info_df(df)
@@ -144,7 +168,7 @@ app = DjangoDash('simple',
 table_shift = dash_table.DataTable(
     id='table_shift',
     columns=[
-        {"name": col, "id": col, 'presentation': 'dropdown'} if col != 'FullName' and col != 'SumShift'
+        {"name": get_DayFullName(col), "id": col, 'presentation': 'dropdown'} if col != 'FullName' and col != 'SumShift'
         else {"name": col, "id": col} for i, col in enumerate(df.columns)
     ],
     data=df.to_dict('records'),
@@ -159,15 +183,11 @@ table_shift = dash_table.DataTable(
     style_data_conditional=[
         {
             'if': {
-                'column_id': 'D' + get_zeropad(i, 2)
+                'column_id': 'D' + get_zeropad(date['day']*date['SpecialDay'], 2)
             },
             'backgroundColor': 'dodgerblue',
-            # 'if': {
-            #     'column_id': 'FullName'
-            # },
-            # 'backgroundColor': 'green',
             'color': 'white'
-        } for i, col in enumerate(df.columns)
+        } for i, date in date_df.iterrows()
     ],
     editable=True,
 )
@@ -182,11 +202,11 @@ table_prs_info = dash_table.DataTable(
     style_data_conditional=[
         {
             'if': {
-                'row_index': i
+                'filter_query': '{sum} > 18000',
             },
             'backgroundColor': 'red',
             'color': 'white'
-        } if int(row[1]) > 18000 else {} for i, row in prs_info_df.iterrows()
+        }
     ],
 )
 
@@ -227,6 +247,7 @@ app.layout = html.Div([
 )
 def change_output(value):
     df = pd.read_sql(query.format(value, 1), engine)
+    date_df = pd.read_sql(qry_date.format(value), engine)
     data = [
         dict(Model=i, **{param: df.loc[i, param] for param in df.columns})
         for i in range(len(df))
@@ -252,10 +273,10 @@ def display_chart(rows, columns):
      Input('table_shift', 'columns')])
 def change_shift_to_prs_info(rows, columns):
     df = pd.DataFrame(rows, columns=[c['name'] for c in columns])
-    df = get_prs_info_df(df)
+    prs_info_df = get_prs_info_df(df)
     data = [
-        dict(Model=i, **{param: df.loc[i, param] for param in df.columns})
-        for i in range(len(df))
+        dict(Model=i, **{param: prs_info_df.loc[i, param] for param in prs_info_df.columns})
+        for i in range(len(prs_info_df))
     ]
 
     return data
@@ -266,10 +287,10 @@ def change_shift_to_prs_info(rows, columns):
      Input('table_shift', 'columns')])
 def change_shift_to_days_info(rows, columns):
     df = pd.DataFrame(rows, columns=[c['name'] for c in columns])
-    df = get_day_info_df(df)
+    day_info_df = get_day_info_df(df)
     data = [
-        dict(Model=i, **{param: df.loc[i, param] for param in df.columns})
-        for i in range(len(df))
+        dict(Model=i, **{param: day_info_df.loc[i, param] for param in day_info_df.columns})
+        for i in range(len(day_info_df))
     ]
 
     return data
