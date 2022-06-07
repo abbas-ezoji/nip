@@ -11,6 +11,7 @@ from dash.dependencies import Input, Output
 import dash_table
 from nip.training.data_access.db import get_db
 from sqlalchemy import create_engine
+from nip import models as nip
 
 
 def get_zeropad(i, n):
@@ -30,7 +31,7 @@ def get_day_info_df(df):
     day_info_df.at[:, 'DayStatistics'] = ['M', 'A', 'N']
 
     for col in df.columns:
-        if col == 'FullName' or df.loc[0, col] is None:
+        if col == 'FullName' or col == 'PersonnelNo' or df.loc[0, col] is None:
             continue
         day_info = np.array((df.loc[:, col]).values)
         # print(day_info)
@@ -42,13 +43,20 @@ def get_day_info_df(df):
     return day_info_df
 
 
-def get_prs_info_df(df):
+def get_prs_info_df(df, value):
+    shift_ass_id = value
+    shift_ass = nip.ShiftAssignments.objects.get(pk=shift_ass_id)
     sum_shift_len = []
+    WorkSection_id, YearWorkingPeriod_id = shift_ass.WorkSection.id, shift_ass.YearWorkingPeriod.id
     for i, row in df.iterrows():
         prs_name = row['FullName']
+        prs_no = row['PersonnelNo']
+        personnel = nip.Personnel.objects.get(PersonnelNo=prs_no,
+                                                 YearWorkingPeriod__id=YearWorkingPeriod_id,)
+        rq_wrk_mins = int(personnel.RequirementWorkMins_esti)
         sum_shifts = 0
         for col in df.columns:
-            if col == 'FullName' or col == 'SumShift':
+            if col == 'FullName' or col == 'Model' or col == 'PersonnelNo':
                 continue
             sh_id = df.loc[i, col]
             if sh_id is None:
@@ -56,11 +64,12 @@ def get_prs_info_df(df):
             sh_lenght = shifts_df[shifts_df['id'] == sh_id]['Length'].values[0]
             sum_shifts += sh_lenght
         sum_shifts_t = time.strftime('%H:%M:%S', time.gmtime(sum_shifts))
-        sum_shift_len.append([prs_name, sum_shifts])
+        sum_shift_len.append([prs_name, sum_shifts, sum_shifts-rq_wrk_mins])
 
     sum_shift_len = np.array(sum_shift_len)
-    df_sum_shift_len = pd.DataFrame(sum_shift_len, columns=['FullName', 'sum'])
+    df_sum_shift_len = pd.DataFrame(sum_shift_len, columns=['FullName', 'sum', 'diff'])
     return df_sum_shift_len
+
 
 def get_DayFullName(d):
     return str(int(d[1:])) +'/' + date_df[date_df['day']==int(d[1:])]['PersianWeekDayTitleShort']
@@ -97,6 +106,7 @@ df_colors = pd.DataFrame(data=dict(COLOR=['#1f77b4', '#d62728', '#e377c2', '#17b
 query = '''
 SELECT 
 	  p.FullName
+	  ,p.PersonnelNo
 	  ,[D01]      
       ,[D02]
       ,[D03]
@@ -155,7 +165,7 @@ WHERE S.id = {}
 '''
 date_df = pd.read_sql(qry_date.format(4296), engine)
 
-prs_info_df = get_prs_info_df(df)
+prs_info_df = get_prs_info_df(df, 4296)
 
 day_info_df = get_day_info_df(df)
 
@@ -168,7 +178,7 @@ app = DjangoDash('simple',
 table_shift = dash_table.DataTable(
     id='table_shift',
     columns=[
-        {"name": get_DayFullName(col), "id": col, 'presentation': 'dropdown'} if col != 'FullName' and col != 'SumShift'
+        {"name": get_DayFullName(col), "id": col, 'presentation': 'dropdown'} if col != 'FullName' and col != 'PersonnelNo'
         else {"name": col, "id": col} for i, col in enumerate(df.columns)
     ],
     data=df.to_dict('records'),
@@ -247,35 +257,35 @@ app.layout = html.Div([
 )
 def change_output(value):
     df = pd.read_sql(query.format(value, 1), engine)
-    date_df = pd.read_sql(qry_date.format(value), engine)
     data = [
         dict(Model=i, **{param: df.loc[i, param] for param in df.columns})
         for i in range(len(df))
     ]
-    # print(data)
     return data
 
 
 @app.callback(
     Output('chart-output', 'figure'),
     [Input('table_shift', 'data'),
-     Input('table_shift', 'columns')])
-def display_chart(rows, columns):
-    df = pd.DataFrame(rows, columns=[c['name'] for c in columns])
-    fig = px.bar(df, x="FullName", y="D01", barmode="group")
-    print('display_chart')
+     Input('table_shift', 'columns'),
+     Input('input', 'value')])
+def display_chart(rows, columns, value):
+    df = pd.DataFrame(rows)
+    prs_info_df = get_prs_info_df(df, value)
+    fig = px.pie(prs_info_df, names="FullName", values="sum")
     return fig
 
 
 @app.callback(
     Output('table_prs_info', 'data'),
     [Input('table_shift', 'data'),
-     Input('table_shift', 'columns')])
-def change_shift_to_prs_info(rows, columns):
-    df = pd.DataFrame(rows, columns=[c['name'] for c in columns])
-    prs_info_df = get_prs_info_df(df)
+     Input('table_shift', 'columns'),
+     Input('input', 'value')])
+def change_shift_to_prs_info(rows, columns, value):
+    df = pd.DataFrame(rows)#, columns=[c['name'] for c in columns])
+    prs_info_df = get_prs_info_df(df, value)
     data = [
-        dict(Model=i, **{param: prs_info_df.loc[i, param] for param in prs_info_df.columns})
+        dict(**{param: prs_info_df.loc[i, param] for param in prs_info_df.columns})
         for i in range(len(prs_info_df))
     ]
 
@@ -286,10 +296,10 @@ def change_shift_to_prs_info(rows, columns):
     [Input('table_shift', 'data'),
      Input('table_shift', 'columns')])
 def change_shift_to_days_info(rows, columns):
-    df = pd.DataFrame(rows, columns=[c['name'] for c in columns])
+    df = pd.DataFrame(rows)#, columns=[c['name'] for c in columns])
     day_info_df = get_day_info_df(df)
     data = [
-        dict(Model=i, **{param: day_info_df.loc[i, param] for param in day_info_df.columns})
+        dict(**{param: day_info_df.loc[i, param] for param in day_info_df.columns})
         for i in range(len(day_info_df))
     ]
 
