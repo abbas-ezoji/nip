@@ -23,6 +23,9 @@ def get_zeropad(i, n):
 
     return numzeropad
 
+def get_time_from_int(h):
+    return get_zeropad(h//60, 2) + ':' + get_zeropad(h%60, 2)
+
 
 def get_day_info_df(df):
     day_info_cols = [col for col in df.columns]
@@ -64,10 +67,10 @@ def get_prs_info_df(df, value):
             sh_lenght = shifts_df[shifts_df['id'] == sh_id]['Length'].values[0]
             sum_shifts += sh_lenght
         sum_shifts_t = time.strftime('%H:%M:%S', time.gmtime(sum_shifts))
-        sum_shift_len.append([prs_name, sum_shifts, sum_shifts-rq_wrk_mins])
+        sum_shift_len.append([prs_name, get_time_from_int(sum_shifts), sum_shifts, (sum_shifts-rq_wrk_mins)])
 
     sum_shift_len = np.array(sum_shift_len)
-    df_sum_shift_len = pd.DataFrame(sum_shift_len, columns=['FullName', 'sum', 'diff'])
+    df_sum_shift_len = pd.DataFrame(sum_shift_len, columns=['FullName', 'sum_hhmm', 'sum', 'Extra'])
     return df_sum_shift_len
 
 
@@ -205,14 +208,14 @@ table_shift = dash_table.DataTable(
 table_prs_info = dash_table.DataTable(
     id='table_prs_info',
     columns=[
-        {"name": col, "id": col} for i, col in enumerate(prs_info_df.columns)
+        {"name": col, "id": col} for col in ['FullName', 'Extra']
     ],
     data=prs_info_df.to_dict('records'),
     style_cell={'textAlign': 'center', 'maxWidth': 0},
     style_data_conditional=[
         {
             'if': {
-                'filter_query': '{sum} > 18000',
+                'filter_query': '{Extra} = {sum}',
             },
             'backgroundColor': 'red',
             'color': 'white'
