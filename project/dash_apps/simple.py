@@ -143,9 +143,9 @@ SELECT
       ,[D31]          
   FROM [nip_personnelshiftdateassignments] sh
   join nip_personnel p on p.id = sh.Personnel_id
-  where ShiftAssignment_id = {} or 0 = {}
+  where ShiftAssignment_id = {} and (p.PersonnelTypes_id = {} or 0={})
 '''
-df = pd.read_sql(query.format(4296, 1), engine)
+df = pd.read_sql(query.format(4296, 0, 0), engine)
 
 qry_date = '''
 SELECT [PersianDate]
@@ -230,7 +230,30 @@ table_day_info = dash_table.DataTable(
     ],
     data=day_info_df.to_dict('records'),
     style_cell={'textAlign': 'center', 'maxWidth': 0},
-),
+)
+
+posts = (
+    (0, ("همه")),
+    (1, ("حرفه ای")),
+    (2, ("غیرحرفه ای")),
+)
+posts_combo = html.Div([
+    dcc.Dropdown(
+        id='posts_combo',
+        options=[{'label': x[1], 'value': x[0]} for x in posts],
+        value=0
+    )])
+
+convert_types = (
+    (1, ("با اضافه کاری")),
+    (2, ("بدون اضافه کاری")),
+)
+convert_type_combo = html.Div([
+    dcc.Dropdown(
+        id='convert_type_combo',
+        options=[{'label': x[1], 'value': x[0]} for x in convert_types],
+        value=None
+    )])
 
 app.layout = html.Div([
     dcc.Input(
@@ -239,6 +262,7 @@ app.layout = html.Div([
         value=1,
         type="hidden"
     ),
+    posts_combo,
     html.Table([
         html.Tr([html.Td(table_shift),
                  html.Td(table_prs_info)
@@ -246,7 +270,7 @@ app.layout = html.Div([
         html.Tr([html.Td(table_day_info)])
 
     ], style={'width': '100%'}),
-
+    convert_type_combo,
     dcc.Graph(
         id='chart-output',
         figure=fig
@@ -256,10 +280,18 @@ app.layout = html.Div([
 
 @app.callback(
     Output('table_shift', 'data'),
-    [Input('input', 'value'), ]
+    [Input('input', 'value'),
+     Input('posts_combo', 'value')]
 )
-def change_output(value):
-    df = pd.read_sql(query.format(value, 1), engine)
+def shift_output(value_input, value_combo):
+    global init_value
+    init_value = value_input
+    filtered = 1 if value_combo else 0
+    print('init_value:' + str(init_value))
+    print('value_combo:' + str(value_combo))
+    print('filtered:' + str(filtered))
+    print(query.format(init_value, value_combo, filtered))
+    df = pd.read_sql(query.format(init_value, value_combo, filtered), engine)
     data = [
         dict(Model=i, **{param: df.loc[i, param] for param in df.columns})
         for i in range(len(df))
@@ -275,6 +307,7 @@ def change_output(value):
 def display_chart(rows, columns, value):
     df = pd.DataFrame(rows)
     prs_info_df = get_prs_info_df(df, value)
+    prs_info_df['sum'] = prs_info_df['sum'].astype('int64')//60
     fig = px.pie(prs_info_df, names="FullName", values="sum")
     return fig
 
