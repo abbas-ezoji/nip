@@ -128,7 +128,7 @@ class Personnel(models.Model):
     PersonnelTypes = models.ForeignKey(PersonnelTypes, verbose_name=u'تخصص', on_delete=models.DO_NOTHING)
     EfficiencyRolePoint = models.FloatField('امتیاز بهره وری', )
     ExternalId = models.IntegerField('شناسه دیدگاه', null=True, blank=True)
-    ExternalGuid = models.CharField('شناسه شاخص دیدگاه', max_length=60, null=True, blank=True)
+    ExternalGuid = models.CharField('تخصص اصلی', null=True, blank=True, max_length=100, db_column='ExternalGuid')
     Active = models.IntegerField('فعال', default=1)
     User = models.ForeignKey(User, verbose_name=u'کاربر',
                                 on_delete=models.DO_NOTHING, null=True, blank=True)

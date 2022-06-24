@@ -3,9 +3,9 @@ sys.path.insert(0, "D:\\nip_project\\nip\\training")
 
 from training import utils
 
-WorkSection= 46384
-YearWorkingPeriod=2022
-YearWorkingPeriod_value=140007
+WorkSection= 45288
+YearWorkingPeriod=2020
+YearWorkingPeriod_value=140005
 coh_const_DayRequirements=0.999
 coh_const_PersonnelPerformanceTime=0.001
 TaskStatus=1
