@@ -358,25 +358,25 @@ def slider_prs_const(value):
     return 'درصد ارزش قید اضافه کاری: {}.'.format(value)
 
 
-# @app.callback(
-#     Output('table_shift', 'data'),
-#     [Input('posts_specialities', 'value')]
-# )
-# def data_table_by_posts_specialities(value):
-#     type_value = 0
-#     type_filtered = 0
-#
-#     post_value = value
-#     post_filter = 0 if value == 'همه' else 1
-#
-#     print('data_table_by_posts_specialities')
-#     df = pd.read_sql(query.format(init_value, type_filtered, type_value, post_filter, post_value), engine)
-#
-#     data = [
-#         dict(Model=i, **{param: df.loc[i, param] for param in df.columns})
-#         for i in range(len(df))
-#     ]
-#     return data
+@app.callback(
+    Output('table_shift', 'data'),
+    [Input('posts_specialities', 'value')]
+)
+def data_table_by_posts_specialities(value):
+    type_value = 0
+    type_filtered = 0
+
+    post_value = value
+    post_filter = 0 if value == 'همه' else 1
+
+    print('data_table_by_posts_specialities')
+    df = pd.read_sql(query.format(init_value, type_filtered, type_value, post_filter, post_value), engine)
+
+    data = [
+        dict(Model=i, **{param: df.loc[i, param] for param in df.columns})
+        for i in range(len(df))
+    ]
+    return data
 
 @app.callback(
     Output('posts_specialities', 'options'),
