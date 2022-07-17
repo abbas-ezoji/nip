@@ -323,9 +323,10 @@ app.layout = dbc.Container(
             type="hidden"
         ),
         dcc.Input(
-                    id="input_test",
-                    placeholder="input type",
-                    value=1,
+            id="input_test",
+            placeholder="input type",
+            value=1,
+            type="hidden"
         ),
         tabs,
         html.Table([
