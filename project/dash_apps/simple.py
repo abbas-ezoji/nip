@@ -13,6 +13,7 @@ import dash_table
 from nip.training.data_access.db import get_db
 from sqlalchemy import create_engine
 from nip import models as nip
+from nip.training.etl import update_shift
 
 
 def get_zeropad(i, n):
@@ -70,7 +71,9 @@ def get_prs_info_df(df, value):
             sh_lenght = shifts_df[shifts_df['id'] == sh_id]['Length'].values[0]
             sum_shifts += sh_lenght
         sum_shifts_t = time.strftime('%H:%M:%S', time.gmtime(sum_shifts))
-        sum_shift_len.append([get_time_from_int(rq_wrk_mins), get_time_from_int(sum_shifts), sum_shifts,
+        sum_shift_len.append([personnel.FullName,
+                              # get_time_from_int(rq_wrk_mins),
+                              get_time_from_int(sum_shifts), sum_shifts,
                               (sum_shifts - rq_wrk_mins) // 60])
 
     sum_shift_len = np.array(sum_shift_len)
@@ -265,7 +268,11 @@ convert_types = (
     (2, ("بدون اضافه کاری")),
 )
 convert_type_combo = dbc.ButtonGroup(
-    [dbc.Button("انتقال با اضافه کاری"), dbc.Button("انتقال بدون اضافه کاری")]
+    [dbc.Button("انتقال با اضافه کاری"),
+     dbc.Button('ارسال به دیدگاه', id='submit-val', n_clicks=0),
+     html.Div(id='container-button-basic',
+              children='Enter a value and press submit')
+     ]
 
 )
 
@@ -336,10 +343,10 @@ app.layout = dbc.Container(
             html.Tr([html.Td(table_day_info)])
 
         ], style={'width': '100%'}),
-        # dcc.Graph(
-        #     id='chart-output',
-        #     figure=fig
-        # )
+        dcc.Graph(
+            id='chart-output',
+            figure=fig
+        )
     ], style={"height ": "100vh"}))
 
 
@@ -438,6 +445,15 @@ def display_chart(rows, columns, value):
     fig = px.pie(prs_info_df, names="FullName", values="sum")
     return fig
 
+
+@app.callback(
+    Output('container-button-basic', 'children'),
+    [Input('table_shift', 'data'),
+     Input('submit-val', 'n_clicks'),
+     ])
+def send_to_chargoon(rows, n_clicks):
+    df = pd.DataFrame(rows)
+    return 'تعداد ارسال به دیدگاه برابر {}'.format(n_clicks)
 
 @app.callback(
     Output('table_prs_info', 'data'),
