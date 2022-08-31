@@ -13,7 +13,27 @@ import dash_table
 from nip.training.data_access.db import get_db
 from sqlalchemy import create_engine
 from nip import models as nip
+from basic_information import models as bs
 from nip.training.etl import update_shift
+
+
+def send_to_chargoon_func(df):
+    for i, d in df.iterrows():
+        prsno = d['PersonnelNo']
+        prs_id = bs.Personnel.objects.filter(PersonnelNo=prsno)[0].ExternalId
+        for c in df.columns:
+            if c == 'Model' or c == 'FullName' or c == 'PersonnelNo' or c == 'Post':
+                continue
+
+            sht_code = d[c]
+            sht_guid = shifts_df[shifts_df['Code'] == sht_code]['ExternalGuid'].values[0]
+
+            day = (int(c.replace('D', '')))
+            date = date_df[date_df['day'] == day]['Date']
+            date = date.values
+            date = date[0]
+
+            print(prs_id, date, sht_guid)
 
 
 def get_zeropad(i, n):
@@ -85,7 +105,7 @@ def get_DayFullName(d):
     return str(int(d[1:])) + '/' + date_df[date_df['day'] == int(d[1:])]['PersianWeekDayTitleShort']
 
 
-# ----------------------- get data -------------------------------------------#
+# ----------------------- nip connection -------------------------------------------#
 DATABASES = get_db()
 USER = DATABASES['nip']['USER']
 PASSWORD = DATABASES['nip']['PASSWORD']
@@ -95,6 +115,15 @@ NAME = DATABASES['nip']['NAME']
 
 con_string = f'mssql+pyodbc://{USER}:{PASSWORD}@{HOST}/{NAME}?driver=SQL+Server'
 engine = create_engine(con_string)
+
+# ----------------------- chargoon connection --------------------------------
+USER_erp = DATABASES['erp']['USER']
+PASSWORD_erp = DATABASES['erp']['PASSWORD']
+HOST_erp = DATABASES['erp']['HOST']
+NAME_erp = DATABASES['erp']['NAME']
+
+con_string_erp = f'mssql+pyodbc://{USER_erp}:{PASSWORD_erp}@{HOST_erp}/{NAME_erp}?driver=SQL+Server'
+engine_erp = create_engine(con_string)
 
 query_shifts = '''
 SELECT [id]
@@ -159,6 +188,7 @@ df = pd.read_sql(query.format(4296, 0, 0, 0, ''), engine)
 
 qry_date = '''
 SELECT [PersianDate]
+      ,[Date]
       ,cast(PersianDayOfMonth as int) day
       ,[SpecialDay]
       ,[PersianYear]      
@@ -426,6 +456,8 @@ def shift_output(value_input, value_combo):
     post_filter = 0
 
     df = pd.read_sql(query.format(init_value, type_filtered, type_value, post_filter, post_value), engine)
+    global date_df
+    date_df = pd.read_sql(qry_date.format(init_value), engine)
     data = [
         dict(Model=i, **{param: df.loc[i, param] for param in df.columns})
         for i in range(len(df))
@@ -453,7 +485,9 @@ def display_chart(rows, columns, value):
      ])
 def send_to_chargoon(rows, n_clicks):
     df = pd.DataFrame(rows)
+    send_to_chargoon_func(df)
     return 'تعداد ارسال به دیدگاه برابر {}'.format(n_clicks)
+
 
 @app.callback(
     Output('table_prs_info', 'data'),
